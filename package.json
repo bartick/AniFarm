@@ -1,0 +1,28 @@
+{
+  "name": "anifarm",
+  "version": "1.0.0",
+  "description": "A farming bot with js",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bartick/AniFarm.git"
+  },
+  "author": "bartick",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/bartick/AniFarm/issues"
+  },
+  "homepage": "https://github.com/bartick/AniFarm#readme",
+  "dependencies": {
+    "@discordjs/builders": "^0.6.0",
+    "@discordjs/rest": "^0.1.0-canary.0",
+    "discord-api-types": "^0.22.0",
+    "discord.js": "^13.1.0",
+    "mongodb": "^4.1.1",
+    "mongoose": "^6.0.4",
+    "sqlite3": "^5.0.2"
+  }
+}
