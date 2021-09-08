@@ -5,5 +5,11 @@
         "user": "bartick",
         "pass": "Bolbona2",
         "dbName": "profiles"
+    },
+    "main": {
+        "url": "mongodb+srv://bartick:YVw0IXWc71C0ujVs@cluster0.xj2yw.mongodb.net/main?retryWrites=true&w=majority",
+        "user": "bartick",
+        "pass": "YVw0IXWc71C0ujVs",
+        "dbName": "main"
     }
 }

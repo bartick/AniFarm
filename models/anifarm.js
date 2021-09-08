@@ -1,4 +1,4 @@
-const mongoose = require('mongoose')
+const mongoose = require('mongoose');
 
 module.exports = mongoose.model('anifarm', new mongoose.Schema({
         _id: Number,
@@ -38,7 +38,6 @@ module.exports = mongoose.model('anifarm', new mongoose.Schema({
     },
     {
         collection: 'anifarm',
-        versionKey: false,
-        timestamps: true
+        versionKey: false
     })
 );

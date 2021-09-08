@@ -1,16 +1,7 @@
 const fs = require('fs');
 const { Client, Collection, Intents } = require('discord.js');
-const { token, profile } = require('./config.json');
 const mongoose = require('mongoose');
-
-mongoose.connect(profile.url, {
-  useNewUrlParser: true,
-  useUnifiedTopology: true
-}).then(() => {
-  console.log('Connected to MongoDB')
-}).catch((err) => {
-  console.log('Unable to connect to MongoDB Database.\nError: ' + err)
-});
+const { token, main } = require('./config.json');
 
 const client = new Client({
     intents: [
@@ -45,5 +36,16 @@ client.on('interactionCreate', async interaction => {
         }
     }
 });
+
+(async () => {
+    await mongoose.connect(main.url, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true
+    }).then(() => {
+        console.log('Connected to database');
+    }).catch((err) => {
+        console.error(err);
+    });
+})();
 
 client.login(token);
