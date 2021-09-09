@@ -8,7 +8,7 @@ module.exports = {
         const invite = 'https://discord.com/api/oauth2/authorize?client_id=816544600118132747&permissions=137707899968&scope=bot%20applications.commands';
         const support = 'https://discord.gg/wR8uJkT9NT';
         await interaction.reply({
-            content: `To invite me to your server use the link below \n${invite} If you have any problem setting up the bot you can join my support server for help.\n${support}`
+            content: `To invite me to your server use the link below \n${invite} \nIf you have any problem setting up the bot you can join my support server for help.\n${support}`
         });
     }
 };
