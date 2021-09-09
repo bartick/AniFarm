@@ -7,6 +7,7 @@ module.exports = {
             .addIntegerOption(option => 
                 option.setName('value')
                 .setDescription('Add the new value')
+                .setRequired(true)
             ),
     async execute(interaction) {
         //TODO: complete intregation

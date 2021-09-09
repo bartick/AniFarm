@@ -7,6 +7,7 @@ module.exports = {
             .addIntegerOption(option => 
                 option.setName('orderid')
                 .setDescription('Use the order id to accept the order')
+                .setRequired(true)
             ),
     async execute(interaction) {
         //TODO: complete accept order
