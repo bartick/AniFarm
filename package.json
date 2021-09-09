@@ -23,5 +23,9 @@
     "discord.js": "^13.1.0",
     "mongoose": "^6.0.4",
     "sqlite3": "^4.2.0"
+  },
+  "engines": {
+    "node": "16.x",
+    "npm": "7.x"
   }
 }
