@@ -1,10 +1,10 @@
 const { MessageActionRow, MessageButton } = require('discord.js')
 
 module.exports = async (interaction, embeds, index) => {
-    if (index===undefined) {
+    const length = embeds.length;
+    if (index===undefined || index<0 || index>=length) {
         index=0
     };
-    const length = embeds.length;
     const row = new MessageActionRow().addComponents(
         new MessageButton()
             .setCustomId('left')
@@ -19,7 +19,9 @@ module.exports = async (interaction, embeds, index) => {
             .setStyle('SECONDARY')
             .setEmoji('🗑')
     );
-    interaction.reply({
+    if (index===0) row.components[0].disabled=true;
+    if (index===length-1) row.components[1].disabled=false;
+    await interaction.reply({
         embeds: [embeds[index]],
         components: [row]
     });
@@ -32,7 +34,9 @@ module.exports = async (interaction, embeds, index) => {
         })
     };
 
-    const collector = interaction.channel.createMessageComponentCollector({ filter, time: 15000 });
+    const message = await interaction.fetchReply()
+
+    const collector = message.createMessageComponentCollector({ filter, time: 30000 });
 
     collector.on('collect', async i => {
         const id = i.customId;
