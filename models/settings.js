@@ -19,7 +19,25 @@ module.exports = mongoose.model('settings', new mongoose.Schema({
         default: 0
     },
     roles: {
-        type: Object
+        type: Map,
+        of: Number,
+        default: {
+            vacant: 0,
+            occupied: 0,
+            unavailable: 0
+        }
+    },
+    prices: {
+        type: Array,
+        default: []
+    },
+    discounts: {
+        type: Map,
+        of: Number,
+        default: {
+            role: {},
+            orders: {}
+        }
     }
 },
 {collection: 'settings', versionKey: false}

@@ -1,7 +1,13 @@
+const { MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const settings = require('./../models/settings');
 
-
+async function setDefault(guildId) {
+    const first = new settings({
+        _id: guildId
+    });
+    await first.save();
+}
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -57,7 +63,62 @@ module.exports = {
                 subcommand.setName('view')
                 .setDescription('View your settings')
             ),
-        async execute(interaction) {
-            //TODO: need to intregate database
+    async execute(interaction) {
+        await interaction.deferReply({
+            content: 'Thinking...',
+            ephemeral: true
+        });
+        const subcommand = interaction.options.getSubcommand();
+        const guildId = interaction.guildId;
+        const guildSettings = await settings.findById(guildId);
+        console.log(guildSettings.roles.vacant);
+        if (guildSettings===null) {
+            await setDefault(guildId);
+            guildSettings = {
+                _id: guildId,
+                order: 0,
+                pending: 0,
+                status: 0,
+                complete: 0,
+                roles: {
+                        vacant: 0,
+                        occupied: 0,
+                        unavailable: 0
+                    },
+                prices: []
+            }
+        };
+        if (subcommand==='settings') {
+            //TODO
+        }
+        else if (subcommand==='prices') {
+            //TODO
+        }
+        else if (subcommand==='roles') {
+            //TODO
+        }
+        else {
+            const prices = ''
+            const embed = [
+                new MessageEmbed()
+                    .setTimestamp()
+                    .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({ dynamic: true, size: 1024 }))
+                    .setTitle('Settings')
+                    .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                    .addField('Order Channel', guildSettings.order==0?'Not Yet Set':`<#${guildSettings.order}>`, false)
+                    .addField('Pending Channel', guildSettings.pending==0?'Not Yet Set':`<#${guildSettings.pending}>`, false)
+                    .addField('Status Channel', guildSettings.status==0?'Not Yet Set':`<#${guildSettings.status}>`, false)
+                    .addField('Complete Channel', guildSettings.complete==0?'Not Yet Set':`<#${guildSettings.complete}>`, false),
+                new MessageEmbed()
+                    .setTimestamp()
+                    .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({ dynamic: true, size: 1024 }))
+                    .setTitle('Prices')
+                    .setDescription("```\n"+prices+"\n```"),
+                new MessageEmbed()
+                    .setTimestamp()
+                    .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({ dynamic: true, size: 1024 }))
+                    .setTitle('Discounts')
+            ]
+        };
     }
 };
