@@ -1,4 +1,4 @@
-const { MessageEmbed } = require('discord.js');
+const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const settings = require('./../models/settings');
 
@@ -64,38 +64,160 @@ module.exports = {
                 .setDescription('View your settings')
             ),
     async execute(interaction) {
-        await interaction.deferReply({
-            content: 'Thinking...',
-            ephemeral: true
-        });
         const subcommand = interaction.options.getSubcommand();
         const guildId = interaction.guildId;
-        const guildSettings = await settings.findById(guildId);
-        console.log(guildSettings.roles.vacant);
-        if (guildSettings===null) {
-            await setDefault(guildId);
-            guildSettings = {
-                _id: guildId,
-                order: 0,
-                pending: 0,
-                status: 0,
-                complete: 0,
-                roles: {
-                        vacant: 0,
-                        occupied: 0,
-                        unavailable: 0
-                    },
-                prices: []
-            }
-        };
-        if (subcommand==='settings') {
-            //TODO
+        // const guildSettings = await settings.findById(guildId);
+        // console.log(guildSettings.roles.vacant);
+        // if (guildSettings===null) {
+        //     await setDefault(guildId);
+        //     guildSettings = {
+        //         _id: guildId,
+        //         order: 0,
+        //         pending: 0,
+        //         status: 0,
+        //         complete: 0,
+        //         roles: {
+        //                 vacant: 0,
+        //                 occupied: 0,
+        //                 unavailable: 0
+        //             },
+        //         prices: {}
+        //     }
+        // };
+        if (subcommand==='guild') {
+            const order = interaction.options.getChannel('order');
+            const pending = interaction.options.getChannel('pending');
+            const status = interaction.options.getChannel('status');
+            const complete = interaction.options.getChannel('complete');
         }
         else if (subcommand==='prices') {
-            //TODO
+            const row1= new MessageActionRow()
+                .addComponents(
+                    new MessageButton()
+                        .setCustomId('1')
+                        .setLabel('1')
+                        .setStyle('PRIMARY'),
+                    new MessageButton()
+                        .setCustomId('2')
+                        .setLabel('2')
+                        .setStyle('PRIMARY'),
+                    new MessageButton()
+                        .setCustomId('3')
+                        .setLabel('3')
+                        .setStyle('PRIMARY'),
+                    new MessageButton()
+                        .setCustomId('right')
+                        .setEmoji('➡️')
+                        .setStyle('SECONDARY')
+                )
+            const row2 = new MessageActionRow()
+                .addComponents(
+                    new MessageButton()
+                        .setCustomId('4')
+                        .setLabel('4')
+                        .setStyle('PRIMARY'),
+                    new MessageButton()
+                        .setCustomId('5')
+                        .setLabel('5')
+                        .setStyle('PRIMARY'),
+                    new MessageButton()
+                        .setCustomId('6')
+                        .setLabel('6')
+                        .setStyle('PRIMARY'),
+                    new MessageButton()
+                        .setCustomId('left')
+                        .setEmoji('⬅️')
+                        .setStyle('SECONDARY')
+                )
+            const row3 = new MessageActionRow()
+                .addComponents(
+                    new MessageButton()
+                        .setCustomId('7')
+                        .setLabel('7')
+                        .setStyle('PRIMARY'),
+                    new MessageButton()
+                        .setCustomId('8')
+                        .setLabel('8')
+                        .setStyle('PRIMARY'),
+                    new MessageButton()
+                        .setCustomId('9')
+                        .setLabel('9')
+                        .setStyle('PRIMARY'),
+                    new MessageButton()
+                        .setCustomId('confirm')
+                        .setEmoji('✅')
+                        .setStyle('SUCCESS')
+                )
+            const row4 = new MessageActionRow()
+                .addComponents(
+                    new MessageButton()
+                        .setCustomId('..1')
+                        .setLabel('.')
+                        .setStyle('SECONDARY')
+                        .setDisabled(true),
+                    new MessageButton()
+                        .setCustomId('0')
+                        .setLabel('0')
+                        .setStyle('PRIMARY'),
+                    new MessageButton()
+                        .setCustomId('..2')
+                        .setLabel('.')
+                        .setStyle('SECONDARY')
+                        .setDisabled(true),
+                    new MessageButton()
+                        .setCustomId('cancel')
+                        .setEmoji('❌')
+                        .setStyle('DANGER')
+                )
+            await interaction.reply({
+                content: 'Test',
+                components: [
+                    row1,
+                    row2,
+                    row3,
+                    row4
+                ]
+            });
+            const message = await interaction.fetchReply();
+            const filter = (inter) => {
+                if (interaction.user.id === inter.user.id) return true;
+                return inter.reply({
+                    content: "You cannot use this button",
+                    ephemeral: true
+                })
+            };
+            const price = {};
+            const priceRange = [];
+            const place = 0;
+            const index = 0;
+            const collector = message.create.createMessageComponentCollector({ filter, time: 30000 });
+            collector.on('collect', async i => {
+                await i.deferUpdate();
+                const id = i.setCustomId;
+                const num = parseInt(id);
+                if (isNaN(num)) {
+                    //TODO
+                }
+                else {
+                    if (place===0 || place==1) {
+                        if(index===0) {
+                            priceRange.length===(place+1) ? priceRange[place]=num : priceRange.push(num);
+                        }
+                        else {
+                            priceRange[place] = priceRange[place]*10 + num;
+                        };
+                    }
+                    else {
+                        price = price*10 + num;
+                    };
+                };
+            })
         }
         else if (subcommand==='roles') {
-            //TODO
+            const farmer = interaction.options.getRole('farmer');
+            const vacant = interaction.options.getRole('vacant');
+            const occupied = interaction.options.getRole('occupied');
+            const unavailable = interaction.options.getRole('unavailable');
         }
         else {
             const prices = ''
