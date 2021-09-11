@@ -65,16 +65,17 @@ module.exports = async (interaction, embeds, index) => {
                 index++;
                 if (index===length-1) {
                     row.components[1].disabled=true
-                }
+                };
                 await interaction.editReply({
                     embeds: [embeds[index]],
                     components: [row]
-                })
+                });
             }
         }
         else {
             await i.deferUpdate();
-            await interaction.deleteReply()
+            await interaction.deleteReply();
+            collector.stop();
         }
     });
 };
