@@ -1,5 +1,7 @@
 const mongoose = require('mongoose');
 
+// Array(end - start + 1).fill().map((_, idx) => start + idx);
+
 module.exports = mongoose.model('settings', new mongoose.Schema({
     _id: Number,
     order: {
@@ -28,12 +30,13 @@ module.exports = mongoose.model('settings', new mongoose.Schema({
         }
     },
     prices: {
-        type: Array,
-        default: []
+        type: Map,
+        of: Array,
+        default: {}
     },
     discounts: {
         type: Map,
-        of: Number,
+        of: Map,
         default: {
             role: {},
             orders: {}
