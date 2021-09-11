@@ -151,19 +151,17 @@ module.exports = {
             const row4 = new MessageActionRow()
                 .addComponents(
                     new MessageButton()
-                        .setCustomId('..1')
+                        .setCustomId('down')
                         .setLabel('.')
-                        .setStyle('SECONDARY')
-                        .setDisabled(true),
+                        .setStyle('SECONDARY'),
                     new MessageButton()
                         .setCustomId('0')
                         .setLabel('0')
                         .setStyle('PRIMARY'),
                     new MessageButton()
-                        .setCustomId('..2')
+                        .setCustomId('up')
                         .setLabel('.')
-                        .setStyle('SECONDARY')
-                        .setDisabled(true),
+                        .setStyle('SECONDARY'),
                     new MessageButton()
                         .setCustomId('cancel')
                         .setEmoji('❌')
@@ -188,6 +186,7 @@ module.exports = {
             };
             const price = {};
             const priceRange = [];
+            const cost = null;
             const place = 0;
             const index = 0;
             const collector = message.create.createMessageComponentCollector({ filter, time: 30000 });
@@ -196,7 +195,24 @@ module.exports = {
                 const id = i.setCustomId;
                 const num = parseInt(id);
                 if (isNaN(num)) {
-                    //TODO
+                    if (id==='right') {
+                        if (place===0) {
+                            if (priceRange.length===0) return;
+                            if (priceRange[place].length()===index+1) return;
+                        }
+                        else {
+                            //TODO
+                        }
+                    }
+                    else if(id=='left') {
+                        //TODO
+                    }
+                    else if(id==='confirm') {
+                        //TODO
+                    }
+                    else {
+                        //TODO
+                    }
                 }
                 else {
                     if (place===0 || place==1) {
@@ -208,7 +224,7 @@ module.exports = {
                         };
                     }
                     else {
-                        price = price*10 + num;
+                        cost===null? cost = toString(num) : cost[index] = toString(num)
                     };
                 };
             })
