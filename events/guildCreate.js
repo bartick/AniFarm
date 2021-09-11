@@ -8,14 +8,16 @@ module.exports = {
 
         const embed = new MessageEmbed()
                 .setAuthor(guild.client.user.username, guild.client.user.displayAvatarURL({dynamic: true, size: 1024}))
-                .setTimestamp()
+                .setTimestamp();
+        
+        let leave = false;
 
-        if (memberCount<=50) {
+        if (memberCount<=50 && !guild.client.power) {
             embed
                 .setTitle('⛔️ Error')
                 .setDescription(`Sorry your server dosen\'t meet the requirement of ${'`'}50${'`'} members you need ${51-memberCount} more members.\nPlease try again when you have meat the requirement.`)
                 .setColor('RED');
-            await guild.leave()
+            leave = true;
         }
         else {
             embed
@@ -30,5 +32,8 @@ module.exports = {
         } catch (err) {
             console.error(err);
         };
+        if (leave) {
+            await guild.leave();
+        }
     }
 };
