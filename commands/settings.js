@@ -9,6 +9,16 @@ const settings = require('./../models/settings');
 //     await first.save();
 // }
 
+function arrange(pos, options) {
+    console.log(options);
+    if (pos==='ascending') {
+        return parseInt(options[0]) >= parseInt(options[1]) ? parseInt(options[1]+options[0]) : parseInt(options[0]+options[1]);
+    }
+    else {
+        parseInt(options[0]) >= parseInt(options[1]) ? parseInt(options[0]+options[1]) : parseInt(options[1]+options[0]);
+    };
+};
+
 async function priceSet(interaction) {
     const location = [
         new MessageActionRow()
@@ -34,16 +44,6 @@ async function priceSet(interaction) {
         new MessageActionRow()
         .addComponents(
             new MessageButton()
-                .setCustomId('ascending')
-                .setLabel('Ascending')
-                .setEmoji('⬇️')
-                .setStyle('PRIMARY'),
-            new MessageButton()
-                .setCustomId('descending')
-                .setLabel('Descending')
-                .setEmoji('⬆️')
-                .setStyle('PRIMARY'),
-            new MessageButton()
                 .setCustomId('confirm')
                 .setLabel('Confirm')
                 .setEmoji('✅')
@@ -55,8 +55,92 @@ async function priceSet(interaction) {
                 .setStyle('DANGER')
         )
     ];
+    const setPrice = [
+        new MessageActionRow()
+        .addComponents(
+            new MessageButton()
+                .setCustomId('1')
+                .setLabel('1')
+                .setStyle('PRIMARY'),
+            new MessageButton()
+                .setCustomId('2')
+                .setLabel('2')
+                .setStyle('PRIMARY'),
+            new MessageButton()
+                .setCustomId('3')
+                .setLabel('3')
+                .setStyle('PRIMARY'),
+            new MessageButton()
+                .setCustomId('right')
+                .setEmoji('➡️')
+                .setStyle('SECONDARY')
+        ),
+        new MessageActionRow()
+        .addComponents(
+            new MessageButton()
+                .setCustomId('4')
+                .setLabel('4')
+                .setStyle('PRIMARY'),
+            new MessageButton()
+                .setCustomId('5')
+                .setLabel('5')
+                .setStyle('PRIMARY'),
+            new MessageButton()
+                .setCustomId('6')
+                .setLabel('6')
+                .setStyle('PRIMARY'),
+            new MessageButton()
+                .setCustomId('left')
+                .setEmoji('⬅️')
+                .setStyle('SECONDARY')
+        ),
+        new MessageActionRow()
+        .addComponents(
+            new MessageButton()
+                .setCustomId('7')
+                .setLabel('7')
+                .setStyle('PRIMARY'),
+            new MessageButton()
+                .setCustomId('8')
+                .setLabel('8')
+                .setStyle('PRIMARY'),
+            new MessageButton()
+                .setCustomId('9')
+                .setLabel('9')
+                .setStyle('PRIMARY'),
+            new MessageButton()
+                .setCustomId('confirm')
+                .setEmoji('✅')
+                .setStyle('SUCCESS')
+        ),
+        new MessageActionRow()
+        .addComponents(
+            new MessageButton()
+                .setCustomId('down')
+                .setEmoji('⬇️')
+                .setStyle('SECONDARY'),
+            new MessageButton()
+                .setCustomId('0')
+                .setLabel('0')
+                .setStyle('PRIMARY'),
+            new MessageButton()
+                .setCustomId('up')
+                .setEmoji('⬆️')
+                .setStyle('SECONDARY'),
+            new MessageButton()
+                .setCustomId('cancel')
+                .setEmoji('❌')
+                .setStyle('DANGER')
+        )
+    ];
+    const line = '---------------------';
+    const embed = new MessageEmbed()
+            .setColor('AQUA')
+            .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
+            .setDescription(`# 1 | ${'```\n'}\_\_ to null  →  null\n\n\n${line}\nnull  |  ⬇️\n${'\n```'}`)
+            .setTimestamp()
     await interaction.reply({
-        content: 'Checking',
+        embeds: [embed],
         components: location
     });
     const message  = await interaction.fetchReply();
@@ -67,9 +151,27 @@ async function priceSet(interaction) {
             ephemeral: true
         })
     };
+    const settings = {};
+    const price = '';
+    const priceRange = [null, null];
+    let range = null;
+    const height = 1;
+    const index = 0;
+    const option = null;
     const collector = message.createMessageComponentCollector({ filter, time: 30000 });
     collector.on('collect', async inter => {
-        await inter.deferUpdate();
+        const id = inter.customId;
+        console.log(id);
+        if (id==='range') {
+            await inter.deferUpdate();
+            range = parseInt((inter.values).join(''));
+        }
+        else if (id==='confirm') {
+            console.log(range);
+            await inter.update({
+                components: setPrice
+            });
+        }
     })
 };
 
