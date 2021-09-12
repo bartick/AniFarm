@@ -24,6 +24,7 @@ module.exports = mongoose.model('settings', new mongoose.Schema({
         type: Map,
         of: Number,
         default: {
+            farmer: 0,
             vacant: 0,
             occupied: 0,
             unavailable: 0
@@ -39,9 +40,10 @@ module.exports = mongoose.model('settings', new mongoose.Schema({
         of: Map,
         default: {
             role: {},
-            orders: {}
+            orders: {},
+            server: {}
         }
-    }
+    },
 },
 {collection: 'settings', versionKey: false}
 ));
