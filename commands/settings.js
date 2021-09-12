@@ -117,9 +117,9 @@ async function priceSet(interaction) {
             else {
                 price = parseInt((inter.values).join(''));
                 settings[price] = priceRange;
-                priceRange = [null, null];
+                priceRange = [priceRange[0], null];
                 price = null;
-                index=0;
+                index=1;
                 height++;
                 location[0].components[0].setMinValues(2);
                 location[0].components[0].setMaxValues(2);
@@ -129,34 +129,34 @@ async function priceSet(interaction) {
             for(const key in settings) {
                 if(height===pos) {
                     if (index===0) {
-                        description = description+`# ${pos+1} | "${settings[key][0]}" to ${settings[key][1]}  →  ${key}`
+                        description = description+`# ${pos+1} | "${settings[key][0]}" to ${settings[key][1]}  →  ${key}\n`
                     }
                     else if(index===1) {
-                        description = description+`# ${pos+1} | ${settings[key][0]} to "${settings[key][1]}"  →  ${key}`
+                        description = description+`# ${pos+1} | ${settings[key][0]} to "${settings[key][1]}"  →  ${key}\n`
                     }
                     else {
-                        description = description+`# ${pos+1} | ${settings[key][0]} to ${settings[key][1]}  →  "${key}"`
+                        description = description+`# ${pos+1} | ${settings[key][0]} to ${settings[key][1]}  →  "${key}"\n`
                     }
                 }
                 else {
-                    description = description+`${pos+1} | ${settings[key][0]} to ${settings[key][1]}  →  ${key}`
+                    description = description+`${pos+1} | ${settings[key][0]} to ${settings[key][1]}  →  ${key}\n`
                 }
                 pos++;
                 
             }
             if(height===pos) {
                 if (index===0) {
-                    description = description+`# ${pos+1} | "${priceRange[0]===null?'set':priceRange[0]}" to ${priceRange[1]}  →  ${price}`
+                    description = description+`# ${pos+1} | "${priceRange[0]===null?'set':priceRange[0]}" to ${priceRange[1]}  →  ${price}\n`
                 }
                 else if(index===1) {
-                    description = description+`# ${pos+1} | ${priceRange[0]} to "${priceRange[1]===null?'set':priceRange[1]}"  →  ${price}`
+                    description = description+`# ${pos+1} | ${priceRange[0]} to "${priceRange[1]===null?'set':priceRange[1]}"  →  ${price}\n`
                 }
                 else {
-                    description = description+`# ${pos+1} | ${priceRange[0]} to ${priceRange[1]}  →  "${price===null?'set':price}"`
+                    description = description+`# ${pos+1} | ${priceRange[0]} to ${priceRange[1]}  →  "${price===null?'set':price}"\n`
                 }
             }
             else {
-                description = description+`${pos+1} | ${priceRange[0]} to ${priceRange[1]}  →  ${price}`
+                description = description+`${pos+1} | ${priceRange[0]} to ${priceRange[1]}  →  ${price}\n`
             }
             embed.setDescription(`${'```js\n'}${description}${'\n```'}`);
             await inter.update({
