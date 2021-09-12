@@ -106,8 +106,8 @@ async function priceSet(interaction) {
     collector.on('collect', async inter => {
         const id = inter.customId;
         if (id==='range') {
-            if(index<2) {
-                priceRange[index] = parseInt((inter.values).join(''));
+            if(index===1) {
+                priceRange[1] = parseInt((inter.values).join(''));
                 index++;
                 if(index==2) {
                     location[0].components[0].setMinValues(1);
@@ -117,9 +117,10 @@ async function priceSet(interaction) {
             else {
                 price = parseInt((inter.values).join(''));
                 settings[price] = priceRange;
-                priceRange = [priceRange[0], null];
+                console.log(settings);
+                priceRange = [priceRange[1]+1, null];
                 price = null;
-                index=1;
+                index = 1;
                 height++;
                 location[0].components[0].setMinValues(2);
                 location[0].components[0].setMaxValues(2);
@@ -163,7 +164,6 @@ async function priceSet(interaction) {
                 embeds: [embed],
                 components: location
             });
-            index++;
         }
         else if (id==='confirm') {
             if (price==null || priceRange[0]==null || priceRange[1]==null) {
