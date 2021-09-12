@@ -44,6 +44,29 @@ async function priceSet(interaction) {
         new MessageActionRow()
         .addComponents(
             new MessageButton()
+                .setCustomId('right')
+                .setLabel('Right')
+                .setEmoji('👉')
+                .setStyle('SECONDARY'),
+            new MessageButton()
+                .setCustomId('left')
+                .setLabel('Left')
+                .setEmoji('👈')
+                .setStyle('SECONDARY'),
+            new MessageButton()
+                .setCustomId('up')
+                .setLabel('Up')
+                .setEmoji('👆')
+                .setStyle('SECONDARY'),
+            new MessageButton()
+                .setCustomId('down')
+                .setLabel('Down')
+                .setEmoji('👇')
+                .setStyle('SECONDARY')
+        ),
+        new MessageActionRow()
+        .addComponents(
+            new MessageButton()
                 .setCustomId('confirm')
                 .setLabel('Confirm')
                 .setEmoji('✅')
@@ -55,89 +78,11 @@ async function priceSet(interaction) {
                 .setStyle('DANGER')
         )
     ];
-    const setPrice = [
-        new MessageActionRow()
-        .addComponents(
-            new MessageButton()
-                .setCustomId('1')
-                .setLabel('1')
-                .setStyle('PRIMARY'),
-            new MessageButton()
-                .setCustomId('2')
-                .setLabel('2')
-                .setStyle('PRIMARY'),
-            new MessageButton()
-                .setCustomId('3')
-                .setLabel('3')
-                .setStyle('PRIMARY'),
-            new MessageButton()
-                .setCustomId('right')
-                .setEmoji('➡️')
-                .setStyle('SECONDARY')
-        ),
-        new MessageActionRow()
-        .addComponents(
-            new MessageButton()
-                .setCustomId('4')
-                .setLabel('4')
-                .setStyle('PRIMARY'),
-            new MessageButton()
-                .setCustomId('5')
-                .setLabel('5')
-                .setStyle('PRIMARY'),
-            new MessageButton()
-                .setCustomId('6')
-                .setLabel('6')
-                .setStyle('PRIMARY'),
-            new MessageButton()
-                .setCustomId('left')
-                .setEmoji('⬅️')
-                .setStyle('SECONDARY')
-        ),
-        new MessageActionRow()
-        .addComponents(
-            new MessageButton()
-                .setCustomId('7')
-                .setLabel('7')
-                .setStyle('PRIMARY'),
-            new MessageButton()
-                .setCustomId('8')
-                .setLabel('8')
-                .setStyle('PRIMARY'),
-            new MessageButton()
-                .setCustomId('9')
-                .setLabel('9')
-                .setStyle('PRIMARY'),
-            new MessageButton()
-                .setCustomId('confirm')
-                .setEmoji('✅')
-                .setStyle('SUCCESS')
-        ),
-        new MessageActionRow()
-        .addComponents(
-            new MessageButton()
-                .setCustomId('down')
-                .setEmoji('⬇️')
-                .setStyle('SECONDARY'),
-            new MessageButton()
-                .setCustomId('0')
-                .setLabel('0')
-                .setStyle('PRIMARY'),
-            new MessageButton()
-                .setCustomId('up')
-                .setEmoji('⬆️')
-                .setStyle('SECONDARY'),
-            new MessageButton()
-                .setCustomId('cancel')
-                .setEmoji('❌')
-                .setStyle('DANGER')
-        )
-    ];
-    const line = '---------------------';
     const embed = new MessageEmbed()
             .setColor('AQUA')
             .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
-            .setDescription(`# 1 | ${'```\n'}\_\_ to null  →  null\n\n\n${line}\nnull  |  ⬇️\n${'\n```'}`)
+            .setDescription(`${'```js\n'}# 1 | 1 to "set"  →  null\n\n${'\n```'}`)
+            .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
             .setTimestamp()
     await interaction.reply({
         embeds: [embed],
@@ -152,25 +97,96 @@ async function priceSet(interaction) {
         })
     };
     const settings = {};
-    const price = '';
-    const priceRange = [null, null];
-    let range = null;
-    const height = 1;
-    const index = 0;
-    const option = null;
+    let price = null;
+    let priceRange = [1, null];
+    let height = 1;
+    let index = 1;
+
     const collector = message.createMessageComponentCollector({ filter, time: 30000 });
     collector.on('collect', async inter => {
         const id = inter.customId;
-        console.log(id);
         if (id==='range') {
-            await inter.deferUpdate();
-            range = parseInt((inter.values).join(''));
+            if(index<2) {
+                priceRange[index] = parseInt((inter.values).join(''));
+                index++;
+                if(index==2) {
+                    location[0].components[0].setMinValues(1);
+                    location[0].components[0].setMaxValues(null);
+                }
+            }
+            else {
+                price = parseInt((inter.values).join(''));
+                settings[price] = priceRange;
+                priceRange = [null, null];
+                price = null;
+                index=0;
+                height++;
+                location[0].components[0].setMinValues(2);
+                location[0].components[0].setMaxValues(2);
+            }
+            let description = '';
+            let pos=0;
+            for(const key in settings) {
+                if(height===pos) {
+                    if (index===0) {
+                        description = description+`# ${pos+1} | "${settings[key][0]}" to ${settings[key][1]}  →  ${key}`
+                    }
+                    else if(index===1) {
+                        description = description+`# ${pos+1} | ${settings[key][0]} to "${settings[key][1]}"  →  ${key}`
+                    }
+                    else {
+                        description = description+`# ${pos+1} | ${settings[key][0]} to ${settings[key][1]}  →  "${key}"`
+                    }
+                }
+                else {
+                    description = description+`${pos+1} | ${settings[key][0]} to ${settings[key][1]}  →  ${key}`
+                }
+                pos++;
+                
+            }
+            if(height===pos) {
+                if (index===0) {
+                    description = description+`# ${pos+1} | "${priceRange[0]===null?'set':priceRange[0]}" to ${priceRange[1]}  →  ${price}`
+                }
+                else if(index===1) {
+                    description = description+`# ${pos+1} | ${priceRange[0]} to "${priceRange[1]===null?'set':priceRange[1]}"  →  ${price}`
+                }
+                else {
+                    description = description+`# ${pos+1} | ${priceRange[0]} to ${priceRange[1]}  →  "${price===null?'set':price}"`
+                }
+            }
+            else {
+                description = description+`${pos+1} | ${priceRange[0]} to ${priceRange[1]}  →  ${price}`
+            }
+            embed.setDescription(`${'```js\n'}${description}${'\n```'}`);
+            await inter.update({
+                embeds: [embed],
+                components: location
+            });
+            index++;
         }
         else if (id==='confirm') {
-            console.log(range);
-            await inter.update({
-                components: setPrice
-            });
+            if (price==null || priceRange[0]==null || priceRange[1]==null) {
+                await inter.reply({
+                    ephemeral: true,
+                    embeds: [
+                        new MessageEmbed()
+                            .setColor('RED')
+                            .setTimestamp()
+                            .setTitle('⛔️ Error')
+                            .setDescription('Complete the label first to continue')
+                            .setAuthor(inter.user.username, inter.user.displayAvatarURL({dynamic: true, size: 1024}))
+                    ]
+                })
+            }
+            else {
+                settings[price] = priceRange;
+                embed.setDescription(settings);
+                inter.update({
+                    embeds: [embed],
+                    components: location
+                });
+            }
         }
     })
 };
