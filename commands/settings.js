@@ -1,13 +1,11 @@
-const { MessageEmbed, MessageActionRow, MessageSelectMenu, MessageButton } = require('discord.js');
+const { MessageEmbed, MessageActionRow, MessageSelectMenu, MessageButton, Permissions } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const settings = require('./../models/settings');
 
-// async function setDefault(guildId) {
-//     const first = new settings({
-//         _id: guildId
-//     });
-//     await first.save();
-// }
+async function setDefault(firstRegister) {
+    const first = new settings(firstRegister);
+    await first.save();
+}
 
 function arrange(pos, options) {
     console.log(options);
@@ -44,30 +42,8 @@ async function priceSet(interaction) {
         new MessageActionRow()
         .addComponents(
             new MessageButton()
-                .setCustomId('right')
-                .setLabel('Right')
-                .setEmoji('👉')
-                .setStyle('SECONDARY'),
-            new MessageButton()
-                .setCustomId('left')
-                .setLabel('Left')
-                .setEmoji('👈')
-                .setStyle('SECONDARY'),
-            new MessageButton()
-                .setCustomId('up')
-                .setLabel('Up')
-                .setEmoji('👆')
-                .setStyle('SECONDARY'),
-            new MessageButton()
-                .setCustomId('down')
-                .setLabel('Down')
-                .setEmoji('👇')
-                .setStyle('SECONDARY')
-        ),
-        new MessageActionRow()
-        .addComponents(
-            new MessageButton()
                 .setCustomId('confirm')
+                .setDisabled(true)
                 .setLabel('Confirm')
                 .setEmoji('✅')
                 .setStyle('SUCCESS'),
@@ -99,94 +75,88 @@ async function priceSet(interaction) {
     const settings = {};
     let price = null;
     let priceRange = [1, null];
-    let height = 1;
     let index = 1;
 
-    const collector = message.createMessageComponentCollector({ filter, time: 30000 });
+    const collector = message.createMessageComponentCollector({ filter, time: 60000 });
     collector.on('collect', async inter => {
         const id = inter.customId;
+        let updated = false;
         if (id==='range') {
             if(index===1) {
                 priceRange[1] = parseInt((inter.values).join(''));
-                index++;
-                if(index==2) {
-                    location[0].components[0].setMinValues(1);
-                    location[0].components[0].setMaxValues(null);
+                if (priceRange[1]>67) priceRange[1] = 67;
+                if (priceRange[1]<priceRange[0]) {
+                    priceRange[1] = null;
+                    await inter.update({
+                        components: location
+                    });
+                    await inter.followUp({
+                        content: `<@${interaction.user.id}>`,
+                        ephemeral: true,
+                        embeds: [
+                            new MessageEmbed()
+                                .setColor('RED')
+                                .setTitle('⛔️ Error')
+                                .setThumbnail(inter.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                                .setTimestamp()
+                                .setAuthor(inter.user.username, inter.user.displayAvatarURL({dynamic: true, size: 1024}))
+                                .setDescription('Starting of the range is larger than ending which is not practical. Please be practical and re-enter again.')
+
+                        ]
+                    });
+                    updated = true;
+                }
+                else {
+                    index++;
+                    if(index==2) {
+                        location[0].components[0].setMinValues(1);
+                        location[0].components[0].setMaxValues(null);
+                    }
                 }
             }
             else {
                 price = parseInt((inter.values).join(''));
                 settings[price] = priceRange;
-                console.log(settings);
                 priceRange = [priceRange[1]+1, null];
                 price = null;
                 index = 1;
-                height++;
                 location[0].components[0].setMinValues(2);
                 location[0].components[0].setMaxValues(2);
+                if (settings[price]==67) {
+                    location.shift();
+                    location[0].components[0].setDisabled(false);
+                };
             }
-            let description = '';
-            let pos=0;
-            for(const key in settings) {
-                if(height===pos) {
-                    if (index===0) {
-                        description = description+`# ${pos+1} | "${settings[key][0]}" to ${settings[key][1]}  →  ${key}\n`
-                    }
-                    else if(index===1) {
-                        description = description+`# ${pos+1} | ${settings[key][0]} to "${settings[key][1]}"  →  ${key}\n`
-                    }
-                    else {
-                        description = description+`# ${pos+1} | ${settings[key][0]} to ${settings[key][1]}  →  "${key}"\n`
-                    }
-                }
-                else {
+            if (!updated) {
+                let description = '';
+                let pos=0;
+                for(const key in settings) {
                     description = description+`${pos+1} | ${settings[key][0]} to ${settings[key][1]}  →  ${key}\n`
+                    pos++;
                 }
-                pos++;
-                
-            }
-            if(height===pos) {
-                if (index===0) {
-                    description = description+`# ${pos+1} | "${priceRange[0]===null?'set':priceRange[0]}" to ${priceRange[1]}  →  ${price}\n`
-                }
-                else if(index===1) {
+                if(index===1) {
                     description = description+`# ${pos+1} | ${priceRange[0]} to "${priceRange[1]===null?'set':priceRange[1]}"  →  ${price}\n`
                 }
                 else {
                     description = description+`# ${pos+1} | ${priceRange[0]} to ${priceRange[1]}  →  "${price===null?'set':price}"\n`
                 }
-            }
-            else {
-                description = description+`${pos+1} | ${priceRange[0]} to ${priceRange[1]}  →  ${price}\n`
-            }
-            embed.setDescription(`${'```js\n'}${description}${'\n```'}`);
-            await inter.update({
-                embeds: [embed],
-                components: location
-            });
-        }
-        else if (id==='confirm') {
-            if (price==null || priceRange[0]==null || priceRange[1]==null) {
-                await inter.reply({
-                    ephemeral: true,
-                    embeds: [
-                        new MessageEmbed()
-                            .setColor('RED')
-                            .setTimestamp()
-                            .setTitle('⛔️ Error')
-                            .setDescription('Complete the label first to continue')
-                            .setAuthor(inter.user.username, inter.user.displayAvatarURL({dynamic: true, size: 1024}))
-                    ]
-                })
-            }
-            else {
-                settings[price] = priceRange;
-                embed.setDescription(settings);
-                inter.update({
+                embed.setDescription(`${'```js\n'}${description}${'\n```'}`);
+                await inter.update({
                     embeds: [embed],
                     components: location
                 });
             }
+        }
+        else if (id==='confirm') {
+            await inter.deferUpdate();
+            await inter.message.delete();
+            console.log(settings);
+            return settings;
+        }
+        else {
+            await inter.deferUpdate()
+            await inter.message.delete();
+            collector.stop();
         }
     })
 };
@@ -246,27 +216,26 @@ module.exports = {
                 .setDescription('View your settings')
             ),
     async execute(interaction) {
+
+        if(!(interaction.user.permissions.has(Permissions.FLAGS.MANAGE_GUILD))) {
+            await interaction.reply({
+                ephemeral: true,
+                embeds: [
+                    new MessageEmbed()
+                        .setTimestamp()
+                        .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
+                        .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                        .setTitle('⛔️ Error')
+                        .setDescription('You do not have **Manage Server** permission to use this connabs. Please ask a user with the permission to use the command for you.')
+                ]
+            });
+            return;
+        }
+
         const subcommand = interaction.options.getSubcommand();
         const guildId = interaction.guildId;
-        // const guildSettings = await settings.findById(guildId);
-        // console.log(guildSettings.roles.vacant);
-        // if (guildSettings===null) {
-        //     await setDefault(guildId);
-        //     guildSettings = {
-        //         _id: guildId,
-        //         order: 0,
-        //         pending: 0,
-        //         status: 0,
-        //         complete: 0,
-        //         roles: {
-        //                 farmer: 0,
-        //                 vacant: 0,
-        //                 occupied: 0,
-        //                 unavailable: 0
-        //             },
-        //         prices: {}
-        //     }
-        // };
+        const guildSettings = await settings.findById(guildId);
+
         const subSettings = {};
         if (subcommand==='guild') {
             subSettings['order'] = interaction.options.getChannel('order');
@@ -274,11 +243,11 @@ module.exports = {
             subSettings['status'] = interaction.options.getChannel('status');
             subSettings['complete'] = interaction.options.getChannel('complete');
 
-            for (const key in subSettings) subSettings[key] = subSettings[key]===null ? null : subSettings[key].id;
+            for (const key in subSettings) subSettings[key] = subSettings[key]===null ? delete subSettings[key] : subSettings[key].id;
             console.log(subSettings);
         }
         else if (subcommand==='prices') {
-            await priceSet(interaction);
+            subSettings['prices'] = await priceSet(interaction);
         }
         else if (subcommand==='roles') {
             subSettings['roles'] = {}
