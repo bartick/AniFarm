@@ -1,4 +1,4 @@
-const { MessageEmbed, MessageActionRow, MessageSelectMenu, MessageButton, Permissions } = require('discord.js');
+const { MessageEmbed, MessageActionRow, MessageButton, Permissions } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const settings = require('./../models/settings');
 
@@ -17,9 +17,9 @@ function arrange(pos, options) {
     };
 };
 
-async function priceSet(interaction) {
-    //TODO
-};
+// async function priceSet(interaction) {
+    
+// };
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -86,6 +86,7 @@ module.exports = {
                         .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
                         .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
                         .setTitle('⛔️ Error')
+                        .setColor('RED')
                         .setDescription('You do not have **Manage Server** permission to use this command. Please ask a user with the permission to use the command for you.')
                 ]
             });
@@ -94,7 +95,7 @@ module.exports = {
 
         const subcommand = interaction.options.getSubcommand();
         const guildId = interaction.guildId;
-        const guildSettings = await settings.findById(guildId);
+        // const guildSettings = await settings.findById(guildId);
 
         const subSettings = {};
         if (subcommand==='guild') {
@@ -107,7 +108,217 @@ module.exports = {
             console.log(subSettings);
         }
         else if (subcommand==='prices') {
-            subSettings['prices'] = await priceSet(interaction);
+            let location = [
+                new MessageActionRow()
+                .addComponents(
+                    new MessageButton()
+                        .setCustomId('1')
+                        .setLabel('1')
+                        .setStyle('PRIMARY'),
+        
+                    new MessageButton()
+                        .setCustomId('2')
+                        .setLabel('2')
+                        .setStyle('PRIMARY'),
+        
+                    new MessageButton()
+                        .setCustomId('3')
+                        .setLabel('3')
+                        .setStyle('PRIMARY'),
+                    
+                    new MessageButton()
+                        .setCustomId('delete')
+                        .setEmoji('🕒')
+                        .setStyle('SECONDARY')
+                ),
+        
+                new MessageActionRow()
+                .addComponents(
+                    new MessageButton()
+                        .setCustomId('4')
+                        .setLabel('4')
+                        .setStyle('PRIMARY'),
+        
+                    new MessageButton()
+                        .setCustomId('5')
+                        .setLabel('5')
+                        .setStyle('PRIMARY'),
+        
+                    new MessageButton()
+                        .setCustomId('6')
+                        .setLabel('6')
+                        .setStyle('PRIMARY'),
+        
+                    new MessageButton()
+                        .setCustomId('right')
+                        .setEmoji('👉')
+                        .setStyle('SECONDARY')
+                ),
+                
+                new MessageActionRow()
+                .addComponents(
+                    new MessageButton()
+                        .setCustomId('7')
+                        .setLabel('7')
+                        .setStyle('PRIMARY'),
+        
+                    new MessageButton()
+                        .setCustomId('8')
+                        .setLabel('8')
+                        .setStyle('PRIMARY'),
+        
+                    new MessageButton()
+                        .setCustomId('9')
+                        .setLabel('9')
+                        .setStyle('PRIMARY'),
+        
+                    new MessageButton()
+                        .setCustomId('left')
+                        .setEmoji('👈')
+                        .setStyle('SECONDARY')
+                ),
+        
+                new MessageActionRow()
+                .addComponents(
+                    new MessageButton()
+                        .setCustomId('0')
+                        .setLabel('0')
+                        .setStyle('PRIMARY'),
+                    
+                    new MessageButton()
+                        .setCustomId('confirm')
+                        .setDisabled(true)
+                        .setEmoji('✅')
+                        .setStyle('SUCCESS'),
+                    
+                    new MessageButton()
+                        .setCustomId('Cancel')
+                        .setEmoji('⚔️')
+                        .setStyle('DANGER')
+                )
+            ];
+            const embed = new MessageEmbed()
+                    .setColor('AQUA')
+                    .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
+                    .setDescription(`${'```js\n'}# 1 | 1 to "set"  →  null\n\n${'\n```'}`)
+                    .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                    .setTimestamp()
+            await interaction.reply({
+                embeds: [embed],
+                components: location
+            });
+            const message  = await interaction.fetchReply();
+            const filter = (inter) => {
+                if (interaction.user.id === inter.user.id) return true;
+                return inter.reply({
+                    content: "You cannot use this button",
+                    ephemeral: true
+                })
+            };
+            const settings = {};
+            let price = 0;
+            let priceRange = [1, 0];
+            let index = 1;
+            let inputed = 0;
+        
+            const collector = message.createMessageComponentCollector({ filter, time: 60000 });
+            collector.on('collect', async inter => {
+                const id = inter.customId;
+                let toUpdate = false;
+                if (!(isNaN(parseInt(id)))) {
+                    if (index==1) {
+                        priceRange[1] = priceRange[1]*10 + parseInt(id);
+                        inputed++;
+                        if (inputed==2) {
+                            if (priceRange[1]>67) priceRange[1] = 67;
+                            if (priceRange[1]<priceRange[0]) {
+                                priceRange[1] = 0;
+                                inputed = 0;
+                                await inter.update({
+                                    components: location
+                                });
+                                await inter.followUp({
+                                    content: `<@${interaction.user.id}>`,
+                                    ephemeral: true,
+                                    embeds: [
+                                        new MessageEmbed()
+                                            .setColor('RED')
+                                            .setTitle('⛔️ Error')
+                                            .setThumbnail(inter.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                                            .setTimestamp()
+                                            .setAuthor(inter.user.username, inter.user.displayAvatarURL({dynamic: true, size: 1024}))
+                                            .setDescription('Starting of the range is larger than ending which is not practical. Please be practical and re-enter again.')
+                                    ]
+                                });
+                            }
+                            else {
+                                index++
+                                toUpdate = true;
+                            }
+                        }
+                        else {
+                            toUpdate = true
+                        }
+                    }
+                    else {
+                        if (inputed===2) {
+                            location[3].components[1].setDisabled(false);
+                            inputed = 0;
+                        }
+                        price = price*10 + parseInt(id);
+                        toUpdate = true;
+                    }
+                }
+        
+                else if (id==='confirm') {
+                    settings[price] = priceRange;
+                    if (priceRange[1]===67) {
+                        location = [];
+                        index = 0;
+                        toUpdate = true;
+                    }
+                    else {
+                        priceRange = [priceRange[1]+1, 0];
+                        price = 0;
+                        index = 1;
+                        toUpdate = true;
+                        location[3].components[1].setDisabled(true);
+                    }
+                }
+        
+                else {
+                    await inter.deferUpdate()
+                    await inter.message.delete();
+                    collector.stop();
+                }
+        
+                if (toUpdate) {
+                    let description = '';
+                    let pos=0;
+                    for(const key in settings) {
+                        description = description+`${pos+1} | ${settings[key][0]} to ${settings[key][1]}  →  ${key}\n`
+                        pos++;
+                    }
+                    if(index===1) {
+                        description = description+`# ${pos+1} | ${priceRange[0]} to "${priceRange[1]===0?'set':priceRange[1]}"  →  ${price}\n`;
+                    }
+                    else {
+                        if (index===2) {
+                            description = description+`# ${pos+1} | ${priceRange[0]} to ${priceRange[1]}  →  "${price===0?'set':price}"\n`;
+                        };
+                    }
+                    embed.setDescription(`${'```js\n'}${description}${'\n```'}`);
+                    await inter.update({
+                        embeds: [embed],
+                        components: location
+                    });
+        
+                    if (priceRange[1]===67 && index===0) {
+                        subSettings['prices'] = settings;
+                        console.log(subSettings);
+                    };
+                }
+            });
         }
         else if (subcommand==='roles') {
             subSettings['roles'] = {}
