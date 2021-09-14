@@ -2,24 +2,11 @@ const { MessageEmbed, MessageActionRow, MessageButton, Permissions } = require('
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const settings = require('./../models/settings');
 
-async function setDefault(firstRegister) {
-    const first = new settings(firstRegister);
+async function setDefault(subSettings, guildId) {
+    subSettings['_id'] = guildId;
+    const first = new settings(subSettings);
     await first.save();
 }
-
-function arrange(pos, options) {
-    console.log(options);
-    if (pos==='ascending') {
-        return parseInt(options[0]) >= parseInt(options[1]) ? parseInt(options[1]+options[0]) : parseInt(options[0]+options[1]);
-    }
-    else {
-        parseInt(options[0]) >= parseInt(options[1]) ? parseInt(options[0]+options[1]) : parseInt(options[1]+options[0]);
-    };
-};
-
-// async function priceSet(interaction) {
-    
-// };
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -95,7 +82,6 @@ module.exports = {
 
         const subcommand = interaction.options.getSubcommand();
         const guildId = interaction.guildId;
-        // const guildSettings = await settings.findById(guildId);
 
         const subSettings = {};
         if (subcommand==='guild') {
@@ -104,8 +90,24 @@ module.exports = {
             subSettings['status'] = interaction.options.getChannel('status');
             subSettings['complete'] = interaction.options.getChannel('complete');
 
-            for (const key in subSettings) subSettings[key]===null ? delete subSettings[key] : subSettings[key] = subSettings[key].id;
-            console.log(subSettings);
+            const embed = new MessageEmbed()
+                .setTitle('Guild Settings')
+                .setColor('AQUA')
+                .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
+                .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                .setTimestamp()
+
+            for (const key in subSettings) {
+                embed.addField(key.toUpperCase(), subSettings[key]===null ? 'Not Effected' : `<#${subSettings[key].id}>`, false);
+                subSettings[key]===null ? delete subSettings[key] : subSettings[key] = subSettings[key].id;
+            }
+            const check = await settings.updateOne({_id: guildId}, {$set: subSettings});
+            if (check.matchedCount==0) {
+                await setDefault(subSettings, guildId);
+            }
+            await interaction.reply({
+                embeds: [embed]
+            })
         }
         else if (subcommand==='prices') {
             let location = [
@@ -215,7 +217,7 @@ module.exports = {
                     ephemeral: true
                 })
             };
-            const settings = {};
+            const setting = {};
             let price = 0;
             let priceRange = [1, 0];
             let index = 1;
@@ -230,11 +232,31 @@ module.exports = {
                         priceRange[1] = priceRange[1]*10 + parseInt(id);
                         inputed++;
                         if (inputed==2) {
+                            if (price>0) {
+                                location[3].components[1].setDisabled(false);
+                                inputed = 0;
+                            }
                             if (priceRange[1]>67) priceRange[1] = 67;
                             if (priceRange[1]<priceRange[0]) {
                                 priceRange[1] = 0;
                                 inputed = 0;
+                                let description = '';
+                                let pos=0;
+                                for(const key in setting) {
+                                    description = description+`${pos+1} | ${setting[key][0]} to ${setting[key][1]}  →  ${key}\n`
+                                    pos++;
+                                }
+                                if(index===1) {
+                                    description = description+`# ${pos+1} | ${priceRange[0]} to "${priceRange[1]===0?'set':priceRange[1]}"  →  ${price}\n`;
+                                }
+                                else {
+                                    if (index===2) {
+                                        description = description+`# ${pos+1} | ${priceRange[0]} to ${priceRange[1]}  →  "${price===0?'set':price}"\n`;
+                                    };
+                                }
+                                embed.setDescription(`${'```js\n'}${description}${'\n```'}`);
                                 await inter.update({
+                                    embeds: [embed],
                                     components: location
                                 });
                                 await inter.followUp({
@@ -271,7 +293,7 @@ module.exports = {
                 }
         
                 else if (id==='confirm') {
-                    settings[price] = priceRange;
+                    setting[price] = priceRange;
                     if (priceRange[1]===67) {
                         location = [];
                         index = 0;
@@ -285,6 +307,73 @@ module.exports = {
                         location[3].components[1].setDisabled(true);
                     }
                 }
+
+                else if (id==='delete') {
+                    if (index===1) {
+                        priceRange[1] = parseInt(priceRange[1]/10);
+                    }
+                    else {
+                        price = parseInt(price/10);
+                        if (price===0) {
+                            location[3].components[1].setDisabled(true);
+                            inputed = 2;
+                        }
+                    }
+                    toUpdate = true;
+                }
+
+                else if (id==='right') {
+                    if (priceRange[1]<priceRange[0]) {
+                        priceRange[1] = 0;
+                        inputed = 0;
+                        let description = '';
+                        let pos=0;
+                        for(const key in setting) {
+                            description = description+`${pos+1} | ${setting[key][0]} to ${setting[key][1]}  →  ${key}\n`
+                            pos++;
+                        }
+                        if(index===1) {
+                            description = description+`# ${pos+1} | ${priceRange[0]} to "${priceRange[1]===0?'set':priceRange[1]}"  →  ${price}\n`;
+                        }
+                        else {
+                            if (index===2) {
+                                description = description+`# ${pos+1} | ${priceRange[0]} to ${priceRange[1]}  →  "${price===0?'set':price}"\n`;
+                            };
+                        }
+                        embed.setDescription(`${'```js\n'}${description}${'\n```'}`);
+                        await inter.update({
+                            embeds: [embed],
+                            components: location
+                        });
+                        await inter.followUp({
+                            content: `<@${interaction.user.id}>`,
+                            ephemeral: true,
+                            embeds: [
+                                new MessageEmbed()
+                                    .setColor('RED')
+                                    .setTitle('⛔️ Error')
+                                    .setThumbnail(inter.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                                    .setTimestamp()
+                                    .setAuthor(inter.user.username, inter.user.displayAvatarURL({dynamic: true, size: 1024}))
+                                    .setDescription('Starting of the range is larger than ending which is not practical. Please be practical and re-enter again.')
+                            ]
+                        });
+                    }
+                    else {
+                        inputed = 2;
+                        index = 2;
+                        price = 0;
+                        toUpdate = true;
+                    }
+                }
+
+                else if (id==='left') {
+                    index=1;
+                    priceRange[1] = 0;
+                    inputed = 0;
+                    location[3].components[1].setDisabled(true);
+                    toUpdate = true;
+                }
         
                 else {
                     await inter.deferUpdate()
@@ -295,8 +384,8 @@ module.exports = {
                 if (toUpdate) {
                     let description = '';
                     let pos=0;
-                    for(const key in settings) {
-                        description = description+`${pos+1} | ${settings[key][0]} to ${settings[key][1]}  →  ${key}\n`
+                    for(const key in setting) {
+                        description = description+`${pos+1} | ${setting[key][0]} to ${setting[key][1]}  →  ${key}\n`
                         pos++;
                     }
                     if(index===1) {
@@ -314,8 +403,11 @@ module.exports = {
                     });
         
                     if (priceRange[1]===67 && index===0) {
-                        subSettings['prices'] = settings;
-                        console.log(subSettings);
+                        subSettings['prices'] = setting;
+                        const check = await settings.updateOne({_id: guildId}, {$set: subSettings});
+                        if (check.matchedCount==0) {
+                            await setDefault(subSettings, guildId);
+                        }
                     };
                 }
             });
@@ -327,8 +419,24 @@ module.exports = {
             subSettings['roles']['occupied'] = interaction.options.getRole('occupied');
             subSettings['roles']['unavailable'] = interaction.options.getRole('unavailable');
 
-            for (const key in subSettings['roles']) subSettings['roles'][key]===null ? delete subSettings['roles'][key] : subSettings['roles'][key] =  subSettings['roles'][key].id;
-            console.log(subSettings);
+            const embed = new MessageEmbed()
+                .setTitle('Guild Settings')
+                .setColor('AQUA')
+                .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
+                .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                .setTimestamp()
+
+            for (const key in subSettings['roles']) {
+                embed.addField(key.toUpperCase(), subSettings['roles'][key]===null ? 'Removed' : `<@&${subSettings['roles'][key].id}>`, false);
+                subSettings['roles'][key]===null ? subSettings['roles'][key]=0 : subSettings['roles'][key] = subSettings['roles'][key].id;
+            }
+            const check = await settings.updateOne({_id: guildId}, {$set: subSettings});
+            if (check.matchedCount==0) {
+                await setDefault(subSettings, guildId);
+            }
+            await interaction.reply({
+                embeds: [embed]
+            })
         }
         else {
             await interaction.reply({
