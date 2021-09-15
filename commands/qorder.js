@@ -64,6 +64,7 @@ module.exports = {
         setOrder['pending'] = guildSettings.pending;
         setOrder['status'] = guildSettings.status;
         setOrder['complete'] = guildSettings.order;
+        setOrder['guildid'] = interaction.guild.id;
 
 
         const card = await new Promise((resolve, reject) => {
@@ -184,12 +185,33 @@ module.exports = {
                     .setTitle('Waiting for a farmer to accept order!!')
                     .setTimestamp()
                     .setFooter(`If you are a farmer accept the order using /accorder ${setOrder['orderid']}`)
-                const pendingChannel = await i.client.channels.cache.get(setOrder['pending'].toString());
-                await pendingChannel.send({
-                    embeds: [embed]
-                });
-                const odr = new order(setOrder);
-                await odr.save();
+                let content;
+                if (guildSettings.vacant>=0){
+                    content = `<@&${guildSettings.vacant}> a new order has arrived.`
+                }
+                try {
+                    const pendingChannel = await i.client.channels.cache.get(setOrder['pending']);
+                    await pendingChannel.send({
+                        content: content,
+                        embeds: [embed]
+                    });
+                    const odr = new order(setOrder);
+                    await odr.save();
+                }
+                catch (err) {
+                    await interaction.followUp({
+                        ephemeral: true,
+                        embeds: [
+                            new MessageEmbed()
+                                .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
+                                .setColor('RED')
+                                .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                                .setTimestamp()
+                                .setTitle('⛔️ Error')
+                                .setDescription(`An error occured. Make sure I have permission to send message or see the channel <#${setOrder['pending']}>\n\n${err.message}`)
+                        ]
+                    })
+                }
             }
             else {
                 await i.deferUpdate();
