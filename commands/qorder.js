@@ -208,9 +208,9 @@ module.exports = {
                                 .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
                                 .setTimestamp()
                                 .setTitle('⛔️ Error')
-                                .setDescription(`An error occured. Make sure I have permission to send message or see the channel <#${setOrder['pending']}>\n\n${err.message}`)
+                                .setDescription(`An error occured. Make sure I have permission to send message or see the channel <#${setOrder['pending']}>\n\n**Error:**\n${err.message}`)
                         ]
-                    })
+                    });
                 }
             }
             else {
