@@ -1,7 +1,60 @@
 const mongoose = require('mongoose');
 
-module.exports = mongoose.model('settings', new mongoose.Schema({
-    _id: Number
+module.exports = mongoose.model('orders', new mongoose.Schema({
+    orderid: Number,
+    name: {
+        type: String
+    },
+	image: {
+        type: String
+    },
+	farmer: {
+        type: String
+    },
+	farmerid: {
+        type: String,
+        default: "0"
+    },
+	customerid: {
+        type: String
+    },
+    pending: {
+        type: String
+    },
+	pendingid: {
+        type: String,
+        default: "0"
+    },
+	status: {
+        type: String
+    },
+	statusid: {
+        type: String,
+        default: "0"
+    },
+    complete: {
+        type: String
+    },
+	amount: {
+        type: Number
+    },
+	price: {
+        type: Number
+    },
+	discount: {
+        type: Number,
+        default: 0
+    },
+	location: {
+        type: Number
+    },
+	floor: {
+        type: Number
+    },
+	amount_farmed: {
+        type: Number,
+        default: 0
+    }
 },
-{collection: 'settings', versionKey: false}
+{collection: 'orders', versionKey: false, timestamps: true}
 ));

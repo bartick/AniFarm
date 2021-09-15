@@ -5,45 +5,57 @@ const mongoose = require('mongoose');
 module.exports = mongoose.model('settings', new mongoose.Schema({
     _id: Number,
     order: {
-        type: Number,
-        default: 0
+        type: String,
+        default: "0"
     },
     pending: {
-        type: Number,
-        default: 0
+        type: String,
+        default: "0"
     },
     status: {
-        type: Number,
-        default: 0
+        type: String,
+        default: "0"
     },
     complete: {
-        type: Number,
-        default: 0
+        type: String,
+        default: "0"
     },
-    roles: {
-        type: Map,
-        of: Number,
-        default: {
-            farmer: 0,
-            vacant: 0,
-            occupied: 0,
-            unavailable: 0
-        }
+    farmer: {
+        type: String,
+        default: "0"
+    },
+    vacant: {
+        type: String,
+        default: "0"
+    },
+    occupied: {
+        type: String,
+        default: "0"
+    },
+    unavailable: {
+        type: String,
+        default: "0"
     },
     prices: {
         type: Map,
         of: Array,
         default: {}
     },
-    discounts: {
+    disRole: {
         type: Map,
-        of: Map,
-        default: {
-            role: {},
-            orders: {},
-            server: {}
-        }
+        default: {}
     },
+    disOrder: {
+        type: Map,
+        default: {}
+    },
+    disServer: {
+        type: Map,
+        default: {
+            next: 0,
+            discount: 0
+        }
+    }
 },
 {collection: 'settings', versionKey: false}
 ));
