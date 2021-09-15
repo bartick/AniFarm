@@ -36,12 +36,13 @@ module.exports = async (interaction, embeds, index) => {
 
     const message = await interaction.fetchReply()
 
+    let stop = false;
+
     const collector = message.createMessageComponentCollector({ filter, time: 30000 });
 
     collector.on('collect', async i => {
         const id = i.customId;
         if (id==='left') {
-            await i.deferUpdate();
             if (row.components[1].disabled) {
                 row.components[1].disabled=false
             }
@@ -50,14 +51,16 @@ module.exports = async (interaction, embeds, index) => {
                 if (index===0) {
                     row.components[0].disabled=true
                 }
-                await interaction.editReply({
+                await i.update({
                     embeds: [embeds[index]],
                     components: [row]
                 })
             }
+            else {
+                i.deferUpdate();
+            }
         }
         else if (id==='right') {
-            await i.deferUpdate();
             if (row.components[0].disabled) {
                 row.components[0].disabled=false
             }
@@ -66,16 +69,31 @@ module.exports = async (interaction, embeds, index) => {
                 if (index===length-1) {
                     row.components[1].disabled=true
                 };
-                await interaction.editReply({
+                await i.update({
                     embeds: [embeds[index]],
                     components: [row]
                 });
             }
+            else {
+                i.deferUpdate();
+            }
         }
         else {
             await i.deferUpdate();
-            await interaction.deleteReply();
+            await i.message.delete();
+            stop = true;
             collector.stop();
         }
+    });
+    collector.on('end', async collected => {
+        if (stop) return;
+        embeds[index].setColor('RED');
+        row.components[0].setDisabled(true);
+        row.components[1].setDisabled(true);
+        row.components[2].setDisabled(true);
+        await message.edit({
+            embeds:[embeds[index]],
+            components: [row]
+        })
     });
 };
