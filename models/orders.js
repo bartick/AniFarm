@@ -2,6 +2,7 @@ const mongoose = require('mongoose');
 
 module.exports = mongoose.model('orders', new mongoose.Schema({
     orderid: Number,
+    guildid: String,
     name: {
         type: String
     },
