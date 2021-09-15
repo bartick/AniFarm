@@ -2,6 +2,8 @@ const { MessageActionRow, MessageButton, MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const sqldb = require('./../utils/sqlite');
 const wait = require('util').promisify(setTimeout);
+const settings = require('./../models/settings')
+const order = require('./../models/orders')
 
 
 module.exports = {
@@ -23,8 +25,45 @@ module.exports = {
                 .setStyle('DANGER')
                 .setEmoji('❌')
         );
-        const name = interaction.options.getString('name');
+        const guildSettings = await settings.findById(interaction.guild.id);
+        if (guildSettings==null || guildSettings['pending']===0 || guildSettings['status']===0 || guildSettings['farmer']===0 || guildSettings['prices']==={}) {
+            const embed = new MessageEmbed()
+                .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
+                .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                .setColor('RED')
+                .setTimestamp()
+                .setTitle('⛔️ Error')
+                .setDescription('Settings was not completed properly. Please ask a admin to complete the settings before ordering.')
+            await interaction.reply({
+                ephemeral: true,
+                embeds: [embed]
+            });
+            return;
+        }
+        if (guildSettings.order>0 && guildSettings.order!=interaction.channelId) {
+            const embed = new MessageEmbed()
+                .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
+                .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                .setColor('RED')
+                .setTimestamp()
+                .setTitle('⛔️ Error')
+                .setDescription(`You can only use this command in <#${guildSettings['order']}>.\nHead over to that channel to start ordering`)
+            
+                await interaction.reply({
+                    ephemeral: true,
+                    embeds: [embed]
+                });
+                return;
+        }
+        const name = interaction.options.getString('name'); 
         const amount = interaction.options.getInteger('amount');
+        let setOrder = {};
+        setOrder['amount'] = amount;
+        setOrder['farmer'] = guildSettings.farmer;
+        setOrder['customerid'] = interaction.user.id;
+        setOrder['pending'] = guildSettings.pending;
+        setOrder['status'] = guildSettings.status;
+        setOrder['complete'] = guildSettings.order;
 
 
         const card = await new Promise((resolve, reject) => {
@@ -83,7 +122,23 @@ module.exports = {
             return;
         };
 
-        card.FL = (locfl.FLOORS*2)+card.FLOOR
+        card.FL = (locfl.FLOORS*2)+card.FLOOR;
+
+        setOrder['image'] = card.PICTURE;
+        setOrder['name'] = card.NAME;
+        setOrder['location'] = card.LOCATION;
+        setOrder['floor'] = card.FL;
+
+        const guildPrice = Object.fromEntries(guildSettings['prices'].entries());
+
+        for (const key in guildPrice) {
+            if (card.LOCATION>=guildPrice[key][0] && guildPrice[key][1]>=card.LOCATION){
+                setOrder['price'] = amount * parseInt(key);
+            }
+        }
+
+        //TODO add discount
+        setOrder['discount'] = 0;
 
         const embed = new MessageEmbed()
             .setColor('#00FFFF')
@@ -93,12 +148,16 @@ module.exports = {
                 interaction.user.displayAvatarURL({dynamic: true, size: 1024})
             )
             .setThumbnail(card.PICTURE)
-            .addField(`**Order Summary:** ${card.EMOJI}`, "```\n◙ Card Name: "+card.NAME+"\n◙ Loc-Floor: "+card.LOCATION+"-"+card.FL+"\n◙ Amount: "+amount+"\n◙ Price: "+0+"\n◙ Discount: "+0+"%\n```")
+            .addField(`**Order Summary:** ${card.EMOJI}`, "```\n◙ Card Name: "+card.NAME+"\n◙ Loc-Floor: "+card.LOCATION+"-"+card.FL+"\n◙ Amount: "+amount+"\n◙ Price: "+(setOrder.price - setOrder.price*(setOrder.discount/100))+"\n◙ Discount: "+setOrder.discount+"%\n```")
             .setTimestamp();
-        await interaction.reply({
+        const message = await interaction.reply({
             embeds: [embed],
-            components: [row]
+            components: [row],
+            fetchReply: true
         });
+        
+        setOrder['orderid'] = parseInt(message.id)%100000;
+
         const filter = (inter) => {
             if ((interaction.user.id === inter.user.id) && ['confirm','cancel'].indexOf(inter.customId)>=0) return true;
             return inter.reply({
@@ -121,6 +180,16 @@ module.exports = {
                     embeds: [embed],
                     components: [row]
                 });
+                embed.setColor('AQUA')
+                    .setTitle('Waiting for a farmer to accept order!!')
+                    .setTimestamp()
+                    .setFooter(`If you are a farmer accept the order using /accorder ${setOrder['orderid']}`)
+                const pendingChannel = await i.client.channels.cache.get(setOrder['pending'].toString());
+                await pendingChannel.send({
+                    embeds: [embed]
+                });
+                const odr = new order(setOrder);
+                await odr.save();
             }
             else {
                 await i.deferUpdate();

@@ -1,6 +1,7 @@
 const { MessageEmbed, MessageActionRow, MessageButton, Permissions } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const settings = require('./../models/settings');
+const paginate = require('./../utils/paginate');
 
 async function setDefault(subSettings, guildId) {
     subSettings['_id'] = guildId;
@@ -96,10 +97,22 @@ module.exports = {
                 .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
                 .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
                 .setTimestamp()
+                .setDescription('You are only allowed to use text channels. If you put any channel other than text channel then the settings will be not accepted.')
 
             for (const key in subSettings) {
-                embed.addField(key.toUpperCase(), subSettings[key]===null ? 'Not Effected' : `<#${subSettings[key].id}>`, false);
-                subSettings[key]===null ? delete subSettings[key] : subSettings[key] = subSettings[key].id;
+                if (subSettings[key]===null) {
+                    delete subSettings[key];
+                }
+                else {
+                    if (subSettings[key].type==='GUILD_TEXT') {
+                        embed.addField("• "+key.toUpperCase(), `<#${subSettings[key].id}>`, false);
+                        subSettings[key] = subSettings[key].id;
+                    }
+                    else {
+                        delete subSettings[key];
+                    }
+                    
+                }
             }
             const check = await settings.updateOne({_id: guildId}, {$set: subSettings});
             if (check.matchedCount==0) {
@@ -413,11 +426,10 @@ module.exports = {
             });
         }
         else if (subcommand==='roles') {
-            subSettings['roles'] = {}
-            subSettings['roles']['farmer'] = interaction.options.getRole('farmer');
-            subSettings['roles']['vacant'] = interaction.options.getRole('vacant');
-            subSettings['roles']['occupied'] = interaction.options.getRole('occupied');
-            subSettings['roles']['unavailable'] = interaction.options.getRole('unavailable');
+            subSettings['farmer'] = interaction.options.getRole('farmer');
+            subSettings['vacant'] = interaction.options.getRole('vacant');
+            subSettings['occupied'] = interaction.options.getRole('occupied');
+            subSettings['unavailable'] = interaction.options.getRole('unavailable');
 
             const embed = new MessageEmbed()
                 .setTitle('Guild Settings')
@@ -426,9 +438,14 @@ module.exports = {
                 .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
                 .setTimestamp()
 
-            for (const key in subSettings['roles']) {
-                embed.addField(key.toUpperCase(), subSettings['roles'][key]===null ? 'Removed' : `<@&${subSettings['roles'][key].id}>`, false);
-                subSettings['roles'][key]===null ? subSettings['roles'][key]=0 : subSettings['roles'][key] = subSettings['roles'][key].id;
+            for (const key in subSettings) {
+                if (subSettings[key]===null) {
+                    delete subSettings[key];
+                }
+                else {
+                    embed.addField(key.toUpperCase(), `<@&${subSettings[key].id}>`, false);
+                    subSettings[key] = subSettings[key].id;
+                }
             }
             const check = await settings.updateOne({_id: guildId}, {$set: subSettings});
             if (check.matchedCount==0) {
@@ -439,45 +456,62 @@ module.exports = {
             })
         }
         else {
-            await interaction.reply({
-                ephemeral: true,
-                content: 'Not completed yet'
-            })
-            const prices = ''
+            const guildSettings = await settings.findById(guildId);
+            if (guildSettings===null) {
+                await interaction.reply({
+                    ephemeral: true,
+                    embeds: [
+                        new MessageEmbed()
+                            .setColor('RED')
+                            .setTitle('⛔️ Error')
+                            .setDescription('The Settings was not completed. Please complete the settings before using this command.')
+                            .setTimestamp()
+                            .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
+                            .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                    ]
+                });
+                return;
+            }
+            let prices = ''
+            let pos = 0;
+            const guildPrices = Object.fromEntries((guildSettings.prices).entries());
+            for (const key in guildPrices) {
+                pos++;
+                prices  = prices + `${pos} | ${guildPrices[key][0]} to ${guildPrices[key][1]}  →  ${key}\n`
+            };
+
             const embed = [
                 new MessageEmbed()
                     .setTimestamp()
+                    .setColor('AQUA')
                     .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({ dynamic: true, size: 1024 }))
                     .setTitle('Settings')
                     .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
-                    .addField('1 | Order Channel', guildSettings.order===0?'Not Yet Set':`<#${guildSettings.order}>`, false)
-                    .addField('2 | Pending Channel', guildSettings.pending===0?'Not Yet Set':`<#${guildSettings.pending}>`, false)
-                    .addField('3 | Status Channel', guildSettings.status===0?'Not Yet Set':`<#${guildSettings.status}>`, false)
-                    .addField('4 | Complete Channel', guildSettings.complete===0?'Not Yet Set':`<#${guildSettings.complete}>`, false)
-                    .setFooter('Page 1/4'),
+                    .addField('1 | Order Channel', guildSettings.order==0?'Not Yet Set':`<#${guildSettings.order}>`, false)
+                    .addField('2 | Pending Channel', guildSettings.pending==0?'Not Yet Set':`<#${guildSettings.pending}>`, false)
+                    .addField('3 | Status Channel', guildSettings.status==0?'Not Yet Set':`<#${guildSettings.status}>`, false)
+                    .addField('4 | Complete Channel', guildSettings.complete==0?'Not Yet Set':`<#${guildSettings.complete}>`, false)
+                    .setFooter('Page 1/3'),
                 new MessageEmbed()
                     .setTimestamp()
+                    .setColor('AQUA')
                     .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({ dynamic: true, size: 1024 }))
                     .setTitle('Prices')
                     .setDescription("```\n"+prices+"\n```")
-                    .setFooter('Page 2/4'),
+                    .setFooter('Page 2/3'),
                 new MessageEmbed()
                     .setTimestamp()
-                    .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({ dynamic: true, size: 1024 }))
-                    .setTitle('Discounts')
-                    .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
-                    .setFooter('Page: 3/4'),
-                new MessageEmbed()
-                    .setTimestamp()
+                    .setColor('AQUA')
                     .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({ dynamic: true, size: 1024 }))
                     .setTitle('Roles')
                     .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
-                    .addField('1 | Farmer', guildSettings.roles.farmer===0?'Not Yet Set':`<@&${guildSettings.roles.farmer}>`, false)
-                    .addField('2 | Vacant', guildSettings.roles.vacant===0?'Not Yet Set':`<@&${guildSettings.roles.vacant}>`, false)
-                    .addField('3 | Occupied', guildSettings.roles.occupied===0?'Not Yet Set':`<@&${guildSettings.roles.occupied}>`, false)
-                    .addField('4 | Unavailable', guildSettings.roles.unavailable===0?'Not Yet Set':`<@&${guildSettings.roles.unavailable}>`,false)
-                    .setFooter('Page: 4/4')
-            ]
+                    .addField('1 | Farmer', guildSettings.farmer==0?'Not Yet Set':`<@&${guildSettings.farmer}>`, false)
+                    .addField('2 | Vacant', guildSettings.vacant==0?'Not Yet Set':`<@&${guildSettings.vacant}>`, false)
+                    .addField('3 | Occupied', guildSettings.occupied==0?'Not Yet Set':`<@&${guildSettings.occupied}>`, false)
+                    .addField('4 | Unavailable', guildSettings.unavailable==0?'Not Yet Set':`<@&${guildSettings.unavailable}>`,false)
+                    .setFooter('Page: 3/3')
+            ];
+            await paginate(interaction, embed, 0);
         };
     }
 };

@@ -88,7 +88,7 @@ module.exports = {
                     .addField('Talent', `${card.EMOJI} ${card.BASETALENT}`, false)
                     .setImage(card.PICTURE)
                     .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
-                    .setFooter(`${card.FOOTER} | ID: ${card.ID}`)
+                    .setFooter(`Page 1/3 • ${card.FOOTER} | ID: ${card.ID}`)
                     .setTimestamp(),
                 new MessageEmbed()
                     .setColor('#00FFFF')
@@ -101,6 +101,7 @@ module.exports = {
                     .addField('SR Evo 2 ', `**Hp:** ${parseInt(card.HP*sr[2])}\n**Atk:** ${parseInt(card.ATK*sr[2])}\n**Def:** ${parseInt(card.DEF*sr[2])}\n**Speed:** ${parseInt(card.SPEED*sr[2])}`, true)
                     .addField('SR Evo 3 ', `**Hp:** ${parseInt(card.HP*sr[3])}\n**Atk:** ${parseInt(card.ATK*sr[3])}\n**Def:** ${parseInt(card.DEF*sr[3])}\n**Speed:** ${parseInt(card.SPEED*sr[3])}`, true)
                     .addField('SR Talent', `${card.EMOJI} ${card.SRTALENT}`, false)
+                    .setFooter(`Page 1/3 • ${card.FOOTER} | ID: ${card.ID}`)
                     .setTimestamp(),
                 new MessageEmbed()
                 .setColor('#00FFFF')
@@ -113,6 +114,7 @@ module.exports = {
                 .addField('UR Evo 2 ', `**Hp:** ${parseInt(card.HP*ur[2])}\n**Atk:** ${parseInt(card.ATK*ur[2])}\n**Def:** ${parseInt(card.DEF*ur[2])}\n**Speed:** ${parseInt(card.SPEED*ur[2])}`, true)
                 .addField('UR Evo 3 ', `**Hp:** ${parseInt(card.HP*ur[3])}\n**Atk:** ${parseInt(card.ATK*ur[3])}\n**Def:** ${parseInt(card.DEF*ur[3])}\n**Speed:** ${parseInt(card.SPEED*ur[3])}`, true)
                 .addField('UR Talent', `${card.EMOJI} ${card.URTALENT}`, false)
+                .setFooter(`Page 1/3 • ${card.FOOTER} | ID: ${card.ID}`)
                 .setTimestamp()
             ];
 
