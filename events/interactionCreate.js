@@ -8,7 +8,15 @@ module.exports = {
 				await command.execute(interaction);
 			} catch (error) {
 				console.error(error);
-				await interaction.reply({ content: 'There was an error while executing this command! ', ephemeral: true });
+				try {
+					await interaction.reply({ content: 'There was an error while executing this command! ', ephemeral: true });
+				} catch (err) {
+					try {
+						await interaction.editReply({ content: 'There was an error while executing this command! ', ephemeral: true });
+					} catch (e) {
+						await interaction.followUp({ content: 'There was an error while executing this command! ', ephemeral: true });
+					}
+				}
 			}
 		}
 	},
