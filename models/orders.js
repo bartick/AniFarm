@@ -55,6 +55,15 @@ module.exports = mongoose.model('orders', new mongoose.Schema({
 	amount_farmed: {
         type: Number,
         default: 0
+    },
+    flash: {
+        type: Map,
+        of: Number,
+        default: {
+            number: 0,
+            total: 0
+        }
+        
     }
 },
 {collection: 'orders', versionKey: false, timestamps: true}
