@@ -17,14 +17,21 @@ module.exports = async (interaction, embeds, index) => {
         new MessageButton()
             .setCustomId('delete')
             .setStyle('SECONDARY')
-            .setEmoji('🗑')
+            .setEmoji('❌')
     );
     if (index===0) row.components[0].disabled=true;
     if (index===length-1) row.components[1].disabled=false;
-    await interaction.reply({
-        embeds: [embeds[index]],
-        components: [row]
-    });
+    try {
+        await interaction.reply({
+            embeds: [embeds[index]],
+            components: [row]
+        });
+    } catch (err) {
+        await interaction.editReply({
+            embeds: [embeds[index]],
+            components: [row]
+        })
+    }
 
     const filter = (inter) => {
         if ((interaction.user.id === inter.user.id) && ['left','right','delete'].indexOf(inter.customId)>=0) return true;
