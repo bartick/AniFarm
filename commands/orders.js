@@ -36,7 +36,7 @@ module.exports = {
                 .setTitle('Farming Status')
             let farmer;
             try {
-                farmer = await interaction.client.users.fetch(farming.farmerid);
+                farmer = await interaction.client.users.fetch(order.farmerid);
             } catch (err) {
                 //SKIP
             };
@@ -46,7 +46,7 @@ module.exports = {
             }
             else {
                 embed.setFooter(farmer.username, farmer.displayAvatarURL({dynamic: true, size: 1024}))
-                    .addField('Farmer:', farmer.username, true)
+                    .addField('Farmer:', farmer.tag, true)
             }
             embed.addField('Customer:', interaction.user.tag, true)
             let guild;
