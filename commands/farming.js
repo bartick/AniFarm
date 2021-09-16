@@ -44,6 +44,12 @@ module.exports = {
             });
             return;
         };
+        let guild;
+        try {
+            guild = await interaction.client.guilds.cache.get(farming.guildid);
+        } catch(err) {
+            //SKIP
+        }
         await interaction.editReply({
             embeds: [
                 new MessageEmbed()
@@ -54,7 +60,8 @@ module.exports = {
                 .setTimestamp()
                 .setTitle('Farming Status')
                 .addField('Farmer:', interaction.user.tag, true)
-                .addField('Customer:', customer.tag, false)
+                .addField('Customer:', customer.tag, true)
+                .addField('Server:', guild===undefined?'No server found':guild.name, false)
                 .addField('Order Summary:',"```\n◙ Card Name: "+farming.name+"\n◙ Loc-Floor: "+farming.location+"-"+farming.floor+"\n◙ Amount: "+farming.amount+"\n◙ Price: "+(farming.price - farming.price*(farming.discount/100))+"\n◙ Discount: "+farming.discount+'%\n◙ Amount Farmed:'+farming.amount_farmed+"/"+farming.amount+"\n```", false)
             ]
         })
