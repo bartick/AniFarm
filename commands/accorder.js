@@ -12,14 +12,17 @@ module.exports = {
                 .setRequired(true)
             ),
     async execute(interaction) {
-        orderid = interaction.options.getInteger('orderid');
+        await interaction.deferReply({
+            ephemeral: true
+        });
+        const orderid = interaction.options.getInteger('orderid');
         const gameOrder = await orders.findOne({
             orderid: orderid,
             guildid: interaction.guild.id,
             farmerid: "0"
         })
         if (gameOrder===null) {
-            await interaction.reply({
+            await interaction.editReply({
                 ephemeral: true,
                 embeds: [
                     new MessageEmbed()
@@ -34,7 +37,7 @@ module.exports = {
             return;
         }
         if (!(interaction.member.roles.cache.has(gameOrder.farmer))) {
-            await interaction.reply({
+            await interaction.editReply({
                 ephemeral: true,
                 embeds: [
                     new MessageEmbed()
@@ -52,7 +55,7 @@ module.exports = {
             farmerid: interaction.user.id
         });
         if(farming!==null) {
-            await interaction.reply({
+            await interaction.editReply({
                 ephemeral: true,
                 embeds: [
                     new MessageEmbed()
@@ -67,23 +70,26 @@ module.exports = {
             return;
         }
 
-        const customer = await client.users.cache.find(gameOrder.customerid);
+        const customer = await interaction.client.users.fetch(gameOrder.customerid);
         const embed = new MessageEmbed()
             .setColor('AQUA')
             .setThumbnail(gameOrder.image)
-            .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
-            .setFooter(undefined, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
+            .setAuthor(customer.username, customer.displayAvatarURL({dynamic: true, size: 1024}))
+            .setFooter(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
             .setTimestamp()
-            .setTitle('Order Status')
-            .setDescription( "```\n◙ Card Name: "+gameOrder.name+"\n◙ Loc-Floor: "+gameOrder.location+"-"+gameOrder.floor+"\n◙ Amount: "+gameOrder.amount+"\n◙ Price: "+(gameOrder.price - gameOrder.price*(gameOrder.discount/100))+"\n◙ Discount: "+gameOrder.discount+"%\n```")
+            .setTitle('Farming Status')
+            .addField('Farmer:', interaction.user.tag, true)
+            .addField('Customer:', customer.tag, false)
+            .addField('Order Summary:',"```\n◙ Card Name: "+gameOrder.name+"\n◙ Loc-Floor: "+gameOrder.location+"-"+gameOrder.floor+"\n◙ Amount: "+gameOrder.amount+"\n◙ Price: "+(gameOrder.price - gameOrder.price*(gameOrder.discount/100))+"\n◙ Discount: "+gameOrder.discount+'%\n◙ Amount Farmed:'+gameOrder.amount_farmed+"/"+gameOrder.amount+"\n```", false)
         
+        let status = "0";
         try {
-            const statusChannel = await interaction.client.channels.cache.get(gameOrder['pending']);
-            await statusChannel.send({
+            const statusChannel = await interaction.client.channels.cache.get(gameOrder['status']);
+            status = await statusChannel.send({
                 embeds: [embed]
             });
         } catch(err) {
-            await interaction.send({
+            await interaction.editReply({
                 ephemeral: true,
                 embeds: [
                     new MessageEmbed()
@@ -97,10 +103,51 @@ module.exports = {
             });
         }
 
-        
-        await interaction.reply({
+        try {
+            const pendingChannel = await interaction.client.channels.cache.get(gameOrder['pending']);
+            const pendingMessage = await pendingChannel.messages.fetch(gameOrder.pendingid);
+            await pendingMessage.delete()
+        } catch (err) {
+            // PASS
+        }
+        const test = await orders.updateOne(
+            {
+                _id: gameOrder._id,
+                farmerid: "0"
+            },
+            {
+                $set: {
+                    farmerid: interaction.user.id,
+                    pendingid: "0",
+                    statusid: status==="0" ? "0": status.id,
+                }
+            }
+        )
+        if (test.matchedCount===0) {
+            await interaction.editReply({
+                embeds: [
+                    new MessageEmbed()
+                    .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
+                    .setColor('RED')
+                    .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                    .setTimestamp()
+                    .setTitle('⛔️ Error')
+                    .setDescription(`This order has already been accepted by another user. Please find a new order to accept.`)
+                ]
+            })
+            return;
+        }
+        await interaction.editReply({
             ephemeral: true,
-            content: 'hello'
+            embeds: [embed]
         })
+        try {
+            await customer.send({
+                content: status==="0"? `Order accepted by **${interaction.user.tag}**`: `Order accepted by **${interaction.user.tag}**. Jump to the order\n${status.url}`,
+                embeds: [embed]
+            })
+        } catch (err) {
+            //PASS
+        };
     }
 };
