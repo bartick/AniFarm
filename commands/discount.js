@@ -57,6 +57,17 @@ module.exports = {
                     .setDescription('Select a discount percentage')
                     .setRequired(true)
                 )
+            )
+            .addSubcommand(subcommand => 
+                subcommand.setName('view')
+                .setDescription('View the discounts the server provide')
+                .addStringOption(option => 
+                    option.setName('type')
+                    .setDescription('Type of discount')
+                    .setRequired(true)
+                    .addChoice('daily', 'daily')
+                    .addChoice('server', 'server')
+                )
             ),
     async execute(interaction) {
         //TODO: show what the farmer is farming
