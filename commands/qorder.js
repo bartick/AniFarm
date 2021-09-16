@@ -191,10 +191,11 @@ module.exports = {
                 }
                 try {
                     const pendingChannel = await i.client.channels.cache.get(setOrder['pending']);
-                    await pendingChannel.send({
+                    const pendingOrder =  await pendingChannel.send({
                         content: content,
                         embeds: [embed]
                     });
+                    setOrder['pendingid'] = pendingOrder.id;
                     const odr = new order(setOrder);
                     await odr.save();
                 }
@@ -222,7 +223,11 @@ module.exports = {
                 });
             }
             await wait(3000);
-            await interaction.deleteReply();
+            try {
+                await interaction.deleteReply();
+            } catch(error) {
+                //SKIP
+            }
         });
     }
 };
