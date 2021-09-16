@@ -20,7 +20,7 @@ module.exports = {
                 .setRequired(true)
             ),
         async execute(interaction) {
-            const name = interaction.options.getString('name');
+            const name = interaction.options.getString('name').trim();
 
             const card = await new Promise((resolve, reject) => {
                 sqldb.all("SELECT * FROM cards WHERE NAME LIKE ?", ["%" + name + "%"], (err, rows) => {

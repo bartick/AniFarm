@@ -70,7 +70,24 @@ module.exports = {
             return;
         }
 
-        const customer = await interaction.client.users.fetch(gameOrder.customerid);
+        let customer;
+        try {
+            customer = await interaction.client.users.fetch(gameOrder.customerid);
+        } catch (err) {
+            await interaction.editReply({
+                embeds: [
+                    new MessageEmbed()
+                    .setTitle('⛔️ Error')
+                    .setDescription(`I cannot find the user in the discord library or I am limited. If you think this is a mistake then here is the user id **${gameOrder.customerid}** and you can report it to the support server.\nThank You.`)
+                    .setTimestamp()
+                    .setAuthor(interaction.user.username, interaction.user.displayAvatarUrl({dynamic: true, size: 1024}))
+                    .setColor('RED')
+                    .setThumbnail(interaction.client.user.displayAvatarUrl({dynamic: true, size: 1024}))
+                ]
+            });
+            return;
+        };
+        
         const embed = new MessageEmbed()
             .setColor('AQUA')
             .setThumbnail(gameOrder.image)

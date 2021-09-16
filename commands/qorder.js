@@ -55,7 +55,7 @@ module.exports = {
                 });
                 return;
         }
-        const name = interaction.options.getString('name'); 
+        const name = interaction.options.getString('name').trim(); 
         const amount = interaction.options.getInteger('amount');
         let setOrder = {};
         setOrder['amount'] = amount;

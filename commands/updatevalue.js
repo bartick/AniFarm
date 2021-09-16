@@ -74,6 +74,13 @@ module.exports = {
             } catch (err) {
                 //SKIP
             }
+            try {
+                const statusChannel = await interaction.client.channels.cache.get(gameOrder.status);
+                const statusOrder = await statusChannel.messages.fetch(gameOrder.statusid);
+                await statusOrder.delete()
+            } catch (err) {
+                //SKIP
+            }
             const copyButton = new MessageActionRow()
                 .addComponents(
                     new MessageButton()
