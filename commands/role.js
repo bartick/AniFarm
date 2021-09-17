@@ -14,6 +14,8 @@ module.exports = {
             .addChoice('unavailable', 'unavailable')
         ),
     async execute(interaction) {
+        await interaction.reply("Not Yet Done");
+        return;
         await interaction.deferReply({
             ephemeral: true
         })
@@ -34,7 +36,6 @@ module.exports = {
         };
         if (!(interaction.member.roles.cache.has(gameOrder.farmer))) {
             await interaction.editReply({
-                ephemeral: true,
                 embeds: [
                     new MessageEmbed()
                         .setColor('RED')
@@ -42,14 +43,24 @@ module.exports = {
                         .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
                         .setTimestamp()
                         .setTitle('⛔️ Error')
-                        .setDescription('You cannot accept orders from this server as you are not a farmer of this server.\nThank You...')
+                        .setDescription('You are not a farmer of this server. So you cannot use this command. Please take some rest or use this command in the server you can (a server where you are a farmer)')
                 ]
             });
             return;
         }
         const choice = interaction.options.getString('name');
         if (guildSettings[choice]==='0') {
-            //TODO
+            await interaction.editReply({
+                embeds: [
+                    new MessageEmbed()
+                        .setColor('RED')
+                        .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                        .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
+                        .setTimestamp()
+                        .setTitle('⛔️ Error')
+                        .setDescription('This server dosen\'t have this role. Please try other role status if that fits your need.')
+                ]
+            })
         } else {
             //TODO
         }

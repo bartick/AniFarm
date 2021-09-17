@@ -11,6 +11,8 @@ module.exports = {
             .setRequired(true)
         ),
     async execute(interaction) {
+        await interaction.reply("Not Yet Done");
+        return;
         const levels = interaction.options.getString('levels').trim().split(/\s/);
         await interaction.reply("Hello");
         if(levels.length==2 && NaN(levels[0]) && !(NaN(levels[1]))) {
