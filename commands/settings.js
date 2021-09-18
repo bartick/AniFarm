@@ -64,6 +64,21 @@ module.exports = {
                 .setDescription('View your settings')
             ),
     async execute(interaction) {
+        if (interaction.guild===null) {
+            await interaction.reply({
+                ephemeral: true,
+                embeds: [
+                    new MessageEmbed()
+                        .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
+                        .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                        .setTimestamp()
+                        .setColor('RED')
+                        .setTitle('⛔ Error')
+                        .setDescription('You cannot use this command in DMs. Please go to a server to use this command.')
+                ]
+            });
+            return;
+        }
 
         if(!(interaction.member.permissions.has(Permissions.FLAGS.MANAGE_GUILD))) {
             await interaction.reply({
