@@ -311,11 +311,11 @@ module.exports = {
                         }
                     }
                     else {
+                        price = price*10 + parseInt(id);
                         if (inputed===2 && price>0) {
                             location[3].components[1].setDisabled(false);
                             inputed = 0;
                         }
-                        price = price*10 + parseInt(id);
                         toUpdate = true;
                     }
                 }
