@@ -167,7 +167,7 @@ module.exports = {
             })
         };
 
-        const collector = interaction.channel.createMessageComponentCollector({ filter, time: 15000, max: 1 });
+        const collector = interaction.channel.createMessageComponentCollector({ filter, time: 30000, max: 1 });
 
         collector.on("collect", async i => {
             let id = i.customId;
@@ -185,8 +185,8 @@ module.exports = {
                     .setTitle('Waiting for a farmer to accept order!!')
                     .setTimestamp()
                     .setFooter(`If you are a farmer accept the order using /accorder ${setOrder['orderid']}`)
-                let content;
-                if (guildSettings.vacant>=0){
+                let content=null;
+                if (guildSettings.vacant>0){
                     content = `<@&${guildSettings.vacant}> a new order has arrived.`
                 }
                 try {
@@ -222,11 +222,26 @@ module.exports = {
                     components: [row]
                 });
             }
-            await wait(3000);
+            await wait(2000);
             try {
                 await interaction.deleteReply();
             } catch(error) {
                 //SKIP
+            }
+        });
+        collector.on('end', async collected => {
+            if (collected.size===0) {
+                embed.setColor('#FF0000').setTitle('Order Cancelled!');
+                await interaction.editReply({
+                    embeds: [embed],
+                    components: [row]
+                });
+                await wait(2000);
+                try {
+                    await interaction.deleteReply();
+                } catch(error) {
+                    //SKIP
+                }
             }
         });
     }

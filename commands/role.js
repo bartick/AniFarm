@@ -12,10 +12,9 @@ module.exports = {
             .addChoice('vacant', 'vacant')
             .addChoice('occupied', 'occupied')
             .addChoice('unavailable', 'unavailable')
+            .setRequired(true)
         ),
     async execute(interaction) {
-        await interaction.reply("Not Yet Done");
-        return;
         await interaction.deferReply({
             ephemeral: true
         })
@@ -34,7 +33,7 @@ module.exports = {
             });
             return;
         };
-        if (!(interaction.member.roles.cache.has(gameOrder.farmer))) {
+        if (!(interaction.member.roles.cache.has(guildSettings.farmer))) {
             await interaction.editReply({
                 embeds: [
                     new MessageEmbed()
@@ -62,7 +61,57 @@ module.exports = {
                 ]
             })
         } else {
-            //TODO
+            if (interaction.member.roles.cache.has(guildSettings[choice])) {
+                await interaction.editReply({
+                    embeds: [
+                        new MessageEmbed()
+                        .setColor('RED')
+                        .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                        .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
+                        .setTimestamp()
+                        .setTitle('⛔️ Error')
+                        .setDescription('You already have this role. No need to re-assign it.\nHave a nice day.')
+                    ]
+                })
+            }
+            else {
+                try {
+                    let description = '+ <@&'+guildSettings[choice]+'>\n';
+                    await interaction.member.roles.add(guildSettings[choice]);
+                    let status = ['vacant', 'occupied', 'unavailable'].filter((ele) => {
+                        return ele!=choice
+                    });
+                    for (const stat of status) {
+                        if (interaction.member.roles.cache.has(guildSettings[stat])) {
+                            await interaction.member.roles.remove(guildSettings[stat]);
+                            description = description + '\n-  <@&'+guildSettings[stat]+'>';
+                        }
+                    }
+                    await interaction.editReply({
+                        embeds: [
+                            new MessageEmbed()
+                            .setColor('AQUA')
+                            .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                            .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
+                            .setTimestamp()
+                            .setTitle('Role Effected')
+                            .setDescription(description)
+                        ]
+                    })
+                } catch(err) {
+                    await interaction.editReply({
+                        embeds: [
+                            new MessageEmbed()
+                            .setColor('RED')
+                            .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                            .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
+                            .setTimestamp()
+                            .setTitle('⛔️ Error')
+                            .setDescription('I do not have permission to change role or assign role. Please ask a admin to fix the issue before using this command.')
+                        ]
+                    })
+                }
+            }
         }
     }
 }

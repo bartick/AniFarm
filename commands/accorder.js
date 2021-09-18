@@ -92,7 +92,7 @@ module.exports = {
             .setColor('AQUA')
             .setThumbnail(gameOrder.image)
             .setAuthor(customer.username, customer.displayAvatarURL({dynamic: true, size: 1024}))
-            .setFooter(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
+            .setFooter(`${interaction.user.username} • Order Id ${gameOrder['orderid']}`, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
             .setTimestamp()
             .setTitle('Farming Status')
             .addField('Farmer:', interaction.user.tag, true)
