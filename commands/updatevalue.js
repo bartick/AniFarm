@@ -96,6 +96,14 @@ module.exports = {
             } catch (err) {
                 //SKIP
             }
+            try {
+                const statusChannel = await interaction.client.channels.cache.get(gameOrder['complete']);
+                await statusChannel.send({
+                    embeds: [embed]
+                });
+            } catch(err) {
+                //SKIP
+            }
             const copyButton = new MessageActionRow()
                 .addComponents(
                     new MessageButton()
