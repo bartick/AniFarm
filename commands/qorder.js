@@ -13,6 +13,21 @@ module.exports = {
         .addStringOption(option => option.setName('name').setDescription('Enter a card name to order').setRequired(true))
         .addIntegerOption(option => option.setName('amount').setDescription('Enter the amount of cards you want to order.').setRequired(true)),
     async execute(interaction) {
+        if (interaction.guild===null) {
+            await interaction.reply({
+                ephemeral: true,
+                embeds: [
+                    new MessageEmbed()
+                        .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
+                        .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                        .setTimestamp()
+                        .setColor('RED')
+                        .setTitle('⛔ Error')
+                        .setDescription('You cannot use this command in DMs. Please go to a server to use this command.')
+                ]
+            });
+            return;
+        }
         const row = new MessageActionRow().addComponents(
             new MessageButton()
                 .setCustomId('confirm')
@@ -96,6 +111,32 @@ module.exports = {
             });
             return;
         };
+
+        if (!(interaction.user.id in interaction.client.ordered)) {
+            interaction.client.ordered[interaction.user.id]={};
+        }
+        else {
+            if (card.NAME in interaction.client.ordered[interaction.user.id]) {
+                if (interaction.client.ordered[interaction.user.id][card.NAME] > Date.now()) {
+                    await interaction.reply({
+                        ephemeral: true,
+                        embeds: [
+                            new MessageEmbed()
+                                .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
+                                .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                                .setTimestamp()
+                                .setColor('RED')
+                                .setTitle('⛔ Error')
+                                .setDescription(`You have already ordered it. Please wait 2 hours before ordering again.\nYou can order again: <t:${parseInt(interaction.client.ordered[interaction.user.id][card.NAME]/1000)}:R>`)
+                        ]
+                    });
+                    return;
+                }
+                else {
+                    delete interaction.client.ordered[interaction.user.id][card.NAME];
+                }
+            }
+        }
 
         const locfl = await new Promise((resolve, reject) => {
             sqldb.get('SELECT * FROM location WHERE SERIES=?',[card.SERIES], (err, row) => {
@@ -196,8 +237,6 @@ module.exports = {
                         embeds: [embed]
                     });
                     setOrder['pendingid'] = pendingOrder.id;
-                    const odr = new order(setOrder);
-                    await odr.save();
                 }
                 catch (err) {
                     await interaction.followUp({
@@ -212,7 +251,11 @@ module.exports = {
                                 .setDescription(`An error occured. Make sure I have permission to send message or see the channel <#${setOrder['pending']}>\n\n**Error:**\n${err.message}`)
                         ]
                     });
+                    return;
                 }
+                const odr = new order(setOrder);
+                await odr.save();
+                interaction.client.ordered[interaction.user.id][card.NAME] = Date.now()+7200000;
             }
             else {
                 await i.deferUpdate();
