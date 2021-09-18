@@ -78,7 +78,7 @@ module.exports = {
         setOrder['customerid'] = interaction.user.id;
         setOrder['pending'] = guildSettings.pending;
         setOrder['status'] = guildSettings.status;
-        setOrder['complete'] = guildSettings.order;
+        setOrder['complete'] = guildSettings.complete;
         setOrder['guildid'] = interaction.guild.id;
 
 

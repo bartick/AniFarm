@@ -97,12 +97,12 @@ module.exports = {
                 //SKIP
             }
             try {
-                const statusChannel = await interaction.client.channels.cache.get(gameOrder['complete']);
-                await statusChannel.send({
+                const complete = await interaction.client.channels.cache.get(gameOrder.complete);
+                await complete.send({
                     embeds: [embed]
                 });
             } catch(err) {
-                //SKIP
+                console.error(err);
             }
             const copyButton = new MessageActionRow()
                 .addComponents(
