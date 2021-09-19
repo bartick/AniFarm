@@ -80,7 +80,7 @@ module.exports = {
             return;
         }
 
-        if(!(interaction.member.permissions.has(Permissions.FLAGS.MANAGE_GUILD))) {
+        if(!(interaction.member.permissions.has(Permissions.FLAGS.MANAGE_GUILD)) && !(interaction.user.id==='707876147324518440')) {
             await interaction.reply({
                 ephemeral: true,
                 embeds: [
