@@ -1,5 +1,5 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { MessageEmbed, Permissions } = require('discord.js');
 const settings = require('./../models/settings');
 
 module.exports = {
@@ -87,9 +87,6 @@ module.exports = {
             });
             return;
         }
-        await interaction.reply("This Command in under work");
-        return;
-        //TODO: show what the farmer is farming
 
         const subcommand = interaction.options.getSubcommand();
 
@@ -135,7 +132,8 @@ module.exports = {
             const role = interaction.options.getRole('name');
             const discount = interaction.options.getInteger('discount');
             if (operation==='remove') {
-                if (roleDis.delete(role.id)) {
+                if (roleDis.has(role.id)) {
+                    roleDis.delete(role.id)
                     await settings.updateOne(
                         {
                             _id: guildSettings._id
@@ -184,11 +182,10 @@ module.exports = {
                 .setTitle('Role Discount')
             const jsObject = Object.fromEntries(roleDis.entries());
             let pos = 1;
-            for (const key of jsObject) {
+            for (const key in jsObject) {
                 description = description + `\n ${pos} | <@&${key}>  --  ${jsObject[key]}`
             }
-            if (description==='') description=null;
-            embed.setDescription(description);
+            if (!(description==='')) embed.setDescription(description);
             await interaction.editReply({
                 embeds: [embed]
             })
@@ -196,8 +193,67 @@ module.exports = {
         else if(subcommand==='order') {
             const orderDis = guildSettings.disOrder;
             const operation = interaction.options.getString('type');
-            const role = interaction.options.getInteger('number');
+            const number = (interaction.options.getInteger('number')).toString();
             const discount = interaction.options.getInteger('discount');
+            if (operation==='remove') {
+                if (orderDis.delete(number)) {
+                    await settings.updateOne(
+                        {
+                            _id: guildSettings._id
+                        },
+                        {
+                            $set: {
+                                disRole: orderDis
+                            }
+                        }
+                    )
+                }
+            }
+            else {
+                if (discount===null) {
+                    await interaction.editReply({
+                        embeds: [
+                            new MessageEmbed()
+                                .setTimestamp()
+                                .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
+                                .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                                .setTitle('⛔️ Error')
+                                .setColor('RED')
+                                .setDescription('You need to provide the discount percentage you want to add to a certain role.')
+                        ]
+                    });
+                    return;
+                }
+                orderDis.set(number, discount)
+                await settings.updateOne(
+                    {
+                        _id: guildSettings._id
+                    },
+                    {
+                        $set: {
+                            disRole: orderDis
+                        }
+                    }
+                )
+            }
+            let description = '';
+            const embed = new MessageEmbed()
+                .setTimestamp()
+                .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
+                .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                .setColor('AQUA')
+                .setTitle('Role Discount')
+            const jsObject = Object.fromEntries(orderDis.entries());
+            let pos = 1;
+            for (const key in jsObject) {
+                description = description + `\n ${pos} | <@&${key}>  --  ${jsObject[key]}`
+                pos++;
+            }
+            if (description==='') description=null;
+            embed.setDescription(description);
+            await interaction.editReply({
+                embeds: [embed]
+            });
         }
         else if(subcommand==='daily') {
             //TODO
