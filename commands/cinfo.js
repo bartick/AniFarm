@@ -23,11 +23,7 @@ module.exports = {
             const name = interaction.options.getString('name').trim();
 
             const card = await new Promise((resolve, reject) => {
-                sqldb.all("SELECT * FROM cards WHERE NAME LIKE ?", ["%" + name + "%"], (err, rows) => {
-                    if (err) {
-                        console.error(err.message);
-                        reject(err);
-                    }
+                const rows = sqldb.prepare("SELECT * FROM cards WHERE NAME LIKE ?").all("%" + name + "%")
                     for (let i = 0; i < rows.length; i++) {
                         let row = rows[i];
                         if ((row.NAME.toLowerCase() === name.toLowerCase()) || (row.NAME.toLowerCase().split(/[\s\(\)]+/).indexOf(name.toLowerCase()) >= 0)) {
@@ -35,7 +31,6 @@ module.exports = {
                         };
                     };
                     resolve('notfound')
-                });
             });
     
             if (card === 'notfound') {
@@ -52,17 +47,7 @@ module.exports = {
                 return;
             };
     
-            const locfl = await new Promise((resolve, reject) => {
-                sqldb.get('SELECT * FROM location WHERE SERIES=?',[card.SERIES], (err, row) => {
-                    if (err) {
-                        console.error(err.message);
-                        reject(err);
-                    }
-                    else {
-                        resolve(row);
-                    }
-                });
-            });
+            const locfl = sqldb.prepare('SELECT * FROM location WHERE SERIES=?').get(card.SERIES);
 
             const location = card.LOCATION===0 ? 'These cards are not found in any Floor' : card.LOCATION
             const floor = card.LOCATION===0 ? '~~Events~~, Lottery' : `${card.FLOOR}, ${card.FLOOR+locfl.FLOORS}, ${(locfl.FLOORS*2)+card.FLOOR}`

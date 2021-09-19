@@ -83,19 +83,14 @@ module.exports = {
 
 
         const card = await new Promise((resolve, reject) => {
-            sqldb.all("SELECT * FROM cards WHERE NAME LIKE ?", ["%" + name + "%"], (err, rows) => {
-                if (err) {
-                    console.error(err.message);
-                    reject(err);
-                }
+            const rows = sqldb.prepare("SELECT * FROM cards WHERE NAME LIKE ?").all("%" + name + "%");
                 for (let i = 0; i < rows.length; i++) {
                     let row = rows[i];
                     if ((row.NAME.toLowerCase() === name.toLowerCase()) || (row.NAME.toLowerCase().split(/[\s\(\)]+/).indexOf(name.toLowerCase()) >= 0)) {
                         resolve(row);
                     };
                 };
-                resolve('notfound')
-            });
+                resolve('notfound');
         });
 
         if (card === 'notfound') {
@@ -138,17 +133,7 @@ module.exports = {
             }
         }
 
-        const locfl = await new Promise((resolve, reject) => {
-            sqldb.get('SELECT * FROM location WHERE SERIES=?',[card.SERIES], (err, row) => {
-                if (err) {
-                    console.error(err.message);
-                    reject(err);
-                }
-                else {
-                    resolve(row);
-                }
-            });
-        });
+        const locfl = sqldb.prepare('SELECT * FROM location WHERE SERIES=?').get(card.SERIES);
 
         if (locfl.PLACE===0) {
             const embed = new MessageEmbed()
@@ -208,7 +193,7 @@ module.exports = {
             })
         };
 
-        const collector = interaction.channel.createMessageComponentCollector({ filter, time: 30000, max: 1 });
+        const collector = message.createMessageComponentCollector({ filter, time: 30000, max: 1 });
 
         collector.on("collect", async i => {
             let id = i.customId;
@@ -258,9 +243,8 @@ module.exports = {
                 interaction.client.ordered[interaction.user.id][card.NAME] = Date.now()+7200000;
             }
             else {
-                await i.deferUpdate();
                 embed.setColor('#FF0000').setTitle('Order Cancelled!');
-                await interaction.editReply({
+                await i.update({
                     embeds: [embed],
                     components: [row]
                 });

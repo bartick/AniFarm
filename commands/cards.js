@@ -3,17 +3,7 @@ const { MessageEmbed } = require('discord.js');
 const sqldb = require('./../utils/sqlite');
 
 async function expcalculator(exp) {
-	return await new Promise((resolve, reject) => {
-        sqldb.all('SELECT Exp FROM Expcards WHERE Level Between ? AND ?',[exp[0], exp[1]], (err, row) => {
-            if (err) {
-                console.error(err.message);
-                reject(err);
-            }
-            else {
-                resolve(row);
-            }
-        });
-    });
+    return sqldb.prepare('SELECT Exp FROM Expcards WHERE Level Between ? AND ?').all(exp[0], exp[1]);
 }
 
 module.exports = {

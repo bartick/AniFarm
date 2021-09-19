@@ -72,19 +72,14 @@ module.exports = {
 
         for (const name of cardNames) {
             const card = await new Promise((resolve, reject) => {
-                sqldb.all("SELECT * FROM cards WHERE NAME LIKE ?", ["%" + name + "%"], (err, rows) => {
-                    if (err) {
-                        console.error(err.message);
-                        reject(err);
-                    }
-                    for (let i = 0; i < rows.length; i++) {
-                        let row = rows[i];
-                        if ((row.NAME.toLowerCase() === name.toLowerCase()) || (row.NAME.toLowerCase().split(/[\s\(\)]+/).indexOf(name.toLowerCase()) >= 0)) {
-                            resolve(row);
-                        };
+                const rows = sqldb.prepare('SELECT * FROM cards WHERE NAME LIKE ?').all("%" + name + "%");
+                for (let i = 0; i < rows.length; i++) {
+                    let row = rows[i];
+                    if ((row.NAME.toLowerCase() === name.toLowerCase()) || (row.NAME.toLowerCase().split(/[\s\(\)]+/).indexOf(name.toLowerCase()) >= 0)) {
+                        resolve(row);
                     };
-                    resolve('notfound')
-                });
+                };
+                resolve('notfound')
             });
             if (!(card==='notfound')) {
                 cards[0].addField(`${card.NAME} ${(card.TYPE).trim().split(/\s/)[1]} ${card.EMOJI}`, `**Card Series:** ${card.SERIES}\n**Hp:** ${card.HP}\n**Atk:** ${card.ATK}\n**Def:** ${card.DEF}\n**Speed:** ${card.SPEED}`,true)
