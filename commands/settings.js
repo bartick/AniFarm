@@ -487,6 +487,7 @@ module.exports = {
                 });
                 return;
             }
+            await interaction.deferReply();
             let prices = ''
             let pos = 0;
             const guildPrices = Object.fromEntries((guildSettings.prices).entries());
