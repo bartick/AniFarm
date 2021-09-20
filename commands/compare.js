@@ -1,7 +1,8 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { MessageEmbed, MessageAttachment } = require('discord.js');
 const sqldb = require('./../utils/sqlite');
 const paginate = require('./../utils/paginate')
+const Canvas = require('canvas');
 
 function statz_formula(R, Evo, Lv) {
     /**R = 1.6 (R) / 1.8 (SR) / 2(UR)
@@ -37,6 +38,26 @@ module.exports = {
                     .setDescription('Name of 5th card.')
                 ),
         async execute(interaction) {
+        // const images = [
+        //     Canvas.loadImage('https://i.ibb.co/ftz4Mmg/08a93cab49cc.png'),
+        //     Canvas.loadImage('https://i.ibb.co/G51w1Q8/99f974bcd0f9.png'),
+        //     Canvas.loadImage('https://i.ibb.co/7vHTYKy/11a3d94ff547.png'),
+        //     Canvas.loadImage('https://i.ibb.co/PGfRZwk/b07656817511.png'),
+        //     Canvas.loadImage('https://i.ibb.co/4VmRLxV/8ab55bb37fe1.png')
+        // ]
+        // const canvas = Canvas.createCanvas(150*images.length, 200);
+        // const ctx = canvas.getContext('2d');
+        // const imageBuffer = await Promise.all(images)
+
+        // for (let i=0; i<imageBuffer.length; i++) {
+        //     ctx.drawImage(imageBuffer[i], 140*i, 0, 150, canvas.height)
+        // }
+
+        // const attachment = new MessageAttachment(canvas.toBuffer(), 'compare.png');
+
+	    // interaction.editReply({ files: [attachment] });
+        const images = []
+
         await interaction.deferReply()
         const cardNames = [interaction.options.getString('option1').trim(), interaction.options.getString('option2').trim()];
         let opt = interaction.options.getString('option3');
@@ -52,18 +73,21 @@ module.exports = {
                 .setColor('AQUA')
                 .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({ dynamic: true, size: 1024 }))
                 .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                .setImage('attachment://compare.png')
                 .setTimestamp(),
             new MessageEmbed()
                 .setTitle('SR Evo 3 | Level 50')
                 .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({ dynamic: true, size: 1024 }))
                 .setColor('AQUA')
                 .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                .setImage('attachment://compare.png')
                 .setTimestamp(),
             new MessageEmbed()
                 .setTitle('UR Evo 3 | Level 60')
                 .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({ dynamic: true, size: 1024 }))
                 .setColor('AQUA')
                 .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                .setImage('attachment://compare.png')
                 .setTimestamp()
         ];
         const correction = [
@@ -82,11 +106,25 @@ module.exports = {
                 resolve('notfound')
             });
             if (!(card==='notfound')) {
+                images.push(Canvas.loadImage(card.PICTURE));
                 cards[0].addField(`${card.NAME} ${(card.TYPE).trim().split(/\s/)[1]} ${card.EMOJI}`, `**Card Series:** ${card.SERIES}\n**Hp:** ${card.HP}\n**Atk:** ${card.ATK}\n**Def:** ${card.DEF}\n**Speed:** ${card.SPEED}`,true)
                 cards[1].addField(`${card.NAME} ${(card.TYPE).trim().split(/\s/)[1]} ${card.EMOJI}`, `**Hp:** ${parseInt(card.HP*correction[0])}\n**Atk:** ${parseInt(card.ATK*correction[0])}\n**Def:** ${parseInt(card.DEF*correction[0])}\n**Speed:** ${parseInt(card.SPEED*correction[0])}`, true)
                 cards[2].addField(`${card.NAME} ${(card.TYPE).trim().split(/\s/)[1]} ${card.EMOJI}`, `**Hp:** ${parseInt(card.HP*correction[1])}\n**Atk:** ${parseInt(card.ATK*correction[1])}\n**Def:** ${parseInt(card.DEF*correction[1])}\n**Speed:** ${parseInt(card.SPEED*correction[1])}`, true)
             };
         };
+
+        const canvas = Canvas.createCanvas(600*images.length, 670);
+        const ctx = canvas.getContext('2d');
+        const imageBuffer = await Promise.all(images)
+
+        for (let i=0; i<imageBuffer.length; i++) {
+            ctx.drawImage(imageBuffer[i], 590*i, 0, 590, canvas.height)
+        }
+
+        const attachment = new MessageAttachment(canvas.toBuffer(), 'compare.png');
+
+	    await interaction.editReply({ files: [attachment] });
+
         await paginate(interaction, cards, 0);
     }
 };
