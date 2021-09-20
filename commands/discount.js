@@ -1,6 +1,8 @@
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed, Permissions } = require('discord.js');
 const settings = require('./../models/settings');
+const relativeDate = require('./../utils/relateDate');
+const paginate = require('./../utils/paginate');
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -49,8 +51,8 @@ module.exports = {
             .addSubcommand( subcommand => 
                 subcommand.setName('daily')
                 .setDescription('Sets up daily discounts')
-                .addIntegerOption(option => 
-                    option.setName('number')
+                .addStringOption(option => 
+                    option.setName('time')
                     .setDescription('Select number of orders to get discount')
                     .setRequired(true)
                 )
@@ -105,9 +107,7 @@ module.exports = {
             });
             return;
         };
-        await interaction.deferReply({
-            ephemeral: true
-        })
+        await interaction.deferReply();
         const guildId = interaction.guildId;
         const guildSettings = await settings.findById(guildId);
 
@@ -183,7 +183,8 @@ module.exports = {
             const jsObject = Object.fromEntries(roleDis.entries());
             let pos = 1;
             for (const key in jsObject) {
-                description = description + `\n ${pos} | <@&${key}>  --  ${jsObject[key]}`
+                description = description + `\n ${pos} | <@&${key}>  --  ${jsObject[key]}%`;
+                pos++;
             }
             if (!(description==='')) embed.setDescription(description);
             await interaction.editReply({
@@ -196,7 +197,8 @@ module.exports = {
             const number = (interaction.options.getInteger('number')).toString();
             const discount = interaction.options.getInteger('discount');
             if (operation==='remove') {
-                if (orderDis.delete(number)) {
+                if (orderDis.has(number)) {
+                    orderDis.delete(number)
                     await settings.updateOne(
                         {
                             _id: guildSettings._id
@@ -231,7 +233,7 @@ module.exports = {
                     },
                     {
                         $set: {
-                            disRole: orderDis
+                            disOrder: orderDis
                         }
                     }
                 )
@@ -246,20 +248,105 @@ module.exports = {
             const jsObject = Object.fromEntries(orderDis.entries());
             let pos = 1;
             for (const key in jsObject) {
-                description = description + `\n ${pos} | <@&${key}>  --  ${jsObject[key]}`
+                description = description + `\n **${pos} |** ${key} Fodders    --    ${jsObject[key]}%`;
                 pos++;
             }
-            if (description==='') description=null;
-            embed.setDescription(description);
+            if (!(description==='')) embed.setDescription(description);
             await interaction.editReply({
                 embeds: [embed]
             });
         }
         else if(subcommand==='daily') {
-            //TODO
+            const timeInputed = interaction.options.getString('time').trim();
+            const discount = interaction.options.getInteger('discount');
+            let timeLimit = Date.now();
+            const timeObject = {
+                    s: 1000,
+                    m: 60000,
+                    h: 3600000,
+                    d: 86400000,
+                    w: 604800000,
+                    y: 31536000000
+                }
+            const limit = (timeInputed.slice(timeInputed.length-1)).toLowerCase();
+            const multiplier = timeInputed.slice(0, timeInputed.length-1);
+            if (isNaN(parseInt(multiplier)) || 'smhdy'.indexOf(limit)===-1) {
+                await interaction.editReply({
+                    embeds: [
+                        new MessageEmbed()
+                            .setTimestamp()
+                            .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
+                            .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                            .setTitle('⛔️ Error')
+                            .setColor('RED')
+                            .setDescription(`Your input ${timeInputed} is not a proper time. Please input a proper time next time.\n**Example of time:** 5h (This stands for 5 hours)\n\n__**Time possible:**\n1. Second (s)\n2.Minute (m)\n3. Hour (h)\n4. Day (d)\n5. Week (w)\n6. Year (y)`)
+                    ]
+                });
+                return;
+            };
+            timeLimit = timeLimit + parseInt(multiplier)*timeObject[limit];
+            const serverDis = {
+                next: timeLimit,
+                discount: discount
+            }
+            await settings.updateOne(
+                {
+                    _id: guildSettings._id
+                },
+                {
+                    $set: {
+                        disServer: serverDis
+                    }
+                }
+            )
+            await interaction.editReply(`Flat discount of ${discount}% will end ${relativeDate.format(timeLimit)}`)
         }
         else {
-            //TODO
+            const disType = interaction.options.getString('type');
+            if (disType==='daily') {
+                if (guildSettings.disServer.next > Date.now()) {
+                    await interaction.editReply(`Flat discount of ${guildSettings.disServer.get('discount')}% will end ${relativeDate.format(guildSettings.disServer.get('next'))}`)
+                }
+                else {
+                    await interaction.editReply(`Flat discount of ${guildSettings.disServer.get('discount')}% has ended ${relativeDate.format(guildSettings.disServer.get('next'))}`)
+                }
+            }
+            else {
+                const orderDis = Object.fromEntries((guildSettings.disOrder).entries());
+                const roleDis = Object.fromEntries((guildSettings.disRole).entries());
+                const embeds = [
+                    new MessageEmbed()
+                        .setTimestamp()
+                        .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
+                        .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                        .setColor('AQUA')
+                        .setTitle('Role Discount'),
+                    new MessageEmbed()
+                        .setTimestamp()
+                        .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
+                        .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                        .setColor('AQUA')
+                        .setTitle('Role Discount')
+                ];
+                let description='';
+                let pos = 1;
+                for (const key in roleDis) {
+                    description = description + `\n ${pos} | <@&${key}>  --  ${roleDis[key]}%`
+                    pos++;
+                }
+                if (!(description==='')) embeds[0].setDescription(description);
+
+                description='';
+                pos = 1;
+                for (const key in orderDis) {
+                    description = description + `\n **${pos} |** ${key} Fodders  --  ${orderDis[key]}%`
+                    pos++;
+                }
+                if (!(description==='')) embeds[1].setDescription(description);
+
+                await paginate(interaction, embeds, 0);
+
+            }
         }
     }
 };
