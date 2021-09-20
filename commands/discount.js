@@ -304,7 +304,7 @@ module.exports = {
         else {
             const disType = interaction.options.getString('type');
             if (disType==='daily') {
-                if (guildSettings.disServer.next > Date.now()) {
+                if (guildSettings.disServer.get('next') > Date.now()) {
                     await interaction.editReply(`Flat discount of ${guildSettings.disServer.get('discount')}% will end ${relativeDate.format(guildSettings.disServer.get('next'))}`)
                 }
                 else {
