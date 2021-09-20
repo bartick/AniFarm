@@ -4,6 +4,7 @@ const sqldb = require('./../utils/sqlite');
 const wait = require('util').promisify(setTimeout);
 const settings = require('./../models/settings')
 const order = require('./../models/orders')
+const relativeDate = require('./../utils/relateDate');
 
 
 module.exports = {
@@ -122,7 +123,7 @@ module.exports = {
                                 .setTimestamp()
                                 .setColor('RED')
                                 .setTitle('⛔ Error')
-                                .setDescription(`You have already ordered it. Please wait 2 hours before ordering again.\nYou can order again: <t:${parseInt(interaction.client.ordered[interaction.user.id][card.NAME]/1000)}:R>`)
+                                .setDescription(`You are on cooldown. Please wait 2 hours before ordering **${card.NAME}** again.\nYou can order again: ${relativeDate.format(interaction.client.ordered[interaction.user.id][card.NAME])}`)
                         ]
                     });
                     return;
@@ -148,6 +149,7 @@ module.exports = {
             });
             return;
         };
+        await interaction.deferReply();
 
         card.FL = (locfl.FLOORS*2)+card.FLOOR;
 
@@ -166,6 +168,22 @@ module.exports = {
 
         //TODO add discount
         setOrder['discount'] = 0;
+        const orderDis = Object.fromEntries((guildSettings.disOrder).entries());
+        const roleDis = Object.fromEntries((guildSettings.disRole).entries());
+        if (guildSettings.disServer.get('next')>Date.now() && setOrder['discount']<guildSettings.disServer.get('discount')) {
+            setOrder['discount'] = guildSettings.disServer.get('discount')
+        }
+        for (const key in roleDis) {
+            if (interaction.member.roles.cache.has(key) && setOrder['discount']<roleDis[key]) {
+                setOrder['discount'] = roleDis[key]
+            }
+        }
+        for (const key in orderDis) {
+            if (amount>=key && setOrder['discount']<orderDis[key]) {
+                setOrder['discount'] = orderDis[key]
+            }
+        }
+
 
         const embed = new MessageEmbed()
             .setColor('#00FFFF')
@@ -177,7 +195,7 @@ module.exports = {
             .setThumbnail(card.PICTURE)
             .addField(`**Order Summary:** ${card.EMOJI}`, "```\n◙ Card Name: "+card.NAME+"\n◙ Loc-Floor: "+card.LOCATION+"-"+card.FL+"\n◙ Amount: "+amount+"\n◙ Price: "+(setOrder.price - setOrder.price*(setOrder.discount/100))+"\n◙ Discount: "+setOrder.discount+"%\n```")
             .setTimestamp();
-        const message = await interaction.reply({
+        const message = await interaction.editReply({
             embeds: [embed],
             components: [row],
             fetchReply: true
@@ -251,7 +269,7 @@ module.exports = {
             }
             await wait(2000);
             try {
-                await interaction.deleteReply();
+                await i.message.delete();
             } catch(error) {
                 //SKIP
             }
@@ -265,7 +283,7 @@ module.exports = {
                 });
                 await wait(2000);
                 try {
-                    await interaction.deleteReply();
+                    await i.message.delete();
                 } catch(error) {
                     //SKIP
                 }
