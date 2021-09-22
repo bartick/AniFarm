@@ -1,11 +1,7 @@
 {
     "token": "ODQzMTYwNTU4MjIwMjE0MzEy.YJ_0dg.x2o62o7PcsgF9ADocZPH5uyuv8U",
-    "profile": {
-        "url": "mongodb+srv://bartick:Bolbona2@cluster0.7agy9.mongodb.net/profiles?retryWrites=true&w=majority",
-        "user": "bartick",
-        "pass": "Bolbona2",
-        "dbName": "profiles"
-    },
+    "clientId": "816544600118132747",
+    "guildId": "830859186727682089",
     "main": {
         "url": "mongodb+srv://bartick:YVw0IXWc71C0ujVs@cluster0.xj2yw.mongodb.net/main?retryWrites=true&w=majority",
         "user": "bartick",
