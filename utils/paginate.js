@@ -87,7 +87,11 @@ module.exports = async (interaction, embeds, index) => {
         }
         else {
             await i.deferUpdate();
-            await i.message.delete();
+            try{
+                await i.message.delete();
+            } catch(err) {
+                //SKIP
+            }
             stop = true;
             collector.stop();
         }

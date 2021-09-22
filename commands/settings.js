@@ -406,7 +406,11 @@ module.exports = {
         
                 else {
                     await inter.deferUpdate()
-                    await inter.message.delete();
+                    try {
+                        await inter.message.delete();
+                    } catch(err) {
+                        //SKIP
+                    }
                     collector.stop();
                 }
         
