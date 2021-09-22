@@ -14,7 +14,7 @@ module.exports = {
 					try {
 						await interaction.editReply({ content: 'There was an error while executing this command! ', ephemeral: true });
 					} catch (e) {
-						await interaction.followUp({ content: 'There was an error while executing this command! ', ephemeral: true });
+						// SKIP
 					}
 				}
 			}
