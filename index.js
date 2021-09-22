@@ -10,7 +10,7 @@ const client = new Client({
 });
 
 client.commands = new Collection();
-client.power = false;
+client.power = [];
 client.ordered = {};
 
 // Global Command
