@@ -4,7 +4,7 @@ const settings = require('./../models/settings');
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName('role')
+        .setName('status')
         .setDescription('Change your role according to the status of farming you are doing.')
         .addStringOption( option => 
             option.setName('name')
