@@ -13,9 +13,16 @@ client.commands = new Collection();
 client.power = false;
 client.ordered = {};
 
+// Global Command
 const commandFiles = fs.readdirSync('./commands').filter(file => file.endsWith('.js'));
 for (const file of commandFiles) {
     const command = require(`./commands/${file}`);
+    client.commands.set(command.data.name, command);
+}
+// Owner Only
+const privateFiles = fs.readdirSync('./private/commands').filter(file => file.endsWith('.js'));
+for (const file of privateFiles) {
+    const command = require(`./private/commands/${file}`);
     client.commands.set(command.data.name, command);
 }
 
