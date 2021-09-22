@@ -326,7 +326,7 @@ module.exports = {
                         .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
                         .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
                         .setColor('AQUA')
-                        .setTitle('Role Discount')
+                        .setTitle('Order Discount')
                 ];
                 let description='';
                 let pos = 1;

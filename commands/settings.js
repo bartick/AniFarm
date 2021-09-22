@@ -339,6 +339,7 @@ module.exports = {
                 else if (id==='delete') {
                     if (index===1) {
                         priceRange[1] = parseInt(priceRange[1]/10);
+                        inputed--;
                     }
                     else {
                         price = parseInt(price/10);
