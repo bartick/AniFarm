@@ -102,7 +102,7 @@ module.exports = {
                     embeds: [embed]
                 });
             } catch(err) {
-                console.error(err);
+                // SKIP
             }
             const copyButton = new MessageActionRow()
                 .addComponents(
