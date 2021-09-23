@@ -1,3 +1,4 @@
+'use strict';
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed, MessageAttachment } = require('discord.js');
 const sqldb = require('./../utils/sqlite');
@@ -38,24 +39,7 @@ module.exports = {
                     .setDescription('Name of 5th card.')
                 ),
         async execute(interaction) {
-        // const images = [
-        //     Canvas.loadImage('https://i.ibb.co/ftz4Mmg/08a93cab49cc.png'),
-        //     Canvas.loadImage('https://i.ibb.co/G51w1Q8/99f974bcd0f9.png'),
-        //     Canvas.loadImage('https://i.ibb.co/7vHTYKy/11a3d94ff547.png'),
-        //     Canvas.loadImage('https://i.ibb.co/PGfRZwk/b07656817511.png'),
-        //     Canvas.loadImage('https://i.ibb.co/4VmRLxV/8ab55bb37fe1.png')
-        // ]
-        // const canvas = Canvas.createCanvas(150*images.length, 200);
-        // const ctx = canvas.getContext('2d');
-        // const imageBuffer = await Promise.all(images)
-
-        // for (let i=0; i<imageBuffer.length; i++) {
-        //     ctx.drawImage(imageBuffer[i], 140*i, 0, 150, canvas.height)
-        // }
-
-        // const attachment = new MessageAttachment(canvas.toBuffer(), 'compare.png');
-
-	    // interaction.editReply({ files: [attachment] });
+            
         const images = []
 
         await interaction.deferReply()

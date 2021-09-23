@@ -1,3 +1,4 @@
+'use strict';
 const { MessageActionRow, MessageButton } = require('discord.js')
 
 module.exports = async (interaction, embeds, index) => {

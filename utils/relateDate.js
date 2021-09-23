@@ -1,3 +1,4 @@
+'use strict';
 const TimeAgo = require('javascript-time-ago')
 
 // English.

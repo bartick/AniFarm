@@ -1,3 +1,4 @@
+'use strict';
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
 const orders = require('./../models/orders');

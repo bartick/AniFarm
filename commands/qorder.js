@@ -1,3 +1,4 @@
+'use strict';
 const { MessageActionRow, MessageButton, MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const sqldb = require('./../utils/sqlite');

@@ -1,3 +1,4 @@
+'use strict';
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed, Permissions } = require('discord.js');
 const settings = require('./../models/settings');

@@ -1,3 +1,4 @@
+'use strict';
 const mongoose = require('mongoose');
 
 module.exports = mongoose.model('banned', new mongoose.Schema({
