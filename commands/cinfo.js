@@ -64,7 +64,7 @@ module.exports = {
                 statz_formula(2,3,60)
             ]
 
-            embeds = [
+            const embeds = [
                 new MessageEmbed()
                     .setColor('#00FFFF')
                     .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
