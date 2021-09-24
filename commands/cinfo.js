@@ -87,7 +87,7 @@ module.exports = {
                     .addField('SR Evo 2 ', `**Hp:** ${parseInt(card.HP*sr[1])}\n**Atk:** ${parseInt(card.ATK*sr[1])}\n**Def:** ${parseInt(card.DEF*sr[1])}\n**Speed:** ${parseInt(card.SPEED*sr[1])}`, true)
                     .addField('SR Evo 3 ', `**Hp:** ${parseInt(card.HP*sr[2])}\n**Atk:** ${parseInt(card.ATK*sr[2])}\n**Def:** ${parseInt(card.DEF*sr[2])}\n**Speed:** ${parseInt(card.SPEED*sr[2])}`, true)
                     .addField('SR Talent', `${card.EMOJI} ${card.SRTALENT}`, false)
-                    .setFooter(`Page 1/3 • ${card.FOOTER} | ID: ${card.ID}`)
+                    .setFooter(`Page 2/3 • ${card.FOOTER} | ID: ${card.ID}`)
                     .setTimestamp(),
                 new MessageEmbed()
                 .setColor('#00FFFF')
@@ -100,7 +100,7 @@ module.exports = {
                 .addField('UR Evo 2 ', `**Hp:** ${parseInt(card.HP*ur[1])}\n**Atk:** ${parseInt(card.ATK*ur[1])}\n**Def:** ${parseInt(card.DEF*ur[1])}\n**Speed:** ${parseInt(card.SPEED*ur[1])}`, true)
                 .addField('UR Evo 3 ', `**Hp:** ${parseInt(card.HP*ur[2])}\n**Atk:** ${parseInt(card.ATK*ur[2])}\n**Def:** ${parseInt(card.DEF*ur[2])}\n**Speed:** ${parseInt(card.SPEED*ur[2])}`, true)
                 .addField('UR Talent', `${card.EMOJI} ${card.URTALENT}`, false)
-                .setFooter(`Page 1/3 • ${card.FOOTER} | ID: ${card.ID}`)
+                .setFooter(`Page 3/3 • ${card.FOOTER} | ID: ${card.ID}`)
                 .setTimestamp()
             ];
 

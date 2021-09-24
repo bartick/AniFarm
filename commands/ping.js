@@ -6,7 +6,6 @@ module.exports = {
         .setName('ping')
         .setDescription('Shows Bot Latency 🏓'),
     async execute(interaction) {
-        await interaction.reply('🏓 Pong');
-        await interaction.editReply(`🏓 WS: ${"`"}${interaction.client.ws.ping}${"`"}`);
+        await interaction.reply(`🏓 WS: ${"`"}${interaction.client.ws.ping}${"`"} ms`);
     },
 };
