@@ -1,4 +1,4 @@
-# → 🐱‍👓 AniFarm 🤖 
+# 🐱‍👓 AniFarm 🤖 
 
 ![AniFarm](./images/anifarm.png)   
 
