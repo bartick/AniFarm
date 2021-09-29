@@ -3,8 +3,9 @@ const { MessageActionRow, MessageButton, MessageEmbed } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const sqldb = require('./../utils/sqlite');
 const wait = require('util').promisify(setTimeout);
-const settings = require('./../models/settings')
-const order = require('./../models/orders')
+const conn = require('./../utils/mongodb');
+const order = conn.models['orders'];
+const settings = conn.models['settings'];
 const relativeDate = require('./../utils/relateDate');
 
 

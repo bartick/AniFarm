@@ -3,7 +3,8 @@ const mongoose = require('mongoose');
 
 // Array(end - start + 1).fill().map((_, idx) => start + idx);
 
-module.exports = mongoose.model('settings', new mongoose.Schema({
+// 'settings'
+module.exports = new mongoose.Schema({
     _id: Number,
     order: {
         type: String,
@@ -59,4 +60,4 @@ module.exports = mongoose.model('settings', new mongoose.Schema({
     }
 },
 {collection: 'settings', versionKey: false}
-));
+);

@@ -1,7 +1,8 @@
 'use strict';
 const { MessageEmbed, MessageActionRow, MessageButton, Permissions } = require('discord.js');
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const settings = require('./../models/settings');
+const conn = require('./../utils/mongodb');
+const settings = conn.models['settings'];
 const paginate = require('./../utils/paginate');
 
 async function setDefault(subSettings, guildId) {

@@ -1,7 +1,7 @@
 'use strict';
 const mongoose = require('mongoose');
-
-module.exports = mongoose.model('anifarm', new mongoose.Schema({
+// 'anifarm'
+module.exports = new mongoose.Schema({
         _id: Number,
         farmed: {
             type: Number,
@@ -40,5 +40,4 @@ module.exports = mongoose.model('anifarm', new mongoose.Schema({
     {
         collection: 'anifarm',
         versionKey: false
-    })
-);
+    });

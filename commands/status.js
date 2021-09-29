@@ -1,7 +1,8 @@
 'use strict';
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed } = require('discord.js');
-const settings = require('./../models/settings');
+const conn = require('./../utils/mongodb');
+const settings = conn.models['settings'];
 
 module.exports = {
     data: new SlashCommandBuilder()

@@ -1,7 +1,7 @@
 'use strict';
 const mongoose = require('mongoose');
-
-module.exports = mongoose.model('orders', new mongoose.Schema({
+// 'orders'
+module.exports = new mongoose.Schema({
     orderid: Number,
     guildid: String,
     name: {
@@ -68,4 +68,4 @@ module.exports = mongoose.model('orders', new mongoose.Schema({
     }
 },
 {collection: 'orders', versionKey: false, timestamps: true}
-));
+);

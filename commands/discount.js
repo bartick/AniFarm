@@ -1,7 +1,8 @@
 'use strict';
 const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed, Permissions } = require('discord.js');
-const settings = require('./../models/settings');
+const conn = require('./../utils/mongodb');
+const settings = conn.models['settings'];
 const relativeDate = require('./../utils/relateDate');
 const paginate = require('./../utils/paginate');
 

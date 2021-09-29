@@ -1,8 +1,8 @@
 'use strict';
+require('dotenv').config({path: './.env'});
 const fs = require('fs');
 const { Client, Collection, Intents } = require('discord.js');
 const mongoose = require('mongoose');
-const { token, main } = require('./config.json');
 
 const client = new Client({
     intents: [
@@ -38,7 +38,7 @@ for (const file of eventFiles) {
 }
 
 (async () => {
-    await mongoose.connect(main.url, {
+    await mongoose.connect(process.env.DB_URL, {
         useNewUrlParser: true,
         useUnifiedTopology: true
     }).then(() => {
@@ -48,4 +48,4 @@ for (const file of eventFiles) {
     });
 })();
 
-client.login(token);
+client.login(process.env.TOKEN);

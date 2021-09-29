@@ -1,12 +1,11 @@
 'use strict';
 const mongoose = require('mongoose');
-
-module.exports = mongoose.model('banned', new mongoose.Schema({
+// 'banned'
+module.exports = new mongoose.Schema({
         _id: Number
     },
     {
         collection: 'banned',
         versionKey: false,
         timestamps: true
-    })
-);
+    });
