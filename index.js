@@ -37,15 +37,4 @@ for (const file of eventFiles) {
     }
 }
 
-(async () => {
-    await mongoose.connect(process.env.DB_URL, {
-        useNewUrlParser: true,
-        useUnifiedTopology: true
-    }).then(() => {
-        console.log('Connected to database');
-    }).catch((err) => {
-        console.error(err);
-    });
-})();
-
 client.login(process.env.TOKEN);
