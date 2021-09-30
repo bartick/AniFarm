@@ -1,8 +1,10 @@
 'use strict';
 const mongoose = require('mongoose');
+require('mongoose-long')(mongoose);
+const {Types: {Long}} = mongoose;
 // 'anifarm'
 module.exports = new mongoose.Schema({
-        _id: Number,
+        _id: Long,
         farmed: {
             type: Number,
             default: 0
