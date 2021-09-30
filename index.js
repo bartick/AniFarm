@@ -2,7 +2,6 @@
 require('dotenv').config({path: './.env'});
 const fs = require('fs');
 const { Client, Collection, Intents } = require('discord.js');
-const mongoose = require('mongoose');
 
 const client = new Client({
     intents: [
