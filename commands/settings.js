@@ -132,7 +132,8 @@ module.exports = {
                 }
             }
             const check = await settings.updateOne({_id: guildId}, {$set: subSettings});
-            if (check.matchedCount==0) {
+            console.log(check);
+            if (check.n==0) {
                 await setDefault(subSettings, guildId);
             }
             await interaction.reply({
@@ -440,7 +441,7 @@ module.exports = {
                     if (priceRange[1]===67 && index===0) {
                         subSettings['prices'] = setting;
                         const check = await settings.updateOne({_id: guildId}, {$set: subSettings});
-                        if (check.matchedCount==0) {
+                        if (check.n==0) {
                             await setDefault(subSettings, guildId);
                         }
                     };
@@ -470,7 +471,7 @@ module.exports = {
                 }
             }
             const check = await settings.updateOne({_id: guildId}, {$set: subSettings});
-            if (check.matchedCount==0) {
+            if (check.n==0) {
                 await setDefault(subSettings, guildId);
             }
             await interaction.reply({
