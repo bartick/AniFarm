@@ -132,7 +132,6 @@ module.exports = {
                 }
             }
             const check = await settings.updateOne({_id: guildId}, {$set: subSettings});
-            console.log(check);
             if (check.n==0) {
                 await setDefault(subSettings, guildId);
             }
