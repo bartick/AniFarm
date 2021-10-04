@@ -88,7 +88,7 @@ module.exports = {
 
             let toUpdate = {}
             if (image!==null) {
-                if (image.match(/\.(jpeg|jpg|gif|png)$/)===null || image.startsWith('https://')) {
+                if (image.match(/\.(jpeg|jpg|gif|png)$/)===null || !(image.startsWith('https://'))) {
                     await interaction.reply({
                         embeds: [
                             new MessageEmbed()
