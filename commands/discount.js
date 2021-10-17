@@ -207,7 +207,7 @@ module.exports = {
                         },
                         {
                             $set: {
-                                disRole: orderDis
+                                disOrder: orderDis
                             }
                         }
                     )
