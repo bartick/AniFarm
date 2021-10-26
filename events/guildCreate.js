@@ -5,7 +5,7 @@ module.exports = {
     name: 'guildCreate',
     async execute(guild) {
         const memberCount = guild.memberCount;
-        const guildOwner =  await guild.client.users.fetch(guild.ownerId);
+        const guildOwner =  await guild.client.users.fetch(guild.ownerId)
 
         const embed = new MessageEmbed()
                 .setAuthor(guild.client.user.username, guild.client.user.displayAvatarURL({dynamic: true, size: 1024}))
@@ -31,13 +31,11 @@ module.exports = {
                 .setDescription(`You have successfuly invited me to your server **${guild.name}**.\nI only use slash commands to interact with users. Also I will recomend you to complete the settings in order for me to work in your server`)
                 .setColor('GREEN');
         }
-        try {
-            await guildOwner.send({
-                embeds: [embed]
-            });
-        } catch (err) {
+        await guildOwner.send({
+            embeds: [embed]
+        }).catch(err => {
             console.error(err);
-        };
+        });
         if (leave) {
             await guild.leave();
         }
