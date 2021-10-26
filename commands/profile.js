@@ -59,10 +59,10 @@ module.exports = {
                 )
                 .setThumbnail(player.setBadges===""?interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}):player.setBadges)
                 .setTimestamp()
-            if (player.pstatus!=="") {
+            if (player.pstatus!=="" && player.pstatus!==null) {
                 embed.setDescription(player.pstatus);
             };
-            if (player.pimage!=="") {
+            if (player.pimage!=="" && player.pstatus!==null) {
                 embed.setImage(player.pimage);
             };
             await interaction.reply({
