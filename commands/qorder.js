@@ -285,7 +285,7 @@ module.exports = {
                 });
                 await wait(2000);
                 try {
-                    await i.message.delete();
+                    await message.delete();
                 } catch(error) {
                     //SKIP
                 }
