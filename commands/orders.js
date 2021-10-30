@@ -59,10 +59,10 @@ module.exports = {
             };
             if (farmer===undefined) {
                 embed.addField('Farmer:', 'No Farmer Found', true)
-                    .setFooter(`Undefined • Order Id ${farming['orderid']}`)
+                    .setFooter(`Undefined • Order Id ${order['orderid']}`)
             }
             else {
-                embed.setFooter(`${farmer.username} • Order Id ${farming['orderid']}`, farmer.displayAvatarURL({dynamic: true, size: 1024}))
+                embed.setFooter(`${farmer.username} • Order Id ${order['orderid']}`, farmer.displayAvatarURL({dynamic: true, size: 1024}))
                     .addField('Farmer:', farmer.tag, true)
             }
             embed.addField('Customer:', interaction.user.tag, true)
