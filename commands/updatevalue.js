@@ -92,7 +92,9 @@ module.exports = {
                 $inc: {
                     ordered: 1
                 }
-            });
+            }) .catch(err => {
+                //SKIP
+            })
 
             // TODO: Intrigate and update the farmer profile
 
