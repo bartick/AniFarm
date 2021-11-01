@@ -3,6 +3,8 @@ const { SlashCommandBuilder } = require('@discordjs/builders');
 const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
 const conn = require('./../utils/mongodb');
 const orders = conn.models['orders'];
+const profileConn = require('./../utils/profiledb');
+const anifarm = profileConn.models['anifarm'];
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -83,6 +85,17 @@ module.exports = {
             await orders.deleteOne({
                 _id: gameOrder._id
             });
+            await anifarm.updateOne({
+                _id: gameOrder.customerid
+            },
+            {
+                $inc: {
+                    ordered: 1
+                }
+            });
+
+            // TODO: Intrigate and update the farmer profile
+
             try {
                 await customer.send({
                     content: `Your order has been completed by ${interaction.user.tag} (**ID**: ${interaction.user.id}). \nPlease contact the user to setup a trade...`,
