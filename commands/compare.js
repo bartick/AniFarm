@@ -97,12 +97,12 @@ module.exports = {
             };
         };
 
-        const canvas = Canvas.createCanvas(600*images.length, 670);
+        const canvas = Canvas.createCanvas(600*images.length, 640);
         const ctx = canvas.getContext('2d');
         const imageBuffer = await Promise.all(images)
 
         for (let i=0; i<imageBuffer.length; i++) {
-            ctx.drawImage(imageBuffer[i], 590*i, 0, 590, canvas.height)
+            ctx.drawImage(imageBuffer[i], 480*i, 0, 480, canvas.height)
         }
 
         const attachment = new MessageAttachment(canvas.toBuffer(), 'compare.png');
