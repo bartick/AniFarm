@@ -30,7 +30,7 @@
     "mongoose-long": "^0.4.1"
   },
   "engines": {
-    "node": "16.x",
-    "npm": "7.x"
+    "node": "17.x",
+    "npm": "8.x"
   }
 }
