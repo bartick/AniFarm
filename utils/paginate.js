@@ -22,7 +22,7 @@ module.exports = async (interaction, embeds, index) => {
     );
     if (index===0) row.components[0].disabled=true;
     if (index===length-1) row.components[1].disabled=true;
-    if (interaction.replied) {
+    if (interaction.replied || interaction.deferred) {
         try {
             await interaction.editReply({
                 embeds: [embeds[index]],
