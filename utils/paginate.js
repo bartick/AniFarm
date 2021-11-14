@@ -21,14 +21,18 @@ module.exports = async (interaction, embeds, index) => {
             .setEmoji('❌')
     );
     if (index===0) row.components[0].disabled=true;
-    if (index===length-1) row.components[1].disabled=false;
-    try {
+    if (index===length-1) row.components[1].disabled=true;
+    if (interaction.replied) {
+        try {
+            await interaction.editReply({
+                embeds: [embeds[index]],
+                components: [row]
+            })
+        } catch (err) {
+            return;
+        }
+    } else {
         await interaction.reply({
-            embeds: [embeds[index]],
-            components: [row]
-        });
-    } catch (err) {
-        await interaction.editReply({
             embeds: [embeds[index]],
             components: [row]
         })
@@ -103,9 +107,13 @@ module.exports = async (interaction, embeds, index) => {
         row.components[0].setDisabled(true);
         row.components[1].setDisabled(true);
         row.components[2].setDisabled(true);
-        await message.edit({
-            embeds:[embeds[index]],
-            components: [row]
-        })
+        try {
+            await message.edit({
+                embeds:[embeds[index]],
+                components: [row]
+            })
+        } catch (err) {
+            // SKIP
+        }
     });
 };
