@@ -266,7 +266,7 @@ module.exports = {
                                 location[3].components[1].setDisabled(false);
                                 inputed = 0;
                             }
-                            if (priceRange[1]>68) priceRange[1] = 68;
+                            if (priceRange[1]>70) priceRange[1] = 70;
                             if (priceRange[1]<priceRange[0]) {
                                 priceRange[1] = 0;
                                 inputed = 0;
@@ -324,7 +324,7 @@ module.exports = {
         
                 else if (id==='confirm') {
                     setting[price] = priceRange;
-                    if (priceRange[1]===68) {
+                    if (priceRange[1]===70) {
                         location = [];
                         index = 0;
                         toUpdate = true;
@@ -437,7 +437,7 @@ module.exports = {
                         components: location
                     });
         
-                    if (priceRange[1]===68 && index===0) {
+                    if (priceRange[1]===70 && index===0) {
                         subSettings['prices'] = setting;
                         const check = await settings.updateOne({_id: guildId}, {$set: subSettings});
                         if (check.n==0) {
