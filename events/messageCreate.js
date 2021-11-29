@@ -7,8 +7,9 @@ module.exports = {
         if (message.author.bot) return;
         if(message.content===null || message.content===undefined) return;
         const content = message.content.toLowerCase().split(/\s+/);
-        if ((content[0] === `<@!${message.client.user.id}>` || content[0] === `<@${message.client.user.id}>`) && content[1].toLowerCase()==='help') {
+        if (content[0] === `<@!${message.client.user.id}>` || content[0] === `<@${message.client.user.id}>`) {
             if (content.length < 2) return;
+            if (content[1].toLowerCase()!=='help') return;
             let commands = '';
             for(const [key, value] of message.client.commands.entries()) {
                 commands += `${'`'}${key}${'`'}, `;
