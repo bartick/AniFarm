@@ -95,6 +95,16 @@ module.exports = {
             }) .catch(err => {
                 //SKIP
             })
+            await anifarm.updateOne({
+                _id: gameOrder.farmerid
+            },
+            {
+                $inc: {
+                    farmed: 1
+                }
+            }) .catch(err => {
+                //SKIP
+            })
 
             // TODO: Intrigate and update the farmer profile
 
