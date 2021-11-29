@@ -33,7 +33,11 @@ module.exports = {
                     .setThumbnail(message.client.user.displayAvatarURL())
                     .setFooter('Made by Bartick#6552')
                     .setTimestamp();
-            await message.channel.send({embeds: [embed]});
+            try {
+                await message.channel.send({embeds: [embed]});
+            } catch (err) {
+                // SKIP
+            }
         }
     }
 }
