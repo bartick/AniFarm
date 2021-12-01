@@ -36,6 +36,21 @@ module.exports = new mongoose.Schema({
         setBadges: {
             type: String,
             default: ""
+        },
+        ratable: {
+            type: Array,
+            default: []
+        },
+        rating: {
+            type: Map,
+            of: Array,
+            default: {
+                1: [],
+                2: [],
+                3: [],
+                4: [],
+                5: []
+            }
         }
 
     },
