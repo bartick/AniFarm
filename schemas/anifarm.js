@@ -37,10 +37,6 @@ module.exports = new mongoose.Schema({
             type: String,
             default: ""
         },
-        ratable: {
-            type: Array,
-            default: []
-        },
         rating: {
             type: Map,
             of: Array,

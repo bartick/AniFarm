@@ -4,6 +4,74 @@ const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
 const profileConn = require('./../utils/profiledb');
 const anifarm = profileConn.models['anifarm'];
 
+async function confirm(params) {
+    const embed = new MessageEmbed()
+            .setColor('AQUA')
+            .setDescription(`Are you sure you want to rate **${params.farmer.tag}** with ${'★'.repeat(params.rate)}`)
+            .setTitle('Please Confirm.')
+            .setTimestamp()
+            .setAuthor(params.user.username, params.user.displayAvatarURL())
+    const confirmButtons = new MessageActionRow()
+                .addComponents(
+                    new MessageButton()
+                        .setCustomId('confirm')
+                        .setEmoji('✅')
+                        .setStyle('SECONDARY'),
+                    new MessageButton()
+                        .setCustomId('cancel')
+                        .setEmoji('❌')
+                        .setStyle('SECONDARY')
+                )
+    await params.interaction.reply({
+        embeds: [embed],
+        components: [confirmButtons]
+    });
+
+    const message = await params.interaction.fetchReply();
+
+    const filter = (inter) => {
+        if (params.interaction.user.id === inter.user.id) return true;
+        return inter.reply({
+            content: "You cannot use this button",
+            ephemeral: true
+        })
+    };
+
+    const collector = message.createMessageComponentCollector({ filter, time: 60000, max: 1 });
+
+    collector.on('collect', async (inter) => {
+        const id = inter.customId;
+        try {
+            await inter.message.delete();
+        } catch (error) {
+            // SKIP
+        }
+        if (id==='confirm') {
+            await inter.reply({
+                content: `You rated **${params.farmer.username}** as ${params.rate}/5. Thank you for your feedback!`,
+                ephemeral: true
+            });
+            let updateRating = params.farmerUser.rating.get(params.rate);
+            updateRating.push(inter.user.id);
+            params.farmerUser.rating.set(params.rate, updateRating);
+            params.speed[0] += parseInt(params.rate);
+            params.speed[1] += 1;
+            const avg = parseInt(params.speed[0]/params.speed[1]);
+            await anifarm.updateOne({
+                _id: params.farmer.id
+            }, {
+                $set: {
+                    rating: params.farmerUser.rating,
+                    speed: avg
+                }
+            });
+        };
+    });
+
+   
+    
+}
+
 module.exports = {
     data: new SlashCommandBuilder()
         .setName('rate')
@@ -18,10 +86,10 @@ module.exports = {
         await interaction.deferReply();
         const farmer = interaction.options.getUser('farmer');
 
-        // if(interaction.user===farmer){
-        //     await interaction.editReply('You cannot rate yourself!');
-        //     return;
-        // }
+        if(interaction.user===farmer){
+            await interaction.editReply('You cannot rate yourself!');
+            return;
+        }
 
         const farmerUser = await anifarm.findById(farmer.id);
         if (!farmerUser) {
@@ -29,19 +97,14 @@ module.exports = {
             return;
         };
 
-        if (interaction.user.id in farmerUser.ratable) {
-            await interaction.editReply('You cannot rated this farmer.');
-            return;
-        };
-
         let speed = [0, 0]
 
         for (const [key, value] of farmerUser.rating.entries()) {
-            if (interaction.user.id in value) {
+            if (value.includes(interaction.user.id)) {
                 await interaction.editReply(`You have already rated the farmer with ${key} stars.`);
                 return;
             }
-            speed[0] += key*value.length;
+            speed[0] += parseInt(key)*parseInt(value.length);
             speed[1] += value.length;
         };
 
@@ -97,26 +160,25 @@ module.exports = {
 
         collector.on('collect', async (inter) => {
             const id = inter.customId;
-            await inter.reply({
-                content: `You rated **${farmer.username}** as ${id}/5. Thank you for your feedback!`,
-                ephemeral: true
-            });
-            let updateRating = farmerUser.rating.get(id);
-            updateRating.push(inter.user.id);
-            farmerUser.rating.set(id, updateRating);
-            console.log(farmerUser.rating.entries());
-            speed[0] += id;
-            speed[1] += 1;
-            const avg = speed[0]/speed[1];
+            
+            try {
+                await inter.message.delete();
+            } catch (error) {
+                // SKIP
+            }
 
-            await anifarm.updateOne({
-                _id: farmer.id
-            }, {
-                $set: {
-                    rating: rating,
-                    speed: avg
-                }
-            });
+            try {
+                await confirm({
+                    farmer: farmer,
+                    user: inter.user,
+                    rate: id,
+                    interaction: inter,
+                    farmerUser: farmerUser,
+                    speed: speed
+                });
+            } catch (error) {
+                // SKIP
+            }
         });
     },
 };
