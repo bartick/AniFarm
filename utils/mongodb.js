@@ -6,7 +6,9 @@ const conn = mongoose.createConnection(process.env.DB_URL, {
     maxPoolSize: 1,
     useUnifiedTopology: true,
     useNewUrlParser: true,
-    useFindAndModify: false
+    useFindAndModify: false,
+    ssl: true,
+    sslValidate: false,
 });
 
 conn.model('orders', require('./../schemas/orders'));
