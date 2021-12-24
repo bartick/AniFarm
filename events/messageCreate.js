@@ -1,6 +1,5 @@
 'use strict';
 const { MessageEmbed } = require('discord.js');
-const client = require('../index');
 
 module.exports = {
     name: 'messageCreate',
@@ -8,7 +7,7 @@ module.exports = {
         if (message.author.bot) return;
         if(message.content===null || message.content===undefined) return;
         const content = message.content.toLowerCase().split(/\s+/);
-        if (message.mentions.has(client.user)) {
+        if (message.mentions.has(message.client.user) && content[1]) {
             if (content[1].toLowerCase()!=='help') return;
             let commands = '';
             for(const [key, value] of message.client.commands.entries()) {
