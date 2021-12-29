@@ -40,19 +40,7 @@ module.exports = {
                 _id: interaction.user.id
             });
             await newProfile.save()
-                    .catch(async err => {
-                        await interaction.editReply({
-                            embeds: [
-                                new MessageEmbed()
-                                    .setColor('FF0000')
-                                    .setTitle('⛔ Error')
-                                    .setTimestamp()
-                                    .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
-                                    .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
-                                    .setDescription(`**${interaction.user.tag}** you have already registered. You don't need to use this command any more. Enjoy all the other commands.`)
-                            ]
-                        })
-                    }).then(async inter => {
+                    .then(async inter => {
                         await interaction.editReply({
                             embeds: [
                                 new MessageEmbed()
@@ -62,6 +50,18 @@ module.exports = {
                                     .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
                                     .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
                                     .setDescription(`**${interaction.user.tag}** you have successfully registered. You don't need to use this command any more. Enjoy all the other commands.`)
+                            ]
+                        })
+                    }).catch(async err => {
+                        await interaction.editReply({
+                            embeds: [
+                                new MessageEmbed()
+                                    .setColor('FF0000')
+                                    .setTitle('⛔ Error')
+                                    .setTimestamp()
+                                    .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                                    .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
+                                    .setDescription(`**${interaction.user.tag}** you have already registered. You don't need to use this command any more. Enjoy all the other commands.`)
                             ]
                         })
                     })
