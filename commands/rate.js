@@ -93,7 +93,7 @@ module.exports = {
 
         const farmerUser = await anifarm.findById(farmer.id);
         if (!farmerUser) {
-            await interaction.editReply('You have not registered a farmer yet. Please use `register` to register a farmer.');
+            await interaction.editReply('You have not registered a farmer yet. Please use `profile register` to register a farmer.');
             return;
         };
 
@@ -101,7 +101,7 @@ module.exports = {
 
         for (const [key, value] of farmerUser.rating.entries()) {
             if (value.includes(interaction.user.id)) {
-                await interaction.editReply(`You have already rated the farmer with ${key} stars.`);
+                await interaction.editReply(`You have already rated the farmer with ${key} star(s).`);
                 return;
             }
             speed[0] += parseInt(key)*parseInt(value.length);
@@ -109,12 +109,12 @@ module.exports = {
         };
 
         const embed = new MessageEmbed()
-            .setTitle(`Rate your a farmer`)
+            .setTitle(`Rate your farmer`)
             .setThumbnail(farmer.displayAvatarURL())
             .setAuthor(interaction.user.username, interaction.user.displayAvatarURL())
             .setTimestamp()
             .setColor('AQUA')
-            .setDescription(`If you are satisfied with ${farmer.username}\'s performance, please rate him/her from 1 to 10.\n\n**1** - Not satisfied\n**5** - Fully Satisfied`)
+            .setDescription(`If you are satisfied with ${farmer.username}\'s performance, please rate him/her from 1 to 5.\n\n**1** - Not satisfied\n**5** - Fully Satisfied`)
         
         const ratingButtons = [
             new MessageActionRow()
