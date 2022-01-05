@@ -1,8 +1,50 @@
 'use strict';
 const { SlashCommandBuilder } = require('@discordjs/builders');
-const { MessageEmbed } = require('discord.js');
+const { MessageEmbed, MessageActionRow, MessageButton } = require('discord.js');
 const profileConn = require('./../utils/profiledb');
 const anifarm = profileConn.models['anifarm'];
+
+async function badgeCarousel(profile, message, embeds) {
+    let index = 0;
+    const filter = (inter) => {
+        if ((profile._id == inter.user.id) && ['left', 'love', 'right', 'close'].indexOf(inter.customId)>=0) return true;
+        return inter.reply({
+            content: "You cannot use this button",
+            ephemeral: true
+        })
+    }
+    const collector = message.createMessageComponentCollector({ filter, time: 30000});
+    collector.on('collect', async (inter) => {
+        const customeId = inter.customId;
+        if (customeId === 'left') {
+            index -= 1;
+            if (index < 0) index =  0;
+            else {
+                await inter.update({
+                    embeds: [embeds[index]]
+                });
+            }
+        } else if (customeId === 'right') {
+            index += 1;
+            if (index >= embeds.length) index =  embeds.length - 1;
+            else {
+                await inter.update({
+                    embeds: [embeds[index]]
+                });
+            }
+        } else if (customeId === 'love') {
+            await anifarm.updateOne({_id: profile._id}, {$set: {'setBadges': profile.badges[index]}});
+            await inter.update({
+                content: "You have successfully set this badge to show on your profile",
+                components: []
+            });
+            return
+        } else {
+            await message.delete()
+            return
+        }
+    });
+};
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -31,6 +73,10 @@ module.exports = {
                     option.setName('description')
                         .setDescription('Enter your profile description.')
                 )
+        )
+        .addSubcommand(subcommand =>
+            subcommand.setName('badges')
+                .setDescription('View your badges. And Choose your favourite.')
         ),
     async execute(interaction) {
         const subcommand = interaction.options.getSubcommand();
@@ -65,6 +111,74 @@ module.exports = {
                             ]
                         })
                     })
+        } else if(subcommand==='badges'){
+            await interaction.deferReply()
+            await anifarm.findOne({_id: interaction.user.id}, async (err, profile) => {
+                if(err){
+                    await interaction.editReply({
+                        embeds: [
+                            new MessageEmbed()
+                                .setColor('FF0000')
+                                .setTitle('⛔ Error')
+                                .setTimestamp()
+                                .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                                .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
+                                .setDescription(`**${interaction.user.tag}** you have not registered to use this command. Register with \`profile register\` to be able to use this command.`)
+                        ]
+                    })
+                } else {
+                    if (profile.badges.length === 0) {
+                        await interaction.editReply({
+                            embeds: [
+                                new MessageEmbed()
+                                    .setColor('FF0000')
+                                    .setTitle('⛔ Error')
+                                    .setTimestamp()
+                                    .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                                    .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
+                                    .setDescription(`**${interaction.user.tag}** you don't have any badges to choose from.`)
+                            ]
+                        })
+                    } else {
+                        const embeds = [];
+                        profile.badges.forEach(badge => {
+                            const embed = new MessageEmbed()
+                                .setColor('00FF00')
+                                .setTitle('🪧 Badge')
+                                .setTimestamp()
+                                .setThumbnail(interaction.client.user.displayAvatarURL({dynamic: true, size: 1024}))
+                                .setAuthor(interaction.user.username, interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
+                                .setImage(badge)
+                            embeds.push(embed);
+                        });
+                        const row = new MessageActionRow()
+                                .addComponents(
+                                    new MessageButton()
+                                        .setCustomId('left')
+                                        .setLabel('<')
+                                        .setStyle('PRIMARY'),
+                                    new MessageButton()
+                                        .setCustomId('love')
+                                        .setLabel('❤')
+                                        .setStyle('DANGER'),
+                                    new MessageButton()
+                                        .setCustomId('right')
+                                        .setLabel('>')
+                                        .setStyle('PRIMARY'),
+                                    new MessageButton()
+                                        .setCustomId('close')
+                                        .setLabel('Close')
+                                        .setStyle('SECONDARY')
+                                )
+                        const message = await interaction.editReply({
+                            embeds: [embeds[0]],
+                            components: [row],
+                            fetchReply: true
+                        });
+                        await badgeCarousel(profile, message, embeds);
+                    }
+                }
+            })
         } else if (subcommand==='view') {
             const userToFind = interaction.options.getUser('user') || interaction.user;
             const player = await anifarm.findById(userToFind.id);
