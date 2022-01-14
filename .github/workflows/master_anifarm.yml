@@ -20,6 +20,7 @@ jobs:
         uses: actions/setup-node@v1
         with:
           node-version: '16.x'
+          npm-version: '7.x'
 
       - name: npm install, build, and test
         run: |
