@@ -82,6 +82,12 @@ module.exports = {
         
 
         if (value>=gameOrder.amount) {
+            const minutesWatedFarming = (Date.now()-gameOrder.createdAt.getTime())/(1000*60);
+            const hoursWastedFarming = parseInt(minutesWatedFarming/60);
+            const farmableInXMinutes = parseInt((( (3/4)*minutesWatedFarming) + (10*hoursWastedFarming) + parseInt(hoursWastedFarming/12)*210)/5);
+            const farmerSpeed = parseInt((gameOrder.amount/minutesWatedFarming)*1440);
+            const farmer = await anifarm.findById(gameOrder.farmerid);
+
             await orders.deleteOne({
                 _id: gameOrder._id
             });
@@ -94,19 +100,26 @@ module.exports = {
                 }
             }) .catch(err => {
                 //SKIP
-            })
-            await anifarm.updateOne({
-                _id: gameOrder.farmerid
-            },
-            {
+            });
+
+            const updateFarmerProfile = {
                 $inc: {
                     farmed: 1
                 }
-            }) .catch(err => {
+            }
+            if (farmableInXMinutes>=gameOrder.amount) {
+                updateFarmerProfile["$set"] = {
+                    "avg": parseInt((farmerSpeed+farmer.avg)/2)
+                }
+            }
+
+            await anifarm.updateOne({
+                _id: gameOrder.farmerid
+            },
+            updateFarmerProfile
+            ) .catch(err => {
                 //SKIP
             })
-
-            // TODO: Intrigate and update the farmer profile
 
             try {
                 await customer.send({
