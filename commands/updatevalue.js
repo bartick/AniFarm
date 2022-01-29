@@ -224,9 +224,7 @@ module.exports = {
             await orders.updateOne({
                 _id: gameOrder._id
             }, {
-                $set: {
-                    amount_farmed: value
-                }
+                $set: toUpdate
             });
 
             await interaction.editReply({
