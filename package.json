@@ -20,14 +20,15 @@
   "dependencies": {
     "@discordjs/builders": "^0.6.0",
     "@discordjs/rest": "^0.1.0-canary.0",
-    "better-sqlite3": "^7.4.3",
-    "canvas": "^2.8.0",
+    "better-sqlite3": "^7.5.0",
+    "canvas": "^2.9.0",
     "discord-api-types": "^0.25.2",
     "discord.js": "^13.3.1",
     "dotenv": "^10.0.0",
     "javascript-time-ago": "^2.3.8",
     "mongoose": "^5.13.9",
-    "mongoose-long": "^0.4.1"
+    "mongoose-long": "^0.4.1",
+    "simple-get": "^4.0.1"
   },
   "engines": {
     "node": "16.x"
