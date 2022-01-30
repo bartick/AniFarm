@@ -203,7 +203,7 @@ module.exports = {
             fetchReply: true
         });
         
-        setOrder['orderid'] = parseInt(message.id)%100000;
+        setOrder['orderid'] = (parseInt(message.id)+Date.now())%1000000;
 
         const filter = (inter) => {
             if ((interaction.user.id === inter.user.id) && ['confirm','cancel'].indexOf(inter.customId)>=0) return true;
