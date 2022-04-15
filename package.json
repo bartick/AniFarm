@@ -1,0 +1,21 @@
+{
+  "name": "anifarm",
+  "version": "3.0.1",
+  "description": "A farming bot",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc",
+    "dev": "nodemon prod/index.js",
+    "start": "node prod/index.js"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "discord.js": "^13.6.0",
+    "dotenv": "^16.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^17.0.24",
+    "typescript": "^4.6.3"
+  }
+}
