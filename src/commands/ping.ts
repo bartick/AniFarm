@@ -1,7 +1,8 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
 import { CommandInteraction } from 'discord.js';
+import { Command } from './../interfaces';
 
-const ping = {
+const ping: Command = {
     data: new SlashCommandBuilder()
         .setName('ping')
         .setDescription('Shows Bot Latency 🏓'),
