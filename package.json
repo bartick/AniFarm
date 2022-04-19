@@ -5,7 +5,8 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "dev": "nodemon prod/index.js",
+    "dev": "nodemon src/index.ts",
+    "deploy": "npm run build && node prod/deploy.js",
     "start": "node prod/index.js"
   },
   "author": "",
@@ -23,6 +24,7 @@
     "@typescript-eslint/parser": "^5.19.0",
     "eslint": "^8.13.0",
     "nodemon": "^2.0.15",
+    "ts-node": "^10.7.0",
     "typescript": "^4.6.3"
   }
 }
