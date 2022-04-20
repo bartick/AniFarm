@@ -1,4 +1,5 @@
 {
+    "ignore": ["prod/*"],
     "execMap": {
         "ts": "ts-node"
     }
