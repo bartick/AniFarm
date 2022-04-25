@@ -3,4 +3,4 @@ export { default as Command } from './commands';
 export { default as Event } from './events';
 export { default as CustomGuild } from './CustomGuild';
 export { CustomCommandInteraction } from './CustomInteraction';
-export { Card, LocationFloor } from './card';
+export { Card, LocationFloor, Exerience } from './card';

@@ -1,7 +1,7 @@
 import { CommandInteraction, MessageEmbed, User } from 'discord.js';
 import { SlashCommandBuilder, SlashCommandStringOption } from '@discordjs/builders';
 import { Command, Card, LocationFloor, ClientUser } from './../interfaces';
-import { sqldb } from './../utils';
+import { getCard, getLocationFloor } from '../logic';
 import paginate from '../utils/paginate';
 
 
@@ -12,8 +12,8 @@ function statz_formula(R: number, Evo: number, Lv: number): number {
     return R*(1+0.005*Lv)*(1+0.15*(Evo-1));
 }
 
-function displayCard(card: Card, user: User, client: ClientUser): Array<MessageEmbed> {
-    const locfl: LocationFloor = sqldb.prepare('SELECT * FROM location WHERE SERIES=?').get(card.SERIES);
+async function displayCard(card: Card, user: User, client: ClientUser): Promise<Array<MessageEmbed>> {
+    const locfl: LocationFloor = await getLocationFloor(card.SERIES);
     const location: number | string = card.LOCATION===0 ? 'These cards are not found in any Floor' : card.LOCATION
     const floor: number | string = card.LOCATION===0 ? '~~Events~~, Lottery' : `${card.FLOOR}, ${card.FLOOR+locfl.FLOORS}, ${(locfl.FLOORS*2)+card.FLOOR}`
     const sr: Array<number> = [
@@ -94,19 +94,9 @@ const cinfo: Command = {
             ),
     execute: async(interaction: CommandInteraction) => {
         const name = interaction.options.getString('name', true).trim();
-        const cardPromise: Promise<Card> = new Promise((resolve, reject) => {
-            const rows: Array<Card> = sqldb.prepare("SELECT * FROM cards WHERE NAME LIKE ?").all("%" + name + "%")
-            for (let i = 0; i < rows.length; i++) {
-                let row: Card = rows[i];
-                if ((row.NAME.toLowerCase() === name.toLowerCase()) || (row.NAME.toLowerCase().split(/[\s\(\)]+/).indexOf(name.toLowerCase()) >= 0)) {
-                    resolve(row);
-                };
-            };
-            reject(new Error('I was unable to find the card you are looking for please try with a proper spelling.\nIf you think this is a mistake then please contact the developer'));
-        });
-        cardPromise
+        getCard(name)
         .then(async (card: Card) => {
-            const embeds: Array<MessageEmbed> = displayCard(card, interaction.user, interaction.client);
+            const embeds: Array<MessageEmbed> = await displayCard(card, interaction.user, interaction.client);
             await paginate(interaction, embeds);
         }).catch(async (err: Error) => {
             const embed: MessageEmbed = new MessageEmbed()

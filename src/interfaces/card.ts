@@ -24,4 +24,8 @@ interface LocationFloor extends JSON {
     FLOORS: number;
 }
 
-export { Card, LocationFloor };
+interface Exerience extends JSON {
+    Exp: number;
+}
+
+export { Card, LocationFloor, Exerience };
