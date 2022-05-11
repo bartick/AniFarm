@@ -1,8 +1,7 @@
 import { CommandInteraction, MessageEmbed, User } from 'discord.js';
 import { SlashCommandBuilder, SlashCommandStringOption } from '@discordjs/builders';
 import { Command, Card, LocationFloor, ClientUser } from './../interfaces';
-import { getCard, getLocationFloor } from '../logic';
-import paginate from '../utils/paginate';
+import { paginate, getCard, getLocationFloor } from '../utils';
 
 
 function statz_formula(R: number, Evo: number, Lv: number): number {

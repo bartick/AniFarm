@@ -1,14 +1,14 @@
 import dotenv from 'dotenv';
 import { REST } from '@discordjs/rest';
 import { Routes } from 'discord-api-types/v10';
-import Commands from './commands';
+import * as Commands from "./commands";
 
 dotenv.config();
 
 const commands: Array<any> = []
 
-for (const command of Commands) {
-    commands.push(command.data.toJSON());
+for (const command in Commands) {
+    commands.push(Commands[command as keyof typeof Commands].data.toJSON());
 };
 
 const rest: REST = new REST({ version: '10' }).setToken(process.env.TOKEN as string);

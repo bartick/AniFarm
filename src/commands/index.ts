@@ -1,13 +1,6 @@
-import ping from "./ping";
-import cinfo from "./cinfo";
-import invite from "./invite";
-import cards from "./cards";
-import qorder from "./qorder";
-
-export default [
-    ping,
-    cinfo,
-    invite,
-    cards,
-    qorder
-]
+export { default as ping } from "./ping";
+export { default as cinfo } from "./cinfo";
+export { default as invite } from "./invite";
+export { default as cards } from "./cards";
+export { default as qorder } from "./qorder";
+export { default as accorder } from "./accorder";

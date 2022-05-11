@@ -1,4 +1,4 @@
-import { sqldb } from '../utils';
+import { sqldb } from './';
 import { Card, LocationFloor, Exerience } from '../interfaces';
 
 async function cardPromise(name: string): Promise<Card> {

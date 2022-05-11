@@ -6,7 +6,7 @@
   "scripts": {
     "build": "tsc",
     "dev": "nodemon src/index.ts",
-    "deploy": "npm run build && node prod/deploy.js",
+    "deploy": "ts-node src/deploy.ts",
     "start": "node prod/index.js"
   },
   "author": "",
@@ -17,7 +17,9 @@
     "better-sqlite3": "^7.5.1",
     "discord-api-types": "^0.31.1",
     "discord.js": "^13.6.0",
-    "dotenv": "^16.0.0"
+    "dotenv": "^16.0.0",
+    "mongoose": "^6.3.3",
+    "mongoose-long": "^0.5.1"
   },
   "devDependencies": {
     "@types/better-sqlite3": "^7.5.0",

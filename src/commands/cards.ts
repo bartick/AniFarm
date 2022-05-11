@@ -1,7 +1,7 @@
 import { CommandInteraction, MessageEmbed } from "discord.js";
 import { SlashCommandBuilder, SlashCommandStringOption } from "@discordjs/builders";
 import { Command } from "./../interfaces";
-import { getExperiences } from "../logic";
+import { getExperiences } from "../utils";
 
 const cards: Command = {
     data: new SlashCommandBuilder()
