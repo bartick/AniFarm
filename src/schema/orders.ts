@@ -68,3 +68,29 @@ export default new mongoose.Schema({
 },
 {collection: 'orders', versionKey: false, timestamps: true}
 );
+
+export interface OrdersType extends mongoose.Document {
+    _id: string;
+    orderid: number;
+    guildid: string;
+    name: string;
+    image: string;
+    farmer: string;
+    farmerid: string;
+    customerid: string;
+    pending: string;
+    pendingid: string;
+    status: string;
+    statusid: string;
+    complete: string;
+    amount: number;
+    price: number;
+    discount: number;
+    location: number;
+    floor: number;
+    amount_farmed: number;
+    flash: {
+        number: number,
+        total: number
+    }
+}

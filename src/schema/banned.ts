@@ -10,3 +10,7 @@ export default new mongoose.Schema({
         timestamps: true
     }
 );
+
+export interface BannedType extends mongoose.Document {
+    _id: number;
+}

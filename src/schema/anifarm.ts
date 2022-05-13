@@ -58,3 +58,16 @@ export default new mongoose.Schema({
         versionKey: false
     }
 );
+
+export interface AnifarmType extends mongoose.Document {
+    _id: number;
+    farmed: number;
+    ordered: number;
+    pimage: string;
+    pstatus: string;
+    avg: number;
+    speed: number;
+    badges: string[];
+    setBadges: string;
+    rating: Map<number, string[]>;
+}

@@ -60,3 +60,22 @@ export default new mongoose.Schema({
 },
 {collection: 'settings', versionKey: false}
 );
+
+export interface SettingsType extends mongoose.Document {
+    _id: number;
+    order: string;
+    pending: string;
+    status: string;
+    complete: string;
+    farmer: string;
+    vacant: string;
+    occupied: string;
+    unavailable: string;
+    prices: Map<string, number[]>;
+    disRole: Map<string, number>;
+    disOrder: Map<string, number>;
+    disServer: {
+        next: number;
+        discount: number
+    }
+}
