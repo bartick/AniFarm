@@ -10,7 +10,15 @@ const client: ClientUser = new Client({
 	intents: [
 		Intents.FLAGS.GUILDS,
 		Intents.FLAGS.GUILD_MESSAGES,
-	]
+	],
+	presence: {
+		activities: [
+			{
+				name: 'over AniGame Farming',
+				type: 'WATCHING',
+			},
+		]
+	}
 });
 
 client.commands = new Collection();
