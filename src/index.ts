@@ -12,7 +12,20 @@ const client: ClientUser = new Client({
 		Intents.FLAGS.GUILD_MESSAGES,
 	],
 	makeCache: manager => {
-		if (manager.name === 'MessageManager') return new LimitedCollection({ maxSize: 0 });
+		if ([
+			'MessageManager', 
+			'GuildScheduledEventManager', 
+			'GuildStickerManager', 
+			'GuildInviteManager', 
+			'GuildBanManager',
+			'PresenceManager',
+			'ReactionManager',
+			'ReactionUserManager',
+			'StageInstanceManager',
+			'ThreadManager',
+			'ThreadMemberManager',
+			'VoiceStateManager'
+			].indexOf(manager.name) >= 0) return new LimitedCollection({ maxSize: 0 });
 		return new Collection();
 	},
 	presence: {
