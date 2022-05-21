@@ -74,8 +74,5 @@ export interface SettingsType extends mongoose.Document {
     prices: Map<string, number[]>;
     disRole: Map<string, number>;
     disOrder: Map<string, number>;
-    disServer: {
-        next: number;
-        discount: number
-    }
+    disServer: Map<string, number>;
 }

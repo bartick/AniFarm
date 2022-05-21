@@ -1,6 +1,9 @@
 import mongoose from 'mongoose';
 import dotenv from 'dotenv';
-import {Orders, Settings} from './../schema'
+import {
+    Orders,
+    Settings,
+} from './../schema'
 
 dotenv.config();
 
