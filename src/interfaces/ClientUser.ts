@@ -5,7 +5,7 @@ interface ClientUser extends Client {
     power?: Array<string>;
     commands?: Collection<string, Command>;
     buttons?: Collection<string, ButtonCommand>;
-    rateLimit?: Map<string, Array<number>>;
+    rateLimit?: Map<string, Array<String>>;
 }
 
 export default ClientUser;
