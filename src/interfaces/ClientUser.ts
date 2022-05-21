@@ -1,9 +1,11 @@
 import { Client, Collection } from "discord.js";
-import commands from './commands';
+import {Command, ButtonCommand} from './';
 
 interface ClientUser extends Client {
     power?: Array<string>;
-    commands?: Collection<string, commands>;
+    commands?: Collection<string, Command>;
+    buttons?: Collection<string, ButtonCommand>;
+    rateLimit?: Map<string, Array<number>>;
 }
 
 export default ClientUser;

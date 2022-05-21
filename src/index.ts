@@ -3,6 +3,7 @@ import { ClientUser } from './interfaces'
 import dotenv from 'dotenv';
 import * as events from './events';
 import * as commands from "./commands";
+import * as buttonCommands from './buttonCommands';
 
 dotenv.config();
 
@@ -39,10 +40,17 @@ const client: ClientUser = new Client({
 });
 
 client.commands = new Collection();
+client.buttons = new Collection();
+client.rateLimit = new Map();
 client.power = [];
 
 for (const command in commands) {
 	client.commands.set(commands[command as keyof typeof commands].data.name, commands[command as keyof typeof commands]);
+}
+
+for (const buttons in buttonCommands) {
+	client.buttons.set(buttonCommands[buttons as keyof typeof buttonCommands].name, buttonCommands[buttons as keyof typeof buttonCommands]);
+	client.rateLimit.set(buttonCommands[buttons as keyof typeof buttonCommands].name, []);
 }
 
 for (const event in events) {

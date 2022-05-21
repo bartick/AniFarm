@@ -1,6 +1,15 @@
-import { CommandInteraction } from "discord.js";
+import { ButtonInteraction, CommandInteraction } from "discord.js";
 import ClientUser from "./ClientUser";
 
-export interface CustomCommandInteraction extends CommandInteraction {
+interface CustomCommandInteraction extends CommandInteraction {
     client: ClientUser;
 };
+
+interface CustomButtonInteraction extends ButtonInteraction {
+    client: ClientUser;
+}
+
+export {
+    CustomCommandInteraction,
+    CustomButtonInteraction
+}
