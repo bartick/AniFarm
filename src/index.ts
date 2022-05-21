@@ -1,4 +1,4 @@
-import { Client, Intents, Collection } from 'discord.js';
+import { Client, Intents, Collection, LimitedCollection } from 'discord.js';
 import { ClientUser } from './interfaces'
 import dotenv from 'dotenv';
 import * as events from './events';
@@ -11,6 +11,10 @@ const client: ClientUser = new Client({
 		Intents.FLAGS.GUILDS,
 		Intents.FLAGS.GUILD_MESSAGES,
 	],
+	makeCache: manager => {
+		if (manager.name === 'MessageManager') return new LimitedCollection({ maxSize: 0 });
+		return new Collection();
+	},
 	presence: {
 		activities: [
 			{
