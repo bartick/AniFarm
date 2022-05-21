@@ -1,5 +1,5 @@
 import { SlashCommandBuilder, SlashCommandIntegerOption, SlashCommandStringOption } from "@discordjs/builders";
-import { CommandInteraction, MessageEmbed, CacheType, MessageActionRow, MessageButton, Message, MessageComponentInteraction, User, GuildMemberRoleManager } from "discord.js";
+import { CommandInteraction, MessageEmbed, CacheType, MessageActionRow, MessageButton, Message, MessageComponentInteraction, User, GuildMemberRoleManager, TextChannel, NewsChannel } from "discord.js";
 import { getCard, getLocationFloor } from "../utils";
 import { Card, Command, LocationFloor } from "./../interfaces";
 import { SettingsType } from "../schema";
@@ -7,8 +7,11 @@ import { SettingsType } from "../schema";
 import { mongodb } from "./../utils";
 
 const Settings = mongodb.models['settings'];
+const AddOrders = mongodb.models['orders'];
 
-async function handelConfirmation(message: Message, customer: User) {
+const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
+
+async function handelConfirmation(message: Message, customer: User, setOrder: any) {
 
     const filter = ((inter: any) => {
         if ((customer.id === inter.user.id) && ['confirm', 'cancel'].indexOf(inter.customId)>=0) return true;
@@ -18,27 +21,109 @@ async function handelConfirmation(message: Message, customer: User) {
         });
     });
 
-    const controllor = message.createMessageComponentCollector({ filter, time: 30000, componentType: 'BUTTON' })
+    const embed: MessageEmbed = message.embeds[0];
+
+    const controllor = message.createMessageComponentCollector({ filter, time: 30000, componentType: 'BUTTON' });
+
+    let controllorEnd = false;
+
+    const actionRow = message.components;
+    actionRow.forEach((row: MessageActionRow) => {
+        row.components.forEach((comp) => {
+            comp.disabled = true;
+        });
+    });
 
     controllor.on('collect', async (inter: MessageComponentInteraction<CacheType>) => {
         const id: string = inter.customId;
         await inter.deferUpdate();
+        controllorEnd = true;
         switch(id) {
             case 'confirm':
-                await message.reply({
-                    content: "Your order has been confirmed",
+                embed.setColor('#00FF00');
+                embed.setTitle('Order Confirmed');
+                embed.setDescription(`Your order has been confirmed. Please wait for a farmer to pick it up.`);
+                await message.edit({
+                    embeds: [embed],
+                    components: actionRow
                 });
+                embed.setColor("#00FFFF")
+                embed.setTitle('Pickup the order');
+                embed.setDescription(`If you are the farmer please pick up the order`);
+                const pending = inter.client.channels.cache.get(setOrder.pending) as TextChannel | NewsChannel | undefined;
+                try {
+                    if (!pending) {
+                        throw new Error('Channel not found');
+                    }
+                    await pending.send({
+                        embeds: [embed],
+                        components: [
+                            new MessageActionRow()
+                                .addComponents(
+                                    new MessageButton()
+                                        .setCustomId('ORDER_PICKUP')
+                                        .setLabel('Pickup This Order')
+                                        .setStyle('PRIMARY')
+                                        .setEmoji('🍔')
+                                )
+                        ]
+                    });
+                    const saveOrder = new AddOrders(setOrder);
+                    await saveOrder.save();
+                } catch(_) {
+                    await message.channel.send({
+                        embeds: [
+                            new MessageEmbed()
+                                .setColor('#FF0000')
+                                .setTitle('⛔️ Error')
+                                .setDescription(`I am unable to confirm the order. Please ask the server admin to open the pending channel for me.`)
+                                .setAuthor({
+                                    name: inter.user.username,
+                                    iconURL: inter.user.displayAvatarURL({ dynamic: true, size: 1024 })
+                                })
+                                .setThumbnail(inter.client.user?.displayAvatarURL({ dynamic: true, size: 1024 }) || '')
+                                .setTimestamp()
+                        ]
+                    });
+                }
+
                 break;
             case 'cancel':
-                await message.reply({
-                    content: "Your order has been canceled",
+                embed.setColor('#FF0000');
+                embed.setTitle('Order Cancelled');
+                embed.setDescription(`Your order has not been placed. Please consider revisiting when ever you need cards.`);
+                await message.edit({
+                    embeds: [embed],
+                    components: actionRow
                 });
                 break;
             default: 
-                await message.reply({
-                    content: "You cannot use this button 1",
+                embed.setColor('#FF0000');
+                embed.setTitle('Un-intended Action');
+                embed.setDescription(`An un-intended action has been performed. Please contact the developer for fixing this issue.`);
+                await message.edit({
+                    embeds: [embed],
+                    components: actionRow
                 });
         }
+
+        await delay(2000);
+        await message.delete();
+
+        controllor.stop();
+    });
+
+    controllor.on('end', async (_: MessageComponentInteraction<CacheType>[]) => {
+        if (controllorEnd) return;
+        embed.setColor('#FF0000');
+        embed.setTitle('Order Cancelled');
+        embed.setDescription(`Your order timed out and cannot be placed. Please consider revisiting when ever you need cards.`);
+        await message.edit({
+            embeds: [embed],
+            components: actionRow
+        });
+        await delay(2000);
+        await message.delete();
     });
     
 }
@@ -152,7 +237,7 @@ async function completeOrder(interaction: CommandInteraction<CacheType>, setting
         ]
     });
     const message = await interaction.fetchReply() as Message;
-    await handelConfirmation(message, interaction.user);
+    await handelConfirmation(message, interaction.user, setOrder);
 }
 
 const qorder: Command = {
