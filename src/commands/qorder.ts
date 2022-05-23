@@ -55,7 +55,7 @@ async function handelConfirmation(message: Message, customer: User, setOrder: an
                     if (!pending) {
                         throw new Error('Channel not found');
                     }
-                    await pending.send({
+                    const pendingMessage = await pending.send({
                         embeds: [embed],
                         components: [
                             new MessageActionRow()
@@ -68,6 +68,7 @@ async function handelConfirmation(message: Message, customer: User, setOrder: an
                                 )
                         ]
                     });
+                    setOrder.pendingid = pendingMessage.id;
                     const saveOrder = new AddOrders(setOrder);
                     await saveOrder.save();
                 } catch(_) {
@@ -218,6 +219,9 @@ async function completeOrder(interaction: CommandInteraction<CacheType>, setting
             `Order Summary:  ${card.EMOJI}`, 
             `${"```"}\n◙ Card Name: ${setOrder.name}\n◙ Loc-Floor: ${setOrder.location}-${setOrder.floor}\n◙ Amount: ${amount}\n◙ Price: ${setOrder.price - Math.trunc(setOrder.price*setOrder.discount/100)}\n◙ Discount: ${setOrder.discount} \n${"```"}`
         )
+        .setFooter({
+            text: `Order Id ${setOrder.orderid}`
+        })
     await interaction.editReply({
         embeds: [embed],
         components: [

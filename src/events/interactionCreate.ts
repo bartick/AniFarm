@@ -20,7 +20,7 @@ const buttonComponentInteraction =async (interaction: CustomButtonInteraction  )
                 embeds: [
                     new MessageEmbed()
                         .setColor('#ff0000')
-                        .setTitle('！ Rate Limit')
+                        .setTitle('⛔️ Rate Limited')
                         .setDescription('This button is already being used by someone else. Please wait for them to finish.')
                         .setTimestamp()
                         .setAuthor({

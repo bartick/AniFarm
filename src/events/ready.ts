@@ -1,10 +1,9 @@
-import { Client } from 'discord.js';
-import { Event } from '../interfaces';
+import { ClientUser, Event } from '../interfaces';
 
 const ready: Event = {
 	name: 'ready',
 	once: true,
-	execute(client: Client) {
+	execute(client: ClientUser) {
 		console.log(`Logged in as ${client.user?.tag}`);
 	}
 };

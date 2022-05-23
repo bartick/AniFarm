@@ -3,6 +3,7 @@ import { ButtonInteraction, CommandInteraction } from 'discord.js';
 
 interface Command {
     data: Omit<SlashCommandBuilder, "addSubcommand" | "addSubcommandGroup">;
+    rateLimitName?: string | undefined;
     execute: (interaction: CommandInteraction) => Promise<void>;
 }
 

@@ -46,6 +46,7 @@ client.power = [];
 
 for (const command in commands) {
 	client.commands.set(commands[command as keyof typeof commands].data.name, commands[command as keyof typeof commands]);
+	if (commands[command as keyof typeof commands].rateLimitName) client.rateLimit.set(commands[command as keyof typeof commands].rateLimitName as string, []);
 }
 
 for (const buttons in buttonCommands) {
