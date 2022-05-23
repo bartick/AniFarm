@@ -23,6 +23,8 @@ const rest: REST = new REST({ version: '10' }).setToken(process.env.TOKEN as str
 		console.log('Successfully registered application commands.');
 	} catch (error) {
 		console.error(error);
+	} finally {
+		process.exit(0);
 	}
 })();
 

@@ -1,6 +1,6 @@
-import { CommandInteraction, MessageEmbed, User } from 'discord.js';
+import { Message, MessageEmbed, User } from 'discord.js';
 import { SlashCommandBuilder, SlashCommandStringOption } from '@discordjs/builders';
-import { Command, Card, LocationFloor, ClientUser } from './../interfaces';
+import { Command, Card, LocationFloor, ClientUser, CustomCommandInteraction } from './../interfaces';
 import { paginate, getCard, getLocationFloor } from '../utils';
 
 
@@ -91,12 +91,15 @@ const cinfo: Command = {
                 .setDescription('Name of the card')
                 .setRequired(true)
             ),
-    execute: async(interaction: CommandInteraction) => {
+    execute: async(interaction: CustomCommandInteraction): Promise<void> => {
         const name = interaction.options.getString('name', true).trim();
+        const messageToPaginate = await interaction.deferReply({
+            fetchReply: true
+        }) as Message<boolean>;
         getCard(name)
         .then(async (card: Card) => {
             const embeds: Array<MessageEmbed> = await displayCard(card, interaction.user, interaction.client);
-            await paginate(interaction, embeds);
+            await paginate(interaction, embeds, messageToPaginate);
         }).catch(async (err: Error) => {
             const embed: MessageEmbed = new MessageEmbed()
                     .setColor('#FF0000')

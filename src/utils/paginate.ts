@@ -1,6 +1,6 @@
 import { CommandInteraction, Message, MessageActionRow, MessageButton, MessageComponentInteraction, MessageEmbed } from "discord.js";
 
-const paginate = async (interaction: CommandInteraction, embeds: Array<MessageEmbed>) => {
+const paginate = async (interaction: CommandInteraction, embeds: Array<MessageEmbed>, messageReply: Message<boolean>) => {
     const buttonsRow: MessageActionRow = new MessageActionRow()
         .addComponents(
             new MessageButton()
@@ -16,11 +16,10 @@ const paginate = async (interaction: CommandInteraction, embeds: Array<MessageEm
                 .setStyle('PRIMARY')
                 .setEmoji('❌')
         );
-    const messageReply = await interaction.reply({
+    await interaction.editReply({
         embeds: [embeds[0]],
         components: [buttonsRow],
-        fetchReply: true
-    }) as Message;
+    });
 
     const filter = ((inter: any) => {
         if ((interaction.user.id === inter.user.id) && ['prev','next','close'].indexOf(inter.customId)>=0) return true;
