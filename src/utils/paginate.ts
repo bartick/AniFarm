@@ -43,7 +43,6 @@ const paginate = async (interaction: CommandInteraction, embeds: Array<MessageEm
             case 'prev':
                 if (buttonsRow.components[1].disabled) buttonsRow.components[1].disabled = false;
                 index--;
-                if (index < 0) index = 0;
                 if (index==0) buttonsRow.components[0].disabled = true;
                 await messageReply.edit({
                     embeds: [embeds[index]],
@@ -56,7 +55,6 @@ const paginate = async (interaction: CommandInteraction, embeds: Array<MessageEm
             case 'next':
                 if (buttonsRow.components[0].disabled) buttonsRow.components[0].disabled = false;
                 index++;
-                if (index >= embeds.length) index = embeds.length - 1;
                 if (index==embeds.length-1) buttonsRow.components[1].disabled = true;
                 await messageReply.edit({
                     embeds: [embeds[index]],
