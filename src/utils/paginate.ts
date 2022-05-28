@@ -6,6 +6,7 @@ const paginate = async (interaction: CommandInteraction, embeds: Array<MessageEm
             new MessageButton()
                 .setCustomId('prev')
                 .setStyle('PRIMARY')
+                .setDisabled(true)
                 .setEmoji('⏪'),
             new MessageButton()
                 .setCustomId('next')
@@ -13,7 +14,7 @@ const paginate = async (interaction: CommandInteraction, embeds: Array<MessageEm
                 .setEmoji('⏩'),
             new MessageButton()
                 .setCustomId('close')
-                .setStyle('PRIMARY')
+                .setStyle('SECONDARY')
                 .setEmoji('❌')
         );
     await interaction.editReply({
@@ -32,7 +33,7 @@ const paginate = async (interaction: CommandInteraction, embeds: Array<MessageEm
     let index = 0;
     let stop = false;
 
-    const collector = messageReply.createMessageComponentCollector({ filter, time: 30000, componentType: 'BUTTON' });
+    const collector = messageReply.createMessageComponentCollector({ filter, time: 60000, componentType: 'BUTTON' });
 
 
     collector.on('collect', async (inter: MessageComponentInteraction) => {
@@ -40,20 +41,26 @@ const paginate = async (interaction: CommandInteraction, embeds: Array<MessageEm
         await inter.deferUpdate();
         switch(id) {
             case 'prev':
+                if (buttonsRow.components[1].disabled) buttonsRow.components[1].disabled = false;
                 index--;
                 if (index < 0) index = 0;
+                if (index==0) buttonsRow.components[0].disabled = true;
                 await messageReply.edit({
                     embeds: [embeds[index]],
+                    components: [buttonsRow],
                 })
                 .catch((err: Error) => {
                     console.error(err.message);
                 });
                 break;
             case 'next':
+                if (buttonsRow.components[0].disabled) buttonsRow.components[0].disabled = false;
                 index++;
                 if (index >= embeds.length) index = embeds.length - 1;
+                if (index==embeds.length-1) buttonsRow.components[1].disabled = true;
                 await messageReply.edit({
                     embeds: [embeds[index]],
+                    components: [buttonsRow],
                 })
                 .catch((err: Error) => {
                     console.error(err.message);
