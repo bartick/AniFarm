@@ -2,7 +2,7 @@ import { SlashCommandBuilder, SlashCommandIntegerOption } from "@discordjs/build
 import { GuildMember, Message, MessageEmbed, NewsChannel, TextChannel } from "discord.js";
 import { Command, CustomCommandInteraction } from "../interfaces";
 import { OrdersType } from "../schema";
-import { mongodb } from "../utils";
+import { mongodb, noOrderForFarmer } from "../utils";
 
 const Orders = mongodb.models['orders'];
 
@@ -20,6 +20,29 @@ const accorder: Command = {
         await interaction.deferReply({
             ephemeral: true
         });
+        if(await noOrderForFarmer(interaction.user.id)) {
+            await interaction.editReply({
+                embeds: [
+                    new MessageEmbed()
+                        .setColor('#ff0000')
+                        .setTitle('⛔️ Error')
+                        .setDescription('You are already farming. Please use this command if you are not farming and want to accpet a new order.')
+                        .setTimestamp()
+                        .setThumbnail(interaction.client.user?.displayAvatarURL({
+                            dynamic: true,
+                            size: 1024,
+                        }) || '')
+                        .setAuthor({
+                            name: interaction.user.username,
+                            iconURL: interaction.user.displayAvatarURL({
+                                dynamic: true,
+                                size: 1024,
+                            }),
+                        }),
+                ],
+            });
+            return;
+        }
         const rateLimit: Array<String> = interaction.client.rateLimit?.get('ACCEPT_ORDER') as Array<String>;
         const orderid: Number = interaction.options.get('orderid', true).value as Number;
         if (rateLimit.indexOf(orderid.toString())>=0) {

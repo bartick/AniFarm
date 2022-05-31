@@ -1,6 +1,6 @@
 import { GuildMember, Message, MessageEmbed, NewsChannel, TextChannel } from "discord.js";
 import { ButtonCommand, CustomButtonInteraction } from "../interfaces";
-import { mongodb } from "../utils";
+import { mongodb, noOrderForFarmer } from "../utils";
 import { OrdersType } from "../schema";
 
 const Orders = mongodb.models['orders'];
@@ -9,6 +9,32 @@ const acceptOrder: ButtonCommand = {
     name: 'ORDER_PICKUP',
     execute: async(interaction: CustomButtonInteraction) => {
         await interaction.deferUpdate();
+        if(await noOrderForFarmer(interaction.user.id)) {
+            await interaction.followUp({
+                embeds: [
+                    new MessageEmbed()
+                        .setColor('#ff0000')
+                        .setTitle('⛔️ Error')
+                        .setDescription('You are already farming. Please use this command if you are not farming and want to accpet a new order.')
+                        .setTimestamp()
+                        .setThumbnail(interaction.client.user?.displayAvatarURL({
+                            dynamic: true,
+                            size: 1024,
+                        }) || '')
+                        .setAuthor({
+                            name: interaction.user.username,
+                            iconURL: interaction.user.displayAvatarURL({
+                                dynamic: true,
+                                size: 1024,
+                            }),
+                        }),
+                ],
+                ephemeral: true,
+            });
+            return;
+        }
+
+
         const order: OrdersType | null = await Orders.findOne({
             pending: interaction.channelId,
             pendingid: interaction.message.id,
