@@ -2,6 +2,30 @@ import { CacheType, Interaction, MessageEmbed } from "discord.js";
 import { Event, CustomCommandInteraction, Command, ButtonCommand, CustomButtonInteraction } from "../interfaces";
 
 const manageCommandInteraction = async (interaction: CustomCommandInteraction) => {
+    if (interaction.guild===null) {
+        await interaction.reply({
+            embeds: [
+                new MessageEmbed()
+                    .setColor('#ff0000')
+                    .setTitle('⛔️ Error')
+                    .setDescription('This command can only be used in a server.')
+                    .setTimestamp()
+                    .setThumbnail(interaction.client.user?.displayAvatarURL({
+                        dynamic: true,
+                        size: 1024,
+                    }) || '')
+                    .setAuthor({
+                        name: interaction.user.username,
+                        iconURL: interaction.user.displayAvatarURL({
+                            dynamic: true,
+                            size: 1024,
+                        }),
+                    }),
+            ],
+            ephemeral: true
+        });
+        return;
+    };
     const command: Command | undefined = interaction?.client?.commands?.get(interaction.commandName);
     if (command) {
         await command.execute(interaction)

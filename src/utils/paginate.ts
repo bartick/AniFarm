@@ -17,6 +17,9 @@ const paginate = async (interaction: CommandInteraction, embeds: Array<MessageEm
                 .setStyle('SECONDARY')
                 .setEmoji('❌')
         );
+    if (embeds.length === 1) {
+        buttonsRow.components[1].setDisabled(true);
+    }
     await interaction.editReply({
         embeds: [embeds[0]],
         components: [buttonsRow],
