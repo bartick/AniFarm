@@ -7,3 +7,4 @@ export { default as accorder } from "./accorder";
 export { default as compare } from "./compare";
 export { default as farming } from "./farming";
 export { default as orders } from "./orders";
+export { default as cancel } from "./cancel";
