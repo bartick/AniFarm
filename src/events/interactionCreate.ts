@@ -75,12 +75,28 @@ const interactionCreate: Event = {
             manageCommandInteraction(interaction);
         } else if (interaction.isButton()) {
             buttonComponentInteraction(interaction);
+        } else if (interaction.isModalSubmit()) {
+            return;
         } else {
             interaction.channel?.send({
                 embeds: [{
                     title: 'Error',
                     description: 'I don\'t know what to do with this interaction',
                     color: 0xff000,
+                    timestamp: new Date(),
+                    thumbnail: {
+                        url: interaction.user.displayAvatarURL({
+                            dynamic: true,
+                            size: 1024,
+                        }),
+                    },
+                    author: {
+                        name: interaction.user.username,
+                        iconURL: interaction.user.displayAvatarURL({
+                            dynamic: true,
+                            size: 1024,
+                        }),
+                    }
                 }],
 
             });
