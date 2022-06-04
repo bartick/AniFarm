@@ -51,7 +51,7 @@ const orders: Command = {
             const farmer = await interaction.client.users.fetch(order.farmerid).catch(() => null);
             embeds.push(
                 new MessageEmbed()
-                    .setColor('#00ff00')
+                    .setColor('#00ffff')
                     .setTitle('Order Status')
                     .setFields([
                         {
