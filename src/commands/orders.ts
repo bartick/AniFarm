@@ -48,7 +48,7 @@ const orders: Command = {
         const embeds: Array<MessageEmbed> = [];
         for (const order of ordersList) {
             const guild = interaction.client.guilds.cache.get(order.guildid);
-            const farmer = await interaction.client.users.fetch(order.farmerid);
+            const farmer = await interaction.client.users.fetch(order.farmerid).catch(() => null);
             embeds.push(
                 new MessageEmbed()
                     .setColor('#00ff00')
@@ -56,12 +56,12 @@ const orders: Command = {
                     .setFields([
                         {
                             name: 'Farmer:',
-                            value: farmer?.username || 'Unknown',
+                            value: (farmer?.username || 'Unknown') + '#' + (farmer?.discriminator || '0000'),
                             inline: true,
                         },
                         {
                             name: 'Customer:',
-                            value: interaction.user.username,
+                            value: interaction.user.username + '#' + interaction.user.discriminator,
                             inline: true, 
                         },
                         {
