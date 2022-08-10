@@ -7,4 +7,7 @@ export {
 } from './sqlData';
 export { default as mongodb } from './mongodb';
 export { default as profiledb } from './profiledb';
-export { noOrderForFarmer } from './customChecks';
+export { 
+    noOrderForFarmer, 
+    getUserProfile 
+} from './customChecks';
