@@ -191,7 +191,7 @@ const accorder: Command = {
             .addField('Customer:', `${customer.user.username}#${customer.user.discriminator}`,true)
             .addField(
                 `Order Summary: `,
-                `${"```"}\n◙ Card Name: ${order.name}\n◙ Loc-Floor: ${order.location}-${order.floor}\n◙ Amount: ${order.amount}\n◙ Price: ${order.price - Math.trunc(order.price*order.discount/100)}\n◙ Discount: ${order.discount} \n${"```"}`
+                `${"```"}\n◙ Card Name: ${order.name}\n◙ Loc-Floor: ${order.location}-${order.floor}\n◙ Amount: ${0}/${order.amount}\n◙ Price: ${order.price - Math.trunc(order.price*order.discount/100)}\n◙ Discount: ${order.discount} \n${"```"}`
             )
             .setFooter({
                 text: `${interaction.user.username} • Order Id ${order.orderid}`,

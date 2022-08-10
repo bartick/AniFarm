@@ -11,7 +11,7 @@ const AddOrders = mongodb.models['orders'];
 
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
-async function handelConfirmation(message: Message, customer: User, setOrder: any) {
+async function handelConfirmation(message: Message, customer: User, setOrder: any, setting: SettingsType) {
 
     const filter = ((inter: any) => {
         if ((customer.id === inter.user.id) && ['confirm', 'cancel'].indexOf(inter.customId)>=0) return true;
@@ -51,11 +51,13 @@ async function handelConfirmation(message: Message, customer: User, setOrder: an
                 embed.setTitle('Pickup the order');
                 embed.setDescription(`If you are the farmer please pick up the order`);
                 const pending = inter.client.channels.cache.get(setOrder.pending) as TextChannel | NewsChannel | undefined;
+                const content = setting.vacant!=="0"? `<@&${setting.vacant}> a new order has arrived` : null;
                 try {
                     if (!pending) {
                         throw new Error('Channel not found');
                     }
                     const pendingMessage = await pending.send({
+                        content: content,
                         embeds: [embed],
                         components: [
                             new MessageActionRow()
@@ -241,7 +243,7 @@ async function completeOrder(interaction: CommandInteraction<CacheType>, setting
         ]
     });
     const message = await interaction.fetchReply() as Message;
-    await handelConfirmation(message, interaction.user, setOrder);
+    await handelConfirmation(message, interaction.user, setOrder, setting);
 }
 
 const qorder: Command = {
