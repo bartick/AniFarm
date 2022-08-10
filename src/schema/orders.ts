@@ -93,4 +93,6 @@ export interface OrdersType extends mongoose.Document {
         number: number,
         total: number
     }
+    createdAt: Date;
+    updatedAt: Date;
 }
