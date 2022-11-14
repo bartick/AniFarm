@@ -9,8 +9,8 @@
     "deploy": "ts-node src/deploy.ts",
     "start": "node prod/index.js"
   },
-  "author": "",
-  "license": "ISC",
+  "author": "bartick",
+  "license": "MIT",
   "dependencies": {
     "@discordjs/builders": "^0.12.0",
     "@discordjs/rest": "^0.3.0",
