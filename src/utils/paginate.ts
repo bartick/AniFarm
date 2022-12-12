@@ -1,6 +1,16 @@
-import { CommandInteraction, Message, MessageActionRow, MessageButton, MessageComponentInteraction, MessageEmbed } from "discord.js";
+import { 
+    CommandInteraction, 
+    Message, 
+    MessageActionRow, 
+    MessageButton, 
+    MessageComponentInteraction,
+    MessageEmbed 
+} from "discord.js";
+import { 
+    CustomCommandInteraction 
+} from "../interfaces";
 
-const paginate = async (interaction: CommandInteraction, embeds: Array<MessageEmbed>, messageReply: Message<boolean>) => {
+const paginate = async (interaction: CommandInteraction | CustomCommandInteraction, embeds: Array<MessageEmbed>, messageReply: Message<boolean>) => {
     const buttonsRow: MessageActionRow = new MessageActionRow()
         .addComponents(
             new MessageButton()
