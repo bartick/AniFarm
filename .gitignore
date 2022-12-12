@@ -2,3 +2,4 @@
 /prod/
 .env
 *-lock.json
+.vscode
