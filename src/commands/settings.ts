@@ -5,8 +5,12 @@ import {
     SlashCommandSubcommandBuilder 
 } from "@discordjs/builders";
 import { 
+    CacheType,
     GuildMember, 
     Message, 
+    MessageActionRow, 
+    MessageButton, 
+    MessageComponentInteraction, 
     MessageEmbed,
 } from "discord.js";
 import { 
@@ -20,6 +24,7 @@ import {
 } from './../utils';
 
 const Settings = mongodb.models['settings'];
+const MAX_LOCATION = 70;
 
 const settings: Command = {
     data: new SlashCommandBuilder()
@@ -88,7 +93,7 @@ const settings: Command = {
                         })
                         .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
                         .setTitle('⛔️ Error')
-                        .setColor('RED')
+                        .setColor('#FF0000')
                         .setDescription('You do not have **Manage Server** permission to use this command. Please ask a user with the permission to use the command for you.')
                 ]
             });
@@ -103,7 +108,7 @@ const settings: Command = {
         } = {};
         let temp: any;
         switch (subcommand) {
-            case 'guild':
+            case 'guild': {
                 const embed = new MessageEmbed()
                                 .setTitle('Guild Settings')
                                 .setColor('#00FFFF')
@@ -162,11 +167,202 @@ const settings: Command = {
                     embeds: [embed]
                 })
                 break;
-            case 'prices':
-                // TODO: Add settings to set prices
+            }
+            case 'prices': {
+                let setterButtons = [
+                    new MessageActionRow()
+                        .addComponents(
+                            new MessageButton()
+                                .setCustomId('1')
+                                .setLabel('1')
+                                .setStyle('PRIMARY'),
+                            new MessageButton()
+                                .setCustomId('2')
+                                .setLabel('2')
+                                .setStyle('PRIMARY'),
+                            new MessageButton()
+                                .setCustomId('3')
+                                .setLabel('3')
+                                .setStyle('PRIMARY'),
+                            new MessageButton()
+                                .setCustomId('delete')
+                                .setEmoji('🕒')
+                                .setStyle('SECONDARY')
+                        ),
+                    new MessageActionRow()
+                        .addComponents(
+                            new MessageButton()
+                                .setCustomId('4')
+                                .setLabel('4')
+                                .setStyle('PRIMARY'),
+                            new MessageButton()
+                                .setCustomId('5')
+                                .setLabel('5')
+                                .setStyle('PRIMARY'),
+                            new MessageButton()
+                                .setCustomId('6')
+                                .setLabel('6')
+                                .setStyle('PRIMARY'),
+                            new MessageButton()
+                                .setCustomId('right')
+                                .setEmoji('👉')
+                                .setStyle('SECONDARY')
+                        ),
+                    new MessageActionRow()
+                        .addComponents(
+                            new MessageButton()
+                                .setCustomId('7')
+                                .setLabel('7')
+                                .setStyle('PRIMARY'),
+                            new MessageButton()
+                                .setCustomId('8')
+                                .setLabel('8')
+                                .setStyle('PRIMARY'),
+                            new MessageButton()
+                                .setCustomId('9')
+                                .setLabel('9')
+                                .setStyle('PRIMARY'),
+                            new MessageButton()
+                                .setCustomId('left')
+                                .setEmoji('👈')
+                                .setStyle('SECONDARY')
+                        ),
+                    new MessageActionRow()
+                        .addComponents(
+                            new MessageButton()
+                                .setCustomId('0')
+                                .setLabel('0')
+                                .setStyle('PRIMARY'),
+                            new MessageButton()
+                                .setCustomId('confirm')
+                                .setDisabled(true)
+                                .setEmoji('✅')
+                                .setStyle('SUCCESS'),
+                            new MessageButton()
+                                .setCustomId('Cancel')
+                                .setEmoji('⚔️')
+                                .setStyle('DANGER')
+                        )
+                ]
+
+                const embed = new MessageEmbed()
+                                .setTitle('Prices Settings')
+                                .setDescription(`${'```js\n'}# 1 | 1 to "set"  →  null\n\n${'\n```'}`)
+                                .setColor('#00FFFF')
+                                .setAuthor({
+                                    name: interaction.user.username,
+                                    iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                                })
+                                .setTimestamp()
+                                .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                await interaction.reply({
+                    embeds: [embed],
+                    components: setterButtons
+                });
+                const message  = await interaction.fetchReply() as Message<boolean>;
+
+                const filter = (inter: any) => {
+                    if (interaction.user.id === inter.user.id) return true;
+                    return inter.reply({
+                        content: "You cannot use this button",
+                        ephemeral: true
+                    })
+                };
+
+                const setting: {
+                    [key: string]: [number, number]
+                } = {};
+                let price = 0;
+                let priceRange: [number, number] = [1, 0];
+                let index = 1;
+                let toUpdate: boolean = false;
+
+                const collector = message.createMessageComponentCollector({filter, time: 60000});
+                collector.on('collect', async (inter: MessageComponentInteraction<CacheType>) => {
+                    const id: string = inter.customId;
+                    switch (!isNaN(Number(id))? 'Number': id) {
+                        case 'Number': {
+                            if (index===1) {
+                                priceRange[1] = priceRange[1]*10 + Number(id);
+                                if(priceRange[1]>=MAX_LOCATION) priceRange[1] = MAX_LOCATION;
+                                if (priceRange[1].toString().length===2) {
+                                    index = 2;
+                                }
+                            } else {
+                                price = price*10 + Number(id);
+                            }
+                            break;
+                        }
+                        case 'delete': {
+                            if(index===0 || index===1) {
+                                priceRange[index] = Math.trunc(priceRange[index]/10);
+                            } else {
+                                price = Math.trunc(price/10);
+                            }
+                            break;
+                        }
+                        case 'right': {
+                            index = 1;
+                            if (priceRange[1].toString().length===2) {
+                                priceRange[1] = 0;
+                            }
+                            break;
+                        }
+                        case 'left': {
+                            index = 2;
+                            break;
+                        }
+                        case 'confirm': {
+                            setting[`${price}`] = priceRange;
+                            if(priceRange[1]===MAX_LOCATION) {
+                                if(!toUpdate) toUpdate = true;
+                                collector.stop();
+                                break;
+                            }
+                            index = 1;
+                            priceRange = [priceRange[1]+1, 0];
+                            price = 0;
+                            break;
+                        }
+                        case 'Cancel': {
+                            await (inter.message as Message<boolean>).delete();
+                            collector.stop();
+                            return;
+                        }
+                        default: {}
+                    }
+                    let description = ''
+                    let pos = 0;
+                    for (const [key, value] of Object.entries(setting)) {
+                        description += `# ${++pos} | ${value[0]} to ${value[1]} → ${key}\n`
+                    }
+                    description += `# ${++pos} | ${priceRange[0]} to ${priceRange[1]>0?priceRange[1]:'set'} → ${price>0?price:'set'}\n`
+                    embed.description = `${'```js\n'}${description}${'\n```'}`;
+                    await inter.update({
+                        embeds: [embed],
+                        components: setterButtons
+                    });
+                })
+
+                if(toUpdate) {
+                    const check = await Settings.updateOne({guild: interaction.guildId}, {
+                        $set: {
+                            prices: setting
+                        }
+                    })
+                    if(check.modifiedCount===0) {
+                        const newGuildSettings = new Settings({
+                            _id: guildId,
+                            prices: setting
+                        });
+                        await newGuildSettings.save();
+                    }
+                }
+
                 break;
-            case 'roles':
-                const embed2 = new MessageEmbed()
+            }
+            case 'roles': {
+                const embed = new MessageEmbed()
                                 .setTitle('Roles Settings')
                                 .setColor('#00FFFF')
                                 .setAuthor({
@@ -185,7 +381,7 @@ const settings: Command = {
                 for (const key in temp) {
                     if(temp[key]) {
                         subSettings[key] = temp[key].id as string;
-                        embed2.addFields(
+                        embed.addFields(
                             {
                                 name: `• ${key.toUpperCase()}`,
                                 value: `<@&${subSettings[key]}>`,
@@ -212,8 +408,8 @@ const settings: Command = {
                     return;
                 }
 
-                const check2 = await Settings.updateOne({_id: guildId}, {$set: subSettings});
-                if(check2.modifiedCount==0) {
+                const check = await Settings.updateOne({_id: guildId}, {$set: subSettings});
+                if(check.modifiedCount==0) {
                     const newGuildSettings = new Settings({
                         _id: guildId,
                         ...subSettings
@@ -221,10 +417,11 @@ const settings: Command = {
                     await newGuildSettings.save();
                 }
                 await interaction.reply({
-                    embeds: [embed2]
+                    embeds: [embed]
                 })
                 break;
-            case 'view':
+            }
+            case 'view': {
                 const guildSettings: SettingsType | null = await Settings.findOne({_id: guildId});
 
                 if(!guildSettings) {
@@ -338,7 +535,8 @@ const settings: Command = {
                 ]
                 await paginate(interaction, embeds, messageToPaginate);
                 break;
-            default:
+            }
+            default: {
                 await interaction.reply({
                     embeds: [
                         new MessageEmbed()
@@ -353,6 +551,7 @@ const settings: Command = {
                             .setDescription('This subcommand was not implemented yet. Please wait for it to be implemented. If you think this is a mistake please report it to the support server.')
                     ]
                 });
+            }
         };
     }
 };
