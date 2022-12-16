@@ -16,10 +16,10 @@ const guildCreate: Event = {
         
         let leave = false;
 
-        if (memberCount<=100 && (guild.client.power || []).indexOf(guild.id)==-1) {
+        if (memberCount<=50 && (guild.client.power || []).indexOf(guild.id)==-1) {
             embed
                 .setTitle('⛔️ Error')
-                .setDescription(`Sorry your server dosen\'t meet the requirement of ${'`'}100${'`'} members you need ${101-memberCount} more members.\nPlease try again when you have meat the requirement.`)
+                .setDescription(`Sorry your server dosen\'t meet the requirement of ${'`'}50${'`'} members you need ${51-memberCount} more members.\nPlease try again when you have meat the requirement.`)
                 .setColor('RED');
             leave = true;
         }
