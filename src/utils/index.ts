@@ -11,3 +11,4 @@ export {
     noOrderForFarmer, 
     getUserProfile 
 } from './customChecks';
+export { default as relativeDate} from './relateDate';
