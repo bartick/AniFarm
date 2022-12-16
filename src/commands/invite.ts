@@ -21,7 +21,6 @@ Its some functions are to design a proper rate of list for farming, make status 
 To invite me to your server use the link below 
 https://discord.com/api/oauth2/authorize?client_id=${interaction.client.user?.id}&permissions=137707899968&scope=bot%20applications.commands 
 If you have any problem setting up the bot you can join my support server for help.
-https://discord.gg/7ZDqbSSe2k
 https://discord.gg/zQw7smpXFA
             `
         });
