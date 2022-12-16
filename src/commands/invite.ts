@@ -1,12 +1,16 @@
-import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction } from 'discord.js';
-import { Command } from './../interfaces';
+import { 
+    SlashCommandBuilder 
+} from '@discordjs/builders';
+import { 
+    Command, 
+    CustomCommandInteraction 
+} from './../interfaces';
 
 const invite: Command = {
     data: new SlashCommandBuilder()
         .setName('invite')
         .setDescription('Invite me to your server!'),
-    async execute(interaction: CommandInteraction) {
+    async execute(interaction: CustomCommandInteraction) {
         await interaction.reply({
             content: `
 Hello summoner, Welcome to **AniFarm**. 
@@ -15,7 +19,7 @@ Then let me introduce anifarm properly. It is a bot created for the purpose of m
 Its some functions are to design a proper rate of list for farming, make status of farmer clear, reduce the manual work of making invoice, make customer easy to contact farmer, show availability of vacant farmers  and more. It also provides benefit for server as they can do daily discount with commands and bot will adjust the prize and status according to it. It also follow Discord TOS and fall under slash command system.Anifarm is here to make farming easy for every server.
 
 To invite me to your server use the link below 
-https://discord.com/api/oauth2/authorize?client_id=816544600118132747&permissions=137707899968&scope=bot%20applications.commands 
+https://discord.com/api/oauth2/authorize?client_id=${interaction.client.user?.id}&permissions=137707899968&scope=bot%20applications.commands 
 If you have any problem setting up the bot you can join my support server for help.
 https://discord.gg/7ZDqbSSe2k
 https://discord.gg/zQw7smpXFA
