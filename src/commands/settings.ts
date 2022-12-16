@@ -226,6 +226,7 @@ const settings: Command = {
                                 .setCustomId('left')
                                 .setEmoji('👈')
                                 .setStyle('SECONDARY')
+                                .setDisabled(true)
                         ),
                     new MessageActionRow()
                         .addComponents(
@@ -301,15 +302,18 @@ const settings: Command = {
                             }
                             break;
                         }
-                        case 'right': {
+                        case 'left': {
                             index = 1;
-                            if (priceRange[1].toString().length===2) {
-                                priceRange[1] = 0;
-                            }
                             break;
                         }
-                        case 'left': {
+                        case 'right': {
                             index = 2;
+                            if (priceRange[1]<priceRange[0]){
+                                await inter.reply({
+                                    content: "Please provide a valid price range...",
+                                    ephemeral: true
+                                });
+                            }
                             break;
                         }
                         case 'confirm': {
@@ -330,34 +334,56 @@ const settings: Command = {
                             return;
                         }
                         default: {}
-                    }
+                    };
+                    
                     let description = ''
                     let pos = 0;
                     for (const [key, value] of Object.entries(setting)) {
                         description += `# ${++pos} | ${value[0]} to ${value[1]} → ${key}\n`
                     }
-                    description += `# ${++pos} | ${priceRange[0]} to ${priceRange[1]>0?priceRange[1]:'set'} → ${price>0?price:'set'}\n`
+
+                    if(!toUpdate) {
+                        if (index===1) {
+                            description += `# ${++pos} | ${priceRange[0]} to "${priceRange[1]>0?priceRange[1]:'set'}" → ${price>0?price:'set'}\n`
+                        } else {
+                            description += `# ${++pos} | ${priceRange[0]} to ${priceRange[1]>0?priceRange[1]:'set'} → "${price>0?price:'set'}"\n`
+                        }
+                    } else {
+                        const check = await Settings.updateOne({guild: interaction.guildId}, {
+                            $set: {
+                                prices: setting
+                            }
+                        });
+                        if(check.modifiedCount===0) {
+                            const newGuildSettings = new Settings({
+                                _id: guildId,
+                                prices: setting
+                            });
+                            await newGuildSettings.save();
+                        }
+                    }
+
                     embed.description = `${'```js\n'}${description}${'\n```'}`;
+
+                    if(price>0 && priceRange[1]>0 && setterButtons[3].components[1].disabled) {
+                        setterButtons[3].components[1].setDisabled(false);
+                    } else if((price===0 || priceRange[1]===0) && !setterButtons[3].components[1].disabled) {
+                        setterButtons[3].components[1].setDisabled(true);
+                    }
+
+                    if(index==1) {
+                        setterButtons[2].components[3].setDisabled(true);
+                        setterButtons[1].components[3].setDisabled(false);
+                    } else {
+                        setterButtons[1].components[3].setDisabled(true);
+                        setterButtons[2].components[3].setDisabled(false);
+                    }
+
                     await inter.update({
                         embeds: [embed],
-                        components: setterButtons
+                        components: toUpdate? []: setterButtons
                     });
-                })
-
-                if(toUpdate) {
-                    const check = await Settings.updateOne({guild: interaction.guildId}, {
-                        $set: {
-                            prices: setting
-                        }
-                    })
-                    if(check.modifiedCount===0) {
-                        const newGuildSettings = new Settings({
-                            _id: guildId,
-                            prices: setting
-                        });
-                        await newGuildSettings.save();
-                    }
-                }
+                });
 
                 break;
             }
