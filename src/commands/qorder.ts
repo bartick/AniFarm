@@ -277,7 +277,7 @@ const qorder: Command = {
         }
 
         // GET SETTINGS
-        const settings: SettingsType | null = await Settings.findOne({guildid: interaction.guild.id});
+        const settings: SettingsType | null = await Settings.findOne({_id: parseInt(interaction.guild.id)});
 
         // If settings not found then throw a error that setting up the bot is required
         if (settings===null) {
