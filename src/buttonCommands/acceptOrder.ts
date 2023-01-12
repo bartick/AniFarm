@@ -1,4 +1,4 @@
-import { GuildMember, Message, MessageEmbed, NewsChannel, TextChannel } from "discord.js";
+import { GuildMember, GuildMemberRoleManager, Message, MessageEmbed, NewsChannel, TextChannel } from "discord.js";
 import { ButtonCommand, CustomButtonInteraction } from "../interfaces";
 import { mongodb, noOrderForFarmer } from "../utils";
 import { OrdersType } from "../schema";
@@ -61,6 +61,49 @@ const acceptOrder: ButtonCommand = {
             });
             return;
         }
+
+        if ((interaction.member?.roles as GuildMemberRoleManager).cache.has(order.farmer)) {
+            interaction.editReply({
+                embeds: [
+                    new MessageEmbed()
+                        .setColor('#ff0000')
+                        .setTitle('⛔️ Error')
+                        .setDescription('You are not a farmer in this server. Thus you do not qualify to accept this order.')
+                        .setTimestamp()
+                        .setAuthor({
+                            name: interaction.user.username,
+                            iconURL: interaction.user.displayAvatarURL({
+                                dynamic: true,
+                                size: 1024,
+                            })
+                        })
+                        .setThumbnail(interaction.client.user?.displayAvatarURL({ dynamic: true, size: 1024 }) || '')
+                ]
+            });
+            return;
+        }
+
+        if (order.farmerid!=="0") {
+            interaction.editReply({
+                embeds: [
+                    new MessageEmbed()
+                        .setColor('#ff0000')
+                        .setTitle('⛔️ Error')
+                        .setDescription('This order is already claimed by someone else.')
+                        .setTimestamp()
+                        .setAuthor({
+                            name: interaction.user.username,
+                            iconURL: interaction.user.displayAvatarURL({
+                                dynamic: true,
+                                size: 1024,
+                            })
+                        })
+                        .setThumbnail(interaction.client.user?.displayAvatarURL({ dynamic: true, size: 1024 }) || '')
+                ]
+            });
+            return;
+        }
+
         const rateLimit = interaction.client.rateLimit?.get('ACCEPT_ORDER') as Array<String>;
         if (rateLimit.indexOf(`${order.orderid}`)>=0) {
             await interaction.followUp({
