@@ -63,7 +63,7 @@ const acceptOrder: ButtonCommand = {
         }
 
         if ((interaction.member?.roles as GuildMemberRoleManager).cache.has(order.farmer)) {
-            interaction.editReply({
+            interaction.followUp({
                 embeds: [
                     new MessageEmbed()
                         .setColor('#ff0000')
@@ -84,7 +84,7 @@ const acceptOrder: ButtonCommand = {
         }
 
         if (order.farmerid!=="0") {
-            interaction.editReply({
+            interaction.followUp({
                 embeds: [
                     new MessageEmbed()
                         .setColor('#ff0000')
