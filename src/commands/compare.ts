@@ -101,9 +101,27 @@ const compare: Command = {
             });
             if (typeof card !== 'string') {
                 images.push(Canvas.loadImage(card.PICTURE));
-                cards[0].addField(`${card.NAME} ${(card.TYPE).trim().split(/\s/)[1]} ${card.EMOJI}`, `**Card Series:** ${card.SERIES}\n**Hp:** ${card.HP}\n**Atk:** ${card.ATK}\n**Def:** ${card.DEF}\n**Speed:** ${card.SPEED}`,true)
-                cards[1].addField(`${card.NAME} ${(card.TYPE).trim().split(/\s/)[1]} ${card.EMOJI}`, `**Hp:** ${Math.trunc(card.HP*correction[0])}\n**Atk:** ${Math.trunc(card.ATK*correction[0])}\n**Def:** ${Math.trunc(card.DEF*correction[0])}\n**Speed:** ${Math.trunc(card.SPEED*correction[0])}`, true)
-                cards[2].addField(`${card.NAME} ${(card.TYPE).trim().split(/\s/)[1]} ${card.EMOJI}`, `**Hp:** ${Math.trunc(card.HP*correction[1])}\n**Atk:** ${Math.trunc(card.ATK*correction[1])}\n**Def:** ${Math.trunc(card.DEF*correction[1])}\n**Speed:** ${Math.trunc(card.SPEED*correction[1])}`, true)
+                cards[0].addFields(
+                    {
+                        name: `${card.NAME} ${(card.TYPE).trim().split(/\s/)[1]} ${card.EMOJI}`, 
+                        value: `**Card Series:** ${card.SERIES}\n**Hp:** ${card.HP}\n**Atk:** ${card.ATK}\n**Def:** ${card.DEF}\n**Speed:** ${card.SPEED}`,
+                        inline: true
+                    }
+                )
+                cards[1].addFields(
+                    {
+                        name: `${card.NAME} ${(card.TYPE).trim().split(/\s/)[1]} ${card.EMOJI}`, 
+                        value: `**Hp:** ${Math.trunc(card.HP*correction[0])}\n**Atk:** ${Math.trunc(card.ATK*correction[0])}\n**Def:** ${Math.trunc(card.DEF*correction[0])}\n**Speed:** ${Math.trunc(card.SPEED*correction[0])}`, 
+                        inline: true
+                    }
+                )
+                cards[2].addFields(
+                    {
+                        name: `${card.NAME} ${(card.TYPE).trim().split(/\s/)[1]} ${card.EMOJI}`, 
+                        value: `**Hp:** ${Math.trunc(card.HP*correction[1])}\n**Atk:** ${Math.trunc(card.ATK*correction[1])}\n**Def:** ${Math.trunc(card.DEF*correction[1])}\n**Speed:** ${Math.trunc(card.SPEED*correction[1])}`, 
+                        inline: true
+                    }
+                )
             };
         };
 

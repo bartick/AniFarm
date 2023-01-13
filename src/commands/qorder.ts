@@ -217,9 +217,11 @@ async function completeOrder(interaction: CommandInteraction<CacheType>, setting
         .setThumbnail(card.PICTURE)
         .setTitle("Please confirm your order !!!")
         .setTimestamp()
-        .addField(
-            `Order Summary:  ${card.EMOJI}`, 
-            `${"```"}\n◙ Card Name: ${setOrder.name}\n◙ Loc-Floor: ${setOrder.location}-${setOrder.floor}\n◙ Amount: ${amount}\n◙ Price: ${setOrder.price - Math.trunc(setOrder.price*setOrder.discount/100)}\n◙ Discount: ${setOrder.discount} \n${"```"}`
+        .addFields(
+            {
+                name: `Order Summary:  ${card.EMOJI}`, 
+                value: `${"```"}\n◙ Card Name: ${setOrder.name}\n◙ Loc-Floor: ${setOrder.location}-${setOrder.floor}\n◙ Amount: ${amount}\n◙ Price: ${setOrder.price - Math.trunc(setOrder.price*setOrder.discount/100)}\n◙ Discount: ${setOrder.discount} \n${"```"}`
+            }
         )
         .setFooter({
             text: `Order Id ${setOrder.orderid}`

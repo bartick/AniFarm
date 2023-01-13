@@ -183,12 +183,22 @@ const acceptOrder: ButtonCommand = {
             .setThumbnail(order.image)
             .setTitle("Farming Status")
             .setTimestamp()
-            .addField('Farmer:', `${interaction.user.username}#${interaction.user.discriminator}`, true)
-            .addField('Customer:', `${customer.user.username}#${customer.user.discriminator}`,true)
-            .addField(
-                `Order Summary: `,
-                `${"```"}\n◙ Card Name: ${order.name}\n◙ Loc-Floor: ${order.location}-${order.floor}\n◙ Amount: ${order.amount}\n◙ Price: ${order.price - Math.trunc(order.price*order.discount/100)}\n◙ Discount: ${order.discount} \n${"```"}`
-            )
+            .addFields(
+                {
+                    name: 'Farmer:',
+                    value: `${interaction.user.username}#${interaction.user.discriminator}`,
+                    inline: true
+                }, 
+                {
+                    name: 'Customer:',
+                    value: `${customer.user.username}#${customer.user.discriminator}`,
+                    inline: true
+                }, 
+                {
+                    name: 'Order Summary:',
+                    value: `${"```"}\n◙ Card Name: ${order.name}\n◙ Loc-Floor: ${order.location}-${order.floor}\n◙ Amount: ${order.amount}\n◙ Price: ${order.price - Math.trunc(order.price*order.discount/100)}\n◙ Discount: ${order.discount} \n${"```"}`,
+                    inline: false
+                })
             .setFooter({
                 text: `${interaction.user.username} • Order Id ${order.orderid}`,
                 iconURL: interaction.user.displayAvatarURL({

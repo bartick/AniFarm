@@ -99,9 +99,23 @@ const updatevalue: Command = {
             })
             .setTimestamp()
             .setTitle('Farming Status')
-            .addField('Farmer:', interaction.user.tag, true)
-            .addField('Customer:', customer.tag, false)
-            .addField('Order Summary:',"```\n◙ Card Name: "+currentOrder.name+"\n◙ Loc-Floor: "+currentOrder.location+"-"+currentOrder.floor+"\n◙ Amount: "+value+"/"+currentOrder.amount+"\n◙ Price: "+(currentOrder.price - currentOrder.price*(currentOrder.discount/100))+"\n◙ Discount: "+currentOrder.discount+'%\n◙ Amount Farmed:'+value+"/"+currentOrder.amount+"\n```", false)
+            .addFields(
+                {
+                    name: 'Farmer:',
+                    value: interaction.user.tag,
+                    inline: true
+                },
+                {
+                    name: 'Customer:',
+                    value: customer.tag,
+                    inline: true
+                },
+                {
+                    name: 'Order Summary:',
+                    value: "```\n◙ Card Name: "+currentOrder.name+"\n◙ Loc-Floor: "+currentOrder.location+"-"+currentOrder.floor+"\n◙ Amount: "+value+"/"+currentOrder.amount+"\n◙ Price: "+(currentOrder.price - currentOrder.price*(currentOrder.discount/100))+"\n◙ Discount: "+currentOrder.discount+'%\n◙ Amount Farmed:'+value+"/"+currentOrder.amount+"\n```",
+                    inline: false
+                }
+            )
 
         if (value>=currentOrder.amount) {
             const minutesWatedFarming = (Date.now()-currentOrder.createdAt.getTime())/(1000*60);

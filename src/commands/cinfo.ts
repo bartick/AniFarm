@@ -34,9 +34,19 @@ async function displayCard(card: Card, user: User, client: ClientUser): Promise<
                 iconURL: user.displayAvatarURL({dynamic: true, size: 1024})
             })
             .setTitle(`**${card.NAME}**`)
+            .addFields(
+                {
+                    name: 'Location 🗺',
+                    value: `**Area:** ${location}\n**FLOOR:** ${floor}`,
+                    inline: false
+                },
+                {
+                    name: 'Talent',
+                    value: `${card.EMOJI} ${card.BASETALENT}`,
+                    inline: false
+                }
+            )
             .setDescription(`**Card Series:** ${card.SERIES}\n**Type:** ${card.TYPE}\n**Hp:** ${card.HP}\n**Atk:** ${card.ATK}\n**Def:** ${card.DEF}\n**Speed:** ${card.SPEED}`)
-            .addField('Location 🗺', `**Area:** ${location}\n**FLOOR:** ${floor}`, false)
-            .addField('Talent', `${card.EMOJI} ${card.BASETALENT}`, false)
             .setImage(card.PICTURE)
             .setThumbnail(client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
             .setFooter({
@@ -52,10 +62,28 @@ async function displayCard(card: Card, user: User, client: ClientUser): Promise<
             .setImage(card.PICTURE)
             .setThumbnail(client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
             .setTitle(`**${card.NAME}**`)
-            .addField('SR Evo 1 ', `**Hp:** ${Math.trunc(card.HP*sr[0])}\n**Atk:** ${Math.trunc(card.ATK*sr[0])}\n**Def:** ${Math.trunc(card.DEF*sr[0])}\n**Speed:** ${Math.trunc(card.SPEED*sr[0])}`, true)
-            .addField('SR Evo 2 ', `**Hp:** ${Math.trunc(card.HP*sr[1])}\n**Atk:** ${Math.trunc(card.ATK*sr[1])}\n**Def:** ${Math.trunc(card.DEF*sr[1])}\n**Speed:** ${Math.trunc(card.SPEED*sr[1])}`, true)
-            .addField('SR Evo 3 ', `**Hp:** ${Math.trunc(card.HP*sr[2])}\n**Atk:** ${Math.trunc(card.ATK*sr[2])}\n**Def:** ${Math.trunc(card.DEF*sr[2])}\n**Speed:** ${Math.trunc(card.SPEED*sr[2])}`, true)
-            .addField('SR Talent', `${card.EMOJI} ${card.SRTALENT}`, false)
+            .addFields(
+                {
+                    name: 'SR Evo 1 ',
+                    value: `**Hp:** ${Math.trunc(card.HP*sr[0])}\n**Atk:** ${Math.trunc(card.ATK*sr[0])}\n**Def:** ${Math.trunc(card.DEF*sr[0])}\n**Speed:** ${Math.trunc(card.SPEED*sr[0])}`,
+                    inline: true
+                },
+                {
+                    name: 'SR Evo 2 ',
+                    value: `**Hp:** ${Math.trunc(card.HP*sr[1])}\n**Atk:** ${Math.trunc(card.ATK*sr[1])}\n**Def:** ${Math.trunc(card.DEF*sr[1])}\n**Speed:** ${Math.trunc(card.SPEED*sr[1])}`,
+                    inline: true
+                },
+                {
+                    name: 'SR Evo 3 ',
+                    value: `**Hp:** ${Math.trunc(card.HP*sr[2])}\n**Atk:** ${Math.trunc(card.ATK*sr[2])}\n**Def:** ${Math.trunc(card.DEF*sr[2])}\n**Speed:** ${Math.trunc(card.SPEED*sr[2])}`,
+                    inline: true
+                },
+                {
+                    name: 'SR Talent',
+                    value: `${card.EMOJI} ${card.SRTALENT}`,
+                    inline: false
+                }
+            )
             .setFooter({
                 text: `Page 2/3 • ${card.FOOTER} | ID: ${card.ID}`
             })
@@ -69,10 +97,28 @@ async function displayCard(card: Card, user: User, client: ClientUser): Promise<
         .setImage(card.PICTURE)
         .setThumbnail(client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
         .setTitle(`**${card.NAME}**`)
-        .addField('UR Evo 1 ', `**Hp:** ${Math.trunc(card.HP*ur[0])}\n**Atk:** ${Math.trunc(card.ATK*ur[0])}\n**Def:** ${Math.trunc(card.DEF*ur[0])}\n**Speed:** ${Math.trunc(card.SPEED*ur[0])}`, true)
-        .addField('UR Evo 2 ', `**Hp:** ${Math.trunc(card.HP*ur[1])}\n**Atk:** ${Math.trunc(card.ATK*ur[1])}\n**Def:** ${Math.trunc(card.DEF*ur[1])}\n**Speed:** ${Math.trunc(card.SPEED*ur[1])}`, true)
-        .addField('UR Evo 3 ', `**Hp:** ${Math.trunc(card.HP*ur[2])}\n**Atk:** ${Math.trunc(card.ATK*ur[2])}\n**Def:** ${Math.trunc(card.DEF*ur[2])}\n**Speed:** ${Math.trunc(card.SPEED*ur[2])}`, true)
-        .addField('UR Talent', `${card.EMOJI} ${card.URTALENT}`, false)
+        .addFields(
+            {
+                name: 'UR Evo 1 ',
+                value: `**Hp:** ${Math.trunc(card.HP*ur[0])}\n**Atk:** ${Math.trunc(card.ATK*ur[0])}\n**Def:** ${Math.trunc(card.DEF*ur[0])}\n**Speed:** ${Math.trunc(card.SPEED*ur[0])}`,
+                inline: true
+            },
+            {
+                name: 'UR Evo 2 ',
+                value: `**Hp:** ${Math.trunc(card.HP*ur[1])}\n**Atk:** ${Math.trunc(card.ATK*ur[1])}\n**Def:** ${Math.trunc(card.DEF*ur[1])}\n**Speed:** ${Math.trunc(card.SPEED*ur[1])}`,
+                inline: true
+            },
+            {
+                name: 'UR Evo 3 ',
+                value: `**Hp:** ${Math.trunc(card.HP*ur[2])}\n**Atk:** ${Math.trunc(card.ATK*ur[2])}\n**Def:** ${Math.trunc(card.DEF*ur[2])}\n**Speed:** ${Math.trunc(card.SPEED*ur[2])}`,
+                inline: true
+            },
+            {
+                name: 'UR Talent',
+                value: `${card.EMOJI} ${card.URTALENT}`,
+                inline: false
+            }
+        )
         .setFooter({
             text: `Page 3/3 • ${card.FOOTER} | ID: ${card.ID}`
         })
