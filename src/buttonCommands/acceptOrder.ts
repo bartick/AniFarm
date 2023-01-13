@@ -62,7 +62,7 @@ const acceptOrder: ButtonCommand = {
             return;
         }
 
-        if ((interaction.member?.roles as GuildMemberRoleManager).cache.has(order.farmer)) {
+        if (!(interaction.member?.roles as GuildMemberRoleManager).cache.has(order.farmer)) {
             interaction.followUp({
                 embeds: [
                     new MessageEmbed()
