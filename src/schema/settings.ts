@@ -56,6 +56,10 @@ export default new mongoose.Schema({
             next: 0,
             discount: 0
         }
+    },
+    soul: {
+        type: Number,
+        default: 0
     }
 },
 {collection: 'settings', versionKey: false}
