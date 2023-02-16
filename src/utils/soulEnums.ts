@@ -32,12 +32,12 @@ export const Grass = "grass";
 export const Electric = "electric";
 
 export const SoulEnums = {
-    Water: WaterSoulShards,
-    Fire: FireSoulShards,
-    Ground: GroundSoulShards,
-    Light: LightSoulShards,
-    Dark: DarkSoulShards,
-    Neutral: NeutralSoulShards,
-    Grass: GrassSoulShards,
-    Electric: ElectricSoulShards,
+    [Water]: WaterSoulShards,
+    [Fire]: FireSoulShards,
+    [Ground]: GroundSoulShards,
+    [Light]: LightSoulShards,
+    [Dark]: DarkSoulShards,
+    [Neutral]: NeutralSoulShards,
+    [Grass]: GrassSoulShards,
+    [Electric]: ElectricSoulShards,
 }
