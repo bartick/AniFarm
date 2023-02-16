@@ -3,3 +3,4 @@
 .env
 *-lock.json
 .vscode
+.DS_Store
