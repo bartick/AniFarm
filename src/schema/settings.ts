@@ -79,4 +79,5 @@ export interface SettingsType extends mongoose.Document {
     disRole: Map<string, number>;
     disOrder: Map<string, number>;
     disServer: Map<string, number>;
+    soul: number;
 }

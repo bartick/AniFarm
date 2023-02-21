@@ -32,6 +32,8 @@ export {
     Electric
 } from './soulEnums';
 
+export { default as OrderManager } from './orderManager';
+
 export {
     ModalActionRow,
 } from './typeCast';

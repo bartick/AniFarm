@@ -4,10 +4,12 @@ export default new mongoose.Schema({
     orderid: Number,
     guildid: String,
     name: {
-        type: String
+        type: String,
+        default: "0"
     },
 	image: {
-        type: String
+        type: String,
+        default: "0"
     },
 	farmer: {
         type: String
@@ -64,6 +66,12 @@ export default new mongoose.Schema({
             total: 0
         }
         
+    },
+    soulName: {
+        type: String,
+    },
+    soulEmoji: {
+        type: String,
     }
 },
 {collection: 'orders', versionKey: false, timestamps: true}
@@ -93,6 +101,8 @@ export interface OrdersType extends mongoose.Document {
         number: number,
         total: number
     }
+    soulName: string;
+    soulEmoji: string;
     createdAt: Date;
     updatedAt: Date;
 }
