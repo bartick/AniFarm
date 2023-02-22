@@ -123,7 +123,9 @@ class OrderManager {
 
     private async getFarmer(): Promise<void> {
         if (!this.order) return;
-        this.farmer = await this.interaction.client.users.fetch(this.order.farmerid).then((value: User) => value).catch(() => null);
+        try {
+            this.farmer = await this.interaction.client.users.fetch(this.order.farmerid).then((value: User) => value).catch(() => null);
+        } catch (_) {}
     }
 
     public async completedOrderEmbed(): Promise<MessageEmbed> {
@@ -453,7 +455,7 @@ class OrderManager {
 
         const statusChannel = await this.interaction.client.channels.fetch(this.order.status) as TextChannel | NewsChannel;
 
-        if (statusChannel.permissionsFor(this.interaction.client.user!)?.has('SEND_MESSAGES') === false) {
+        if (statusChannel.permissionsFor(this.interaction.client.user!)?.has('SEND_MESSAGES') === false && statusChannel!==null) {
             this.interaction.followUp({
                 embeds: [
                     this.errorEmbed('I do not have permission to send messages in this channel.')
@@ -466,9 +468,8 @@ class OrderManager {
             embeds: [embed]
         }) as Message<boolean>;
 
-        const pendingMessage = await (this.interaction.client.channels.cache.get(this.order.pending) as TextChannel | NewsChannel).messages.fetch(this.order.pendingid);
-
         try {
+            const pendingMessage = await (this.interaction.client.channels.cache.get(this.order.pending) as TextChannel | NewsChannel).messages.fetch(this.order.pendingid);
             await pendingMessage.delete();
         } catch (_) {}
 
@@ -506,8 +507,9 @@ class OrderManager {
             orderid: this.order.orderid
         })
 
-        const statusMessage = await (this.interaction.client.channels.cache.get(this.order.status) as TextChannel | NewsChannel).messages.fetch(this.order.statusid);
+        
         try {
+            const statusMessage = await (this.interaction.client.channels.cache.get(this.order.status) as TextChannel | NewsChannel).messages.fetch(this.order.statusid);
             await statusMessage.delete();
         } catch(_) {}
 
@@ -562,14 +564,22 @@ class OrderManager {
             }
         });
 
-        const statusMessage = await (this.interaction.client.channels.cache.get(this.order.status) as TextChannel | NewsChannel).messages.fetch(this.order.statusid);
+        try {
+            const statusMessage = await (this.interaction.client.channels.cache.get(this.order.status) as TextChannel | NewsChannel).messages.fetch(this.order.statusid);
+            this.order.amount_farmed = value;
+            const embed = await this.completedOrderEmbed();
 
-        this.order.amount_farmed = value;
-        const embed = await this.completedOrderEmbed();
-
-        await statusMessage.edit({
-            embeds: [embed]
-        });
+            await statusMessage.edit({
+                embeds: [embed]
+            });
+        } catch(_) {
+            await this.interaction.editReply({
+                embeds: [
+                    this.errorEmbed('I was unable to update the status message. Please try again.')
+                ]
+            })
+            return false;
+        }
 
         await this.interaction.editReply({
             content: '✅ Order updated successfully.',
@@ -594,9 +604,8 @@ class OrderManager {
             orderid: this.order.orderid
         });
 
-        const pendingMessage = await (this.interaction.client.channels.cache.get(this.order.pending) as TextChannel | NewsChannel).messages.fetch(this.order.pendingid);
-
         try {
+            const pendingMessage = await (this.interaction.client.channels.cache.get(this.order.pending) as TextChannel | NewsChannel).messages.fetch(this.order.pendingid);
             await pendingMessage.delete();
         } catch (_) {}
 
