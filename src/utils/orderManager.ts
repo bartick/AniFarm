@@ -271,7 +271,9 @@ class OrderManager {
 
                     await this.delay(5000);
 
-                    await message.delete();
+                    try {
+                        await message.delete();
+                    } catch (_) {}
 
                     embed.setColor("#00FFFF");
                     embed.setTitle('Pickup the order');
@@ -302,7 +304,9 @@ class OrderManager {
 
                     await this.delay(2000);
 
-                    await message.delete();
+                    try {
+                        await message.delete();
+                    } catch (_) {}
                 }
             }
         });
@@ -319,7 +323,9 @@ class OrderManager {
 
             await this.delay(2000);
 
-            await message.delete();
+            try {
+                await message.delete();
+            } catch (_) {}
         });
     }
 
@@ -441,6 +447,8 @@ class OrderManager {
             })
         };
 
+        this.order.farmerid = this.interaction.user.id;
+
         const embed = await this.completedOrderEmbed();
 
         const statusChannel = await this.interaction.client.channels.fetch(this.order.status) as TextChannel | NewsChannel;
@@ -460,9 +468,10 @@ class OrderManager {
 
         const pendingMessage = await (this.interaction.client.channels.cache.get(this.order.pending) as TextChannel | NewsChannel).messages.fetch(this.order.pendingid);
 
-        await pendingMessage.delete();
+        try {
+            await pendingMessage.delete();
+        } catch (_) {}
 
-        this.order.farmerid = this.interaction.user.id;
         this.order.pendingid = '0';
         this.order.statusid = message.id;
 
@@ -498,7 +507,9 @@ class OrderManager {
         })
 
         const statusMessage = await (this.interaction.client.channels.cache.get(this.order.status) as TextChannel | NewsChannel).messages.fetch(this.order.statusid);
-        await statusMessage.delete();
+        try {
+            await statusMessage.delete();
+        } catch(_) {}
 
         const customer = await this.notifyCustomer(`Please collect your order from ${this.interaction.user.tag}(**ID:** ${this.interaction.user.id})`, embed);
 
@@ -585,7 +596,9 @@ class OrderManager {
 
         const pendingMessage = await (this.interaction.client.channels.cache.get(this.order.pending) as TextChannel | NewsChannel).messages.fetch(this.order.pendingid);
 
-        await pendingMessage.delete();
+        try {
+            await pendingMessage.delete();
+        } catch (_) {}
 
         await this.interaction.editReply({
             content: '✅ Order cancelled successfully.',
