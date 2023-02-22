@@ -1,6 +1,6 @@
 export { default as ping } from "./ping";
 export { default as invite } from "./invite";
-export { default as accorder } from "./accorder";
+export { default as accorder } from "./acceptOrder";
 export { default as farming } from "./farming";
 export { default as orders } from "./orders";
 export { default as cancel } from "./cancel";

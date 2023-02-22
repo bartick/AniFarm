@@ -1,5 +1,6 @@
 import { 
     ButtonInteraction, 
+    GuildMemberRoleManager, 
     Message, 
     MessageActionRow, 
     MessageButton, 
@@ -12,7 +13,7 @@ import {
     CustomCommandInteraction 
 } from '../interfaces';
 import { 
-    OrdersType, 
+    OrdersType,
     SettingsType 
 } from "../schema";
 import mongodb from './mongodb';
@@ -64,7 +65,16 @@ class OrderManager {
     }
 
     private calculateDiscount(settings: SettingsType): number {
-        return 0;
+        let discount = 0;
+        for (const dis of settings.disRole) {
+            if ((this.interaction.member?.roles as GuildMemberRoleManager).cache.has(dis[0]) && discount<dis[1]) {
+                discount = dis[1];
+            }
+        }
+
+        if (Date.now() <= (settings.disServer.get('next') as Number)) discount += (settings.disServer.get('discount') as number);
+
+        return discount;
     }
 
     private calculatePrice(orderPrice: {
@@ -89,11 +99,12 @@ class OrderManager {
     }
 
     public async completedOrderEmbed(): Promise<MessageEmbed> {
-        if (!this.order) return new MessageEmbed();
+        if (!this.order) return this.errorEmbed('Order was not created properly. Please create a new order')
 
         if (!this.farmer) await this.getFarmer();
 
         const embed = await this.createOrderEmbed(this.order);
+        embed.setTitle('Farming Status 🌾')
         embed.setFields(
             {
                 name: 'Farmer:',
@@ -106,13 +117,14 @@ class OrderManager {
                 inline: true
             },
             {
-                name: 'Order Summary:',
-                value: '```css\n' +
+                name: 'Order Summary: ' + this.order.soulEmoji,
+                value: '```js\n' +
                 `◙ Order ID: ${this.order.orderid}\n` +
                 `◙ Soul: ${this.order.soulName}\n` +
                 `◙ Amount: ${this.order.amount}\n` +
                 `◙ Price: ${this.calculatePrice(this.order)}\n` +
                 `◙ Discount: ${this.order.discount}%\n` +
+                `◙ Amount Farmed: ${this.order.amount_farmed}/${this.order.amount}\n` +
                 '```',
                 inline: false
             }
@@ -132,6 +144,7 @@ class OrderManager {
         price: number
         amount: number,
         discount: number
+        soulEmoji: string
     }): Promise<MessageEmbed> {
 
         if (!this.customer) await this.getCustomer();
@@ -139,8 +152,8 @@ class OrderManager {
         const embed = new MessageEmbed()
                     .addFields(
                         {
-                            name: 'Order Summery:',
-                            value: '```css\n' +
+                            name: 'Order Summery: ' + orderChecker.soulEmoji,
+                            value: '```js\n' +
                             `◙ Order ID: ${orderChecker.orderid}\n` +
                             `◙ Soul: ${orderChecker.soulName}\n` +
                             `◙ Amount: ${orderChecker.amount}\n` +
@@ -210,7 +223,7 @@ class OrderManager {
         const message = await this.interaction.fetchReply() as Message<boolean>;
 
         const filter = (interaction: ButtonInteraction) => {
-            return interaction.customId === 'confirm' || interaction.customId === 'cancel';
+            return (interaction.customId === 'confirm' || interaction.customId === 'cancel') && interaction.user.id === this.interaction.user.id;
         }
 
         const collector = message.createMessageComponentCollector({ filter, time: 30000, componentType: 'BUTTON', max: 1 });
@@ -230,7 +243,6 @@ class OrderManager {
 
                     await this.delay(5000);
 
-
                     await message.delete();
 
                     embed.setColor("#00FFFF");
@@ -247,13 +259,14 @@ class OrderManager {
                         })
                         return;
                     }
-                    await this.sendMessages(pending, settings.vacant==='0'?null:settings.vacant);
+                    await this.sendMessages(pending, settings.vacant==='0'?null:`<@&${settings.vacant}> a new order has arrived.`, 'pendingid');
 
                     break;
                 }
                 case 'cancel': {
                     embed.setTitle('Order Cancelled');
                     embed.setDescription('Your order has been cancelled successfully.');
+                    embed.setColor('#ff0000')
                     await message.edit({
                         embeds: [embed],
                         components: []
@@ -270,6 +283,7 @@ class OrderManager {
             if (collected.size > 0) return;
             embed.setTitle('Order Expired');
             embed.setDescription('Your order has expired, please try again.');
+            embed.setColor('#ff0000')
             await message.edit({
                 embeds: [embed],
                 components: []
@@ -281,7 +295,7 @@ class OrderManager {
         });
     }
 
-    public async sendMessages(channel: TextChannel | NewsChannel, content: string | null = null): Promise<void> {
+    public async sendMessages(channel: TextChannel | NewsChannel, content: string | null = null, orderUpdater: keyof OrdersType | null = null): Promise<void> {
         if (!this.order) {
             this.interaction.followUp({
                 embeds: [
@@ -302,10 +316,142 @@ class OrderManager {
 
         const embed = await this.completedOrderEmbed();
 
-        await channel.send({
-            content: null,
+        const message = await channel.send({
+            content: content,
+            embeds: [embed]
+        }).then(msg => msg);
+
+        if(orderUpdater) {
+            await Orders.updateOne({
+                orderid: this.order.orderid
+            }, {
+                $set: {
+                    [orderUpdater]: message.id
+                }
+            });
+        }
+
+    }
+
+    private async sendDMMessage(content: string | null = null , embed: MessageEmbed, userid: string) {
+        const user = await this.interaction.client.users.fetch(userid);
+        if (!user) return;
+
+        await user.send({
+            content: content,
             embeds: [embed]
         }).catch(() => null);
+    }
+
+    private async notifyCustomer(content: string | null = null, embed: MessageEmbed): Promise<void> {
+        if (!this.order) return;
+
+        await this.sendDMMessage(content, embed, this.order.customerid);
+    }
+
+    // private async notifyFarmer(embed: MessageEmbed): Promise<void> {
+    //     if (!this.order) return;
+
+    //     await this.sendDMMessage(embed, this.order.farmerid);
+    // }
+
+    public async acceptOrder(): Promise<boolean> {
+        let accepted = false;
+
+        if(!this.order) return accepted;
+
+        // const buttonRateLimit: Array<String> = this.interaction.client.rateLimit?.get('ORDER_PICKUP') as Array<String>;
+        // if (buttonRateLimit.indexOf(`${this.order.pendingid}`)>=0) {
+        //     this.interaction.editReply({
+        //         embeds: [
+        //             new MessageEmbed()
+        //                 .setColor('#ff0000')
+        //                 .setTitle('⛔️ Rate Limited')
+        //                 .setDescription('Somone already trying to accept this order. Please wait for them to finish.')
+        //                 .setTimestamp()
+        //                 .setAuthor({
+        //                     name: this.interaction.user.username,
+        //                     iconURL: this.interaction.user.displayAvatarURL({
+        //                         dynamic: true,
+        //                         size: 1024,
+        //                     })
+        //                 })
+        //         ]
+        //     });
+        //     return accepted;
+        // }
+
+        if (!(this.interaction.member?.roles as GuildMemberRoleManager).cache.has(this.order.farmer)) {
+            this.interaction.editReply({
+                embeds: [
+                    this.errorEmbed('You do not have the required role to accept this order. You need to have the farmer role.')
+                ]
+            })
+            return accepted;
+        }
+
+        if(this.order.farmerid!=='0') {
+            this.interaction.editReply({
+                embeds: [
+                    this.errorEmbed('This order has already been accepted.')
+                ]
+            })
+            return accepted;
+        }
+
+        const checkForFarmer = await Orders.findOne({
+            farmerid: this.interaction.user.id
+        });
+        if(checkForFarmer) {
+            this.interaction.editReply({
+                embeds: [
+                    this.errorEmbed('You already have an order in progress.')
+                ]
+            })
+        };
+
+        const embed = await this.completedOrderEmbed();
+
+        const statusChannel = await this.interaction.client.channels.fetch(this.order.status) as TextChannel | NewsChannel;
+
+        if (statusChannel.permissionsFor(this.interaction.client.user!)?.has('SEND_MESSAGES') === false) {
+            this.interaction.followUp({
+                embeds: [
+                    this.errorEmbed('I do not have permission to send messages in this channel.')
+                ],
+                ephemeral: true
+            })
+        };
+
+        const message = await statusChannel.send({
+            embeds: [embed]
+        }) as Message<boolean>;
+
+        const pendingMessage = await (this.interaction.client.channels.cache.get(this.order.pending) as TextChannel | NewsChannel).messages.fetch(this.order.pendingid);
+
+        await pendingMessage.delete();
+
+        this.order.farmerid = this.interaction.user.id;
+        this.order.pendingid = '0';
+        this.order.statusid = message.id;
+
+        await Orders.updateOne({
+            orderid: this.order.orderid
+        }, {
+            $set: {
+                farmerid: this.order.farmerid,
+                pendingid: this.order.pendingid,
+                statusid: this.order.statusid
+            }
+        });
+
+        accepted = true;
+
+        embed.setTitle('✅ Order Accepted!!!');
+
+        await this.notifyCustomer(null, embed);
+
+        return accepted;
     }
 }
 
