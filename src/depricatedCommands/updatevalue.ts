@@ -14,7 +14,7 @@ import {
 import {
     Command,
     CustomCommandInteraction
-} from './../interfaces';
+} from '../interfaces';
 import { 
     OrdersType,
     AnifarmType

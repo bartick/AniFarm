@@ -60,6 +60,20 @@ class OrderManager {
         return this.order ? true : false;
     }
 
+    public async getOrderByFarmer(): Promise<boolean> {
+        if (this.order) return true;
+        this.order = await Orders.findOne({
+            farmerid: this.interaction.user.id
+        });
+        return this.order ? true : false;
+    }
+
+    public async getOrderByCustomer(): Promise<OrdersType[]> {
+        return await Orders.find({
+            customerid: this.interaction.user.id
+        });
+    }
+
     private createOrderId(): number {
         return Math.trunc(Date.now() + Math.random())%100000000;
     }
@@ -333,8 +347,7 @@ class OrderManager {
 
     }
 
-    private async sendDMMessage(content: string | null = null , embed: MessageEmbed, userid: string) {
-        const user = await this.interaction.client.users.fetch(userid);
+    private async sendDMMessage(content: string | null = null , embed: MessageEmbed, user: User): Promise<void> {
         if (!user) return;
 
         await user.send({
@@ -343,10 +356,14 @@ class OrderManager {
         }).catch(() => null);
     }
 
-    private async notifyCustomer(content: string | null = null, embed: MessageEmbed): Promise<void> {
-        if (!this.order) return;
+    private async notifyCustomer(content: string | null = null, embed: MessageEmbed): Promise<User | null> {
+        if (!this.order) return null;
 
-        await this.sendDMMessage(content, embed, this.order.customerid);
+        const customer = await this.interaction.client.users.fetch(this.order.customerid);
+
+        await this.sendDMMessage(content, embed, customer);
+
+        return customer;
     }
 
     // private async notifyFarmer(embed: MessageEmbed): Promise<void> {
@@ -452,6 +469,66 @@ class OrderManager {
         await this.notifyCustomer(null, embed);
 
         return accepted;
+    }
+
+    public async completeOrder(): Promise<boolean> {
+        if (!this.order) return false;
+
+        this.order.amount_farmed = this.order.amount;
+
+        const embed = await this.completedOrderEmbed();
+        embed.setTitle('✅ Order Completed!!!');
+
+        await Orders.deleteOne({
+            orderid: this.order.orderid
+        })
+
+        const statusMessage = await (this.interaction.client.channels.cache.get(this.order.status) as TextChannel | NewsChannel).messages.fetch(this.order.statusid);
+        await statusMessage.delete();
+
+        const customer = await this.notifyCustomer(`Please collect your order from ${this.interaction.user.tag}(**ID:** ${this.interaction.user.id})`, embed);
+
+        if(customer) {
+            await this.sendDMMessage(`You have completed your order. Trade with ${customer.tag}(**ID:** ${customer.id})`, embed, this.interaction.user);
+        }
+
+        await this.interaction.editReply({
+            content: '✅ Order completed successfully.',
+        });
+
+        return true;
+    }
+
+    public async updateValue(value: number): Promise<boolean> {
+
+        if(!this.order) return false;
+
+        if(this.order.amount===value) {
+            return await this.completeOrder();
+        }
+
+        await Orders.updateOne({
+            orderid: this.order?.orderid
+        }, {
+            $set: {
+                amount_farmed: value
+            }
+        });
+
+        const statusMessage = await (this.interaction.client.channels.cache.get(this.order.status) as TextChannel | NewsChannel).messages.fetch(this.order.statusid);
+
+        this.order.amount_farmed = value;
+        const embed = await this.completedOrderEmbed();
+
+        await statusMessage.edit({
+            embeds: [embed]
+        });
+
+        await this.interaction.editReply({
+            content: '✅ Order updated successfully.',
+        });
+
+        return true;
     }
 }
 

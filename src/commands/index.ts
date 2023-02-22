@@ -10,3 +10,4 @@ export { default as discount } from './discount';
 
 export { default as settings } from './soulSettings';
 export { default as qorder } from './soulOrder';
+export { default as updateValue } from './soulUpdate';
