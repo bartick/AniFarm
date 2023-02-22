@@ -16,12 +16,14 @@ import {
     OrdersType,
     SettingsType 
 } from "../schema";
-import mongodb from './mongodb';
 import {
-    SoulEnums
-} from './../utils'
+    SoulEnums,
+    mongodb,
+    profiledb
+} from './'
 
 const Orders = mongodb.models['orders'];
+const Profile = profiledb.model('anifarm');
 
 class OrderManager {
 
@@ -494,6 +496,28 @@ class OrderManager {
 
         await this.interaction.editReply({
             content: '✅ Order completed successfully.',
+        });
+
+        await Profile.updateOne({
+            _id: this.order.customerid
+        },
+        {
+            $inc: {
+                ordered: 1
+            }
+        }) .catch(err => {
+            //SKIP
+        });
+
+        await Profile.updateOne({
+            _id: this.order.farmerid
+        },
+        {
+            $inc: {
+                farmed: 1
+            }
+        }) .catch(err => {
+            //SKIP
         });
 
         return true;
