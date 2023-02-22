@@ -76,6 +76,18 @@ class OrderManager {
         });
     }
 
+    public async checkOrderPlacedEmbeds(): Promise<MessageEmbed[]> {
+        const orders = await this.getOrderByCustomer();
+        const embeds: MessageEmbed[] = [];
+        for (const order of orders) {
+            this.order = order;
+            const embed = await this.completedOrderEmbed();
+            embeds.push(embed);
+        }
+
+        return embeds;
+    }
+
     private createOrderId(): number {
         return Math.trunc(Date.now() + Math.random())%100000000;
     }
