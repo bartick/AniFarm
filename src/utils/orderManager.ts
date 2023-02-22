@@ -566,6 +566,31 @@ class OrderManager {
 
         return true;
     }
+
+    public async cancelOrder(): Promise<void> {
+        if(!this.order) return;
+
+        if(this.order.farmerid!=='0') {
+            await this.interaction.editReply({
+                embeds: [
+                    this.errorEmbed('This order has already been accepted.')
+                ]
+            })
+            return;
+        }
+
+        await Orders.deleteOne({
+            orderid: this.order.orderid
+        });
+
+        const pendingMessage = await (this.interaction.client.channels.cache.get(this.order.pending) as TextChannel | NewsChannel).messages.fetch(this.order.pendingid);
+
+        await pendingMessage.delete();
+
+        await this.interaction.editReply({
+            content: '✅ Order cancelled successfully.',
+        });
+    }
 }
 
 export default OrderManager;
