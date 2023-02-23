@@ -552,7 +552,7 @@ class OrderManager {
 
         if(!this.order) return false;
 
-        if(this.order.amount===value) {
+        if(value>=this.order.amount) {
             return await this.completeOrder();
         }
 
