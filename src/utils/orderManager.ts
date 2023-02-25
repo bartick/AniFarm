@@ -545,6 +545,13 @@ class OrderManager {
             //SKIP
         });
 
+        try {
+            const completedChannel = await this.interaction.client.channels.fetch(this.order.complete) as TextChannel | NewsChannel;
+            await completedChannel.send({
+                embeds: [embed]
+            });
+        } catch(_) {}
+
         return true;
     }
 
