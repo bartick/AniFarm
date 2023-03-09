@@ -67,11 +67,11 @@ const accorder: Command = {
 
         const accepted = await Manager.acceptOrder();
         if(!accepted) {
-            await interaction.editReply({
-                embeds: [
-                    Manager.errorEmbed('Failed to accept order')
-                ]
-            });
+            // await interaction.editReply({
+            //     embeds: [
+            //         Manager.errorEmbed('Failed to accept order')
+            //     ]
+            // });
             interaction.client.rateLimit?.set('ACCEPT_ORDER', rateLimit.filter((id) => id !== orderId.toString()));
             return;
         }

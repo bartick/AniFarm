@@ -446,7 +446,8 @@ class OrderManager {
                 embeds: [
                     this.errorEmbed('You already have an order in progress.')
                 ]
-            })
+            });
+            return accepted;
         };
 
         this.order.farmerid = this.interaction.user.id;
