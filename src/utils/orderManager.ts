@@ -131,7 +131,7 @@ class OrderManager {
     public async completedOrderEmbed(): Promise<MessageEmbed> {
         if (!this.order) return this.errorEmbed('Order was not created properly. Please create a new order')
 
-        if (!this.farmer) await this.getFarmer();
+        await this.getFarmer();
 
         const embed = await this.createOrderEmbed(this.order);
         embed.setTitle('Farming Status 🌾')
