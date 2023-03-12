@@ -158,7 +158,55 @@ const profile: Command = {
 
         switch (subcommand) {
             case 'register':
-                await interaction.reply('Registering for a profile.');
+                if (userProfile !== null) {
+                    interaction.reply({
+                        embeds: [
+                            new MessageEmbed()
+                                .setTitle('⛔️ Error')
+                                .setDescription('You are already registered for a profile.')
+                                .setColor('#ff0000')
+                                .setThumbnail(interaction.client.user?.displayAvatarURL({
+                                    dynamic: true,
+                                    size: 1024
+                                }) || '')
+                                .setAuthor({
+                                    name: interaction.user.username,
+                                    iconURL: interaction.user.displayAvatarURL({
+                                        dynamic: true,
+                                        size: 1024
+                                    })
+                                })
+                        ]
+                    });
+                    return;
+                }
+
+                const profile = new Profile({
+                    _id: interaction.user.id,
+                });
+
+                await profile.save()
+
+                interaction.reply({
+                    embeds: [
+                        new MessageEmbed()
+                            .setTitle('✅ Success')
+                            .setDescription('You have successfully registered for a profile.')
+                            .setColor('#00ff00')
+                            .setThumbnail(interaction.client.user?.displayAvatarURL({
+                                dynamic: true,
+                                size: 1024
+                            }) || '')
+                            .setAuthor({
+                                name: interaction.user.username,
+                                iconURL: interaction.user.displayAvatarURL({
+                                    dynamic: true,
+                                    size: 1024
+                                })
+                            })
+                    ]
+                });
+
                 break;
             case 'view':
                 await interaction.deferReply()
