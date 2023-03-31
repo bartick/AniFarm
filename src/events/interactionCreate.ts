@@ -1,23 +1,21 @@
-import { CacheType, Interaction, MessageEmbed } from "discord.js";
+import { CacheType, Interaction, EmbedBuilder } from "discord.js";
 import { Event, CustomCommandInteraction, Command, ButtonCommand, CustomButtonInteraction } from "../interfaces";
 
 const manageCommandInteraction = async (interaction: CustomCommandInteraction) => {
     if (interaction.guild===null) {
         await interaction.reply({
             embeds: [
-                new MessageEmbed()
+                new EmbedBuilder()
                     .setColor('#ff0000')
                     .setTitle('⛔️ Error')
                     .setDescription('This command can only be used in a server.')
                     .setTimestamp()
                     .setThumbnail(interaction.client.user?.displayAvatarURL({
-                        dynamic: true,
                         size: 1024,
                     }) || '')
                     .setAuthor({
                         name: interaction.user.username,
                         iconURL: interaction.user.displayAvatarURL({
-                            dynamic: true,
                             size: 1024,
                         }),
                     }),
@@ -42,7 +40,7 @@ const buttonComponentInteraction =async (interaction: CustomButtonInteraction  )
         if (rateLimit.indexOf(interaction.message.id) >= 0) {
             await interaction.reply({
                 embeds: [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setColor('#ff0000')
                         .setTitle('⛔️ Rate Limited')
                         .setDescription('This button is already being used by someone else. Please wait for them to finish.')
@@ -50,7 +48,6 @@ const buttonComponentInteraction =async (interaction: CustomButtonInteraction  )
                         .setAuthor({
                             name: interaction.user.username,
                             iconURL: interaction.user.displayAvatarURL({
-                                dynamic: true,
                                 size: 1024,
                             })
                         })
@@ -71,7 +68,7 @@ const buttonComponentInteraction =async (interaction: CustomButtonInteraction  )
 const interactionCreate: Event = {
     name: 'interactionCreate',
     execute(interaction: Interaction<CacheType>) {
-        if (interaction.isCommand()) {
+        if (interaction.isChatInputCommand()) {
             manageCommandInteraction(interaction);
         } else if (interaction.isButton()) {
             buttonComponentInteraction(interaction);
@@ -79,26 +76,22 @@ const interactionCreate: Event = {
             return;
         } else {
             interaction.channel?.send({
-                embeds: [{
-                    title: 'Error',
-                    description: 'I don\'t know what to do with this interaction',
-                    color: 0xff000,
-                    timestamp: new Date(),
-                    thumbnail: {
-                        url: interaction.user.displayAvatarURL({
-                            dynamic: true,
+                embeds: [
+                    new EmbedBuilder()
+                        .setTitle('Error')
+                        .setDescription('I don\'t know what to do with this interaction')
+                        .setColor('#ff0000')
+                        .setTimestamp()
+                        .setThumbnail(interaction.user.displayAvatarURL({
                             size: 1024,
-                        }),
-                    },
-                    author: {
-                        name: interaction.user.username,
-                        iconURL: interaction.user.displayAvatarURL({
-                            dynamic: true,
-                            size: 1024,
-                        }),
-                    }
-                }],
-
+                        }))
+                        .setAuthor({
+                            name: interaction.user.username,
+                            iconURL: interaction.user.displayAvatarURL({
+                                size: 1024,
+                            })
+                        })
+                    ],
             });
         }
     }

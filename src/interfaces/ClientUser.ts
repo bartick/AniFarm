@@ -1,7 +1,7 @@
 import { Client, Collection } from "discord.js";
 import {Command, ButtonCommand} from './';
 
-interface ClientUser extends Client {
+interface ClientUser extends Client<true> {
     power?: Array<string>;
     commands?: Collection<string, Command>;
     buttons?: Collection<string, ButtonCommand>;

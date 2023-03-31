@@ -6,9 +6,10 @@ import {
 import { 
     GuildMember, 
     Message, 
-    MessageEmbed,
-    Modal,
-    TextInputComponent
+    EmbedBuilder,
+    ModalBuilder,
+    TextInputBuilder,
+    TextInputStyle
 } from 'discord.js';
 import {
     Command, 
@@ -89,17 +90,17 @@ const soulSettings: Command = {
             ,
     execute: async (interaction: CustomCommandInteraction) => {
 
-        if(!((interaction.member as GuildMember).permissions.has('MANAGE_GUILD')) && !(interaction.user.id==='707876147324518440')) {
+        if(!((interaction.member as GuildMember).permissions.has('ManageGuild')) && !(interaction.user.id==='707876147324518440')) {
             await interaction.reply({
                 ephemeral: true,
                 embeds: [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setTimestamp()
                         .setAuthor({
                             name: interaction.user.username, 
-                            iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                            iconURL: interaction.user.displayAvatarURL({ size: 1024})
                         })
-                        .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                        .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                         .setTitle('⛔️ Error')
                         .setColor('#FF0000')
                         .setDescription('You do not have **Manage Server** permission to use this command. Please ask a user with the permission to use the command for you.')
@@ -119,28 +120,28 @@ const soulSettings: Command = {
         switch(subcommand) {
             case 'price': {
 
-                const embed = new MessageEmbed()
+                const embed = new EmbedBuilder()
                                 .setAuthor({
                                     name: interaction.user.username,
-                                    iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                                    iconURL: interaction.user.displayAvatarURL({ size: 1024})
                                 })
-                                .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                                .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                                 .setTimestamp()
                 
-                const priceModal = new Modal()
+                const priceModal = new ModalBuilder()
                                         .setTitle('Price Settings')
                                         .setCustomId('price')
                 
                 const priceRow = new ModalActionRow()
                                         .addComponents(
-                                            new TextInputComponent()
+                                            new TextInputBuilder()
                                                 .setCustomId('price')
                                                 .setLabel('What will be the price of 1 soul?')
                                                 .setPlaceholder('Write the price for a single soul')
                                                 .setRequired(true)
                                                 .setMinLength(1)
                                                 .setMaxLength(10)
-                                                .setStyle('SHORT')
+                                                .setStyle(TextInputStyle.Short)
                                         )
                 
                 priceModal.addComponents(priceRow);
@@ -204,14 +205,14 @@ const soulSettings: Command = {
                 break;
             }
             case 'channel': {
-                const embed = new MessageEmbed()
+                const embed = new EmbedBuilder()
                                 .setTitle('Guild Settings')
                                 .setColor('#00FFFF')
                                 .setAuthor({
                                     name: interaction.user.username, 
-                                    iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                                    iconURL: interaction.user.displayAvatarURL({ size: 1024})
                                 })
-                                .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                                .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                                 .setTimestamp()
                                 .setDescription('You are only allowed to use text channels or news channels. If you put any channel other than text channel then the settings will be not accepted.')
                 temp = {
@@ -237,13 +238,13 @@ const soulSettings: Command = {
                 if((Object.keys(subSettings)).length===0) {
                     await interaction.reply({
                         embeds: [
-                            new MessageEmbed()
+                            new EmbedBuilder()
                                 .setTimestamp()
                                 .setAuthor({
                                     name: interaction.user.username,
-                                    iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                                    iconURL: interaction.user.displayAvatarURL({ size: 1024})
                                 })
-                                .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                                .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                                 .setTitle('⛔️ Error')
                                 .setColor('#ff0000')
                                 .setDescription('You atleast need to use one of the options. If you do not want to use any of the options then use `/settings view` to view your settings.')
@@ -267,14 +268,14 @@ const soulSettings: Command = {
                 break;
             }
             case 'role': {
-                const embed = new MessageEmbed()
+                const embed = new EmbedBuilder()
                                 .setTitle('Roles Settings')
                                 .setColor('#00FFFF')
                                 .setAuthor({
                                     name: interaction.user.username,
-                                    iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                                    iconURL: interaction.user.displayAvatarURL({ size: 1024})
                                 })
-                                .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                                .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                                 .setTimestamp()
                                 .setDescription('You are only allowed to use roles. If you put any other thing then the settings will be not accepted.')
                 temp = {
@@ -298,13 +299,13 @@ const soulSettings: Command = {
                 if((Object.keys(subSettings)).length===0) {
                     await interaction.reply({
                         embeds: [
-                            new MessageEmbed()
+                            new EmbedBuilder()
                                 .setTimestamp()
                                 .setAuthor({
                                     name: interaction.user.username,
-                                    iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                                    iconURL: interaction.user.displayAvatarURL({ size: 1024})
                                 })
-                                .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                                .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                                 .setTitle('⛔️ Error')
                                 .setColor('#ff0000')
                                 .setDescription('You atleast need to use one of the options. If you do not want to use any of the options then use `/settings view` to view your settings.')
@@ -333,13 +334,13 @@ const soulSettings: Command = {
                 if(!guildSettings) {
                     await interaction.reply({
                         embeds: [
-                            new MessageEmbed()
+                            new EmbedBuilder()
                                 .setTimestamp()
                                 .setAuthor({
                                     name: interaction.user.username,
-                                    iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                                    iconURL: interaction.user.displayAvatarURL({ size: 1024})
                                 })
-                                .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                                .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                                 .setTitle('⛔️ Error')
                                 .setColor('#ff0000')
                                 .setDescription('You have not set any settings yet. Use `/settings` to set your settings.')
@@ -352,13 +353,13 @@ const soulSettings: Command = {
                 }) as Message<boolean>;
 
                 const embeds = [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setTimestamp()
                         .setAuthor({
                             name: interaction.user.username,
-                            iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                            iconURL: interaction.user.displayAvatarURL({ size: 1024})
                         })
-                        .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                        .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                         .setTitle('Settings')
                         .setColor('#00FFFF')
                         .addFields(
@@ -386,27 +387,27 @@ const soulSettings: Command = {
                         .setFooter({
                             text: 'Page 1/3'
                         }),
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setTimestamp()
                         .setColor('#00FFFF')
                         .setAuthor({
                             name: interaction.user.username, 
-                            iconURL: interaction.user.displayAvatarURL({ dynamic: true, size: 1024 })
+                            iconURL: interaction.user.displayAvatarURL({  size: 1024 })
                         })
                         .setTitle('Prices')
                         .setDescription('The price for each soul shard is **' + guildSettings.soul + ' coins.**')
                         .setFooter({
                             text: 'Page 2/3'
                         }),
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setTimestamp()
-                        .setColor('AQUA')
+                        .setColor('#00FFFF')
                         .setAuthor({
                             name: interaction.user.username,
-                            iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                            iconURL: interaction.user.displayAvatarURL({ size: 1024})
                         })
                         .setTitle('Roles')
-                        .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                        .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                         .addFields(
                             {
                                 name: '1 | Farmer', 
@@ -438,13 +439,13 @@ const soulSettings: Command = {
             default: {
                 await interaction.reply({
                     embeds: [
-                        new MessageEmbed()
+                        new EmbedBuilder()
                             .setTimestamp()
                             .setAuthor({
                                 name: interaction.user.username,
-                                iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                                iconURL: interaction.user.displayAvatarURL({ size: 1024})
                             })
-                            .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                            .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                             .setTitle('⛔️ Error')
                             .setColor('#ff0000')
                             .setDescription('This subcommand was not implemented yet. Please wait for it to be implemented. If you think this is a mistake please report it to the support server.')

@@ -1,7 +1,7 @@
-import { ButtonInteraction, CommandInteraction } from "discord.js";
+import { ButtonInteraction, ChatInputCommandInteraction } from "discord.js";
 import ClientUser from "./ClientUser";
 
-interface CustomCommandInteraction extends CommandInteraction {
+interface CustomCommandInteraction extends ChatInputCommandInteraction {
     client: ClientUser;
 };
 

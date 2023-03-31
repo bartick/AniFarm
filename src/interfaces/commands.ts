@@ -1,15 +1,15 @@
 import { SlashCommandBuilder, SlashCommandSubcommandsOnlyBuilder } from '@discordjs/builders';
-import { ButtonInteraction, CommandInteraction } from 'discord.js';
+import { CustomButtonInteraction, CustomCommandInteraction } from './CustomInteraction';
 
 interface Command {
     data: Omit<SlashCommandBuilder | SlashCommandSubcommandsOnlyBuilder, "addSubcommand" | "addSubcommandGroup">;
     rateLimitName?: string | undefined;
-    execute: (interaction: CommandInteraction) => Promise<void>;
+    execute: (interaction: CustomCommandInteraction) => Promise<void>;
 }
 
 interface ButtonCommand {
     name: string;
-    execute: (interaction: ButtonInteraction) => Promise<void>;
+    execute: (interaction: CustomButtonInteraction) => Promise<void>;
 }
 
 export {

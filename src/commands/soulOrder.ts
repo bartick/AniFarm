@@ -5,7 +5,7 @@ import {
     SlashCommandStringOption 
 } from "@discordjs/builders";
 import { 
-    MessageEmbed,
+    EmbedBuilder, Guild,
 } from "discord.js";
 import { 
     Command, 
@@ -40,14 +40,31 @@ const qorder: Command = {
                 .setName('soul')
                 .setDescription('The name of the card')
                 .setRequired(true)
-                .addChoice(Water, Water)
-                .addChoice(Fire, Fire)
-                .addChoice(Ground, Ground)
-                .addChoice(Light, Light)
-                .addChoice(Dark, Dark)
-                .addChoice(Neutral, Neutral)
-                .addChoice(Grass, Grass)
-                .addChoice(Electric, Electric)
+                .addChoices({
+                    name: Water,
+                    value: Water
+                }, {
+                    name: Fire,
+                    value: Fire
+                }, {
+                    name: Ground,
+                    value: Ground
+                }, {
+                    name: Light,
+                    value: Light
+                }, {
+                    name: Dark,
+                    value: Dark
+                }, {
+                    name: Neutral,
+                    value: Neutral
+                }, {
+                    name: Grass,
+                    value: Grass
+                }, {
+                    name: Electric,
+                    value: Electric
+                })
         )
         .addIntegerOption((option: SlashCommandIntegerOption) =>
             option
@@ -69,45 +86,46 @@ const qorder: Command = {
             return
         }
 
-        const settings: SettingsType | null = await Settings.findOne({_id: parseInt(interaction.guild.id)});
-        if (settings===null) {
+        const settings: SettingsType | null = await Settings.findOne({_id: parseInt((interaction.guild as Guild ).id)});
+        if (settings === null) {
             interaction.editReply({
                 embeds: [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setAuthor({
                             name: interaction.user.username,
-                            iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                            iconURL: interaction.user.displayAvatarURL({ size: 1024})
                         })
                         .setTitle("⛔️ Error")
                         .setDescription("Please ask the server admin to complete the settings before you can use this command here.")
                         .setTimestamp()
                         .setColor('#FF0000')
-                        .setThumbnail(interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
+                        .setThumbnail(interaction.user.displayAvatarURL({ size: 1024}))
                 ],
             })
             return;
         }
 
-        if (interaction.channelId !== settings.order && settings.order!=="0") {
+        if (interaction.channelId !== (settings as SettingsType).order && (settings as SettingsType).order!=="0") {
             interaction.editReply({
                 embeds: [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setAuthor({
                             name: interaction.user.username,
-                            iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                            iconURL: interaction.user.displayAvatarURL({ size: 1024})
                         })
                         .setTitle("⛔️ Error")
-                        .setDescription("You can only use this command in the channel <#" + settings.order + ">")
+                        .setDescription("You can only use this command in the channel <#" + (settings as SettingsType).order + ">")
                         .setTimestamp()
                         .setColor('#FF0000')
-                        .setThumbnail(interaction.user.displayAvatarURL({dynamic: true, size: 1024}))
+                        .setThumbnail(interaction.user.displayAvatarURL({ size: 1024}))
                 ]
             })
             return
         }
 
         const Manager = new OrderManager(interaction);
-        await Manager.createOrder(soul, amount, settings, interaction.user.id);
+        Manager.setCustomer(interaction.user);
+        await Manager.createOrder(soul, amount, (settings as SettingsType), interaction.user.id);
 
     }
 }

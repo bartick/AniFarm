@@ -1,4 +1,4 @@
-import { Client, Intents, Collection, LimitedCollection } from 'discord.js';
+import { Client, GatewayIntentBits, Collection, LimitedCollection, ActivityType } from 'discord.js';
 import { ClientUser } from './interfaces'
 import dotenv from 'dotenv';
 import * as events from './events';
@@ -7,10 +7,10 @@ import * as buttonCommands from './buttonCommands';
 
 dotenv.config();
 
-const client: ClientUser = new Client({
+const client: ClientUser = new Client<true>({
 	intents: [
-		Intents.FLAGS.GUILDS,
-		Intents.FLAGS.GUILD_MESSAGES,
+		GatewayIntentBits.Guilds,
+		GatewayIntentBits.GuildMessages,
 	],
 	makeCache: manager => {
 		if ([
@@ -33,7 +33,7 @@ const client: ClientUser = new Client({
 		activities: [
 			{
 				name: 'over AniGame Farming',
-				type: 'WATCHING',
+				type: ActivityType.Watching,
 			},
 		]
 	}

@@ -1,30 +1,32 @@
 import { 
     CommandInteraction, 
     Message, 
-    MessageActionRow, 
-    MessageButton, 
+    ActionRowBuilder, 
+    ButtonBuilder,
+    EmbedBuilder, 
+    ButtonStyle,
     MessageComponentInteraction,
-    MessageEmbed 
+    ComponentType
 } from "discord.js";
 import { 
     CustomCommandInteraction 
 } from "../interfaces";
 
-const paginate = async (interaction: CommandInteraction | CustomCommandInteraction, embeds: Array<MessageEmbed>, messageReply: Message<boolean>) => {
-    const buttonsRow: MessageActionRow = new MessageActionRow()
+const paginate = async (interaction: CommandInteraction | CustomCommandInteraction, embeds: Array<EmbedBuilder>, messageReply: Message<boolean>) => {
+    const buttonsRow: ActionRowBuilder<ButtonBuilder> = new ActionRowBuilder<ButtonBuilder>()
         .addComponents(
-            new MessageButton()
+            new ButtonBuilder()
                 .setCustomId('prev')
-                .setStyle('PRIMARY')
+                .setStyle(ButtonStyle.Primary)
                 .setDisabled(true)
                 .setEmoji('⏪'),
-            new MessageButton()
+            new ButtonBuilder()
                 .setCustomId('next')
-                .setStyle('PRIMARY')
+                .setStyle(ButtonStyle.Primary)
                 .setEmoji('⏩'),
-            new MessageButton()
+            new ButtonBuilder()
                 .setCustomId('close')
-                .setStyle('SECONDARY')
+                .setStyle(ButtonStyle.Secondary)
                 .setEmoji('❌')
         );
     if (embeds.length === 1) {
@@ -46,7 +48,7 @@ const paginate = async (interaction: CommandInteraction | CustomCommandInteracti
     let index = 0;
     let stop = false;
 
-    const collector = messageReply.createMessageComponentCollector({ filter, time: 60000, componentType: 'BUTTON' });
+    const collector = messageReply.createMessageComponentCollector({ filter, time: 60000, componentType: ComponentType.Button });
 
 
     collector.on('collect', async (inter: MessageComponentInteraction) => {
@@ -54,9 +56,9 @@ const paginate = async (interaction: CommandInteraction | CustomCommandInteracti
         await inter.deferUpdate();
         switch(id) {
             case 'prev':
-                if (buttonsRow.components[1].disabled) buttonsRow.components[1].disabled = false;
+                if (buttonsRow.components[1].data.disabled) buttonsRow.components[1].data.disabled = false;
                 index--;
-                if (index==0) buttonsRow.components[0].disabled = true;
+                if (index==0) buttonsRow.components[0].data.disabled = true;
                 await messageReply.edit({
                     embeds: [embeds[index]],
                     components: [buttonsRow],
@@ -66,9 +68,9 @@ const paginate = async (interaction: CommandInteraction | CustomCommandInteracti
                 });
                 break;
             case 'next':
-                if (buttonsRow.components[0].disabled) buttonsRow.components[0].disabled = false;
+                if (buttonsRow.components[0].data.disabled) buttonsRow.components[0].data.disabled = false;
                 index++;
-                if (index==embeds.length-1) buttonsRow.components[1].disabled = true;
+                if (index==embeds.length-1) buttonsRow.components[1].data.disabled = true;
                 await messageReply.edit({
                     embeds: [embeds[index]],
                     components: [buttonsRow],
@@ -86,7 +88,7 @@ const paginate = async (interaction: CommandInteraction | CustomCommandInteracti
 
     collector.on('end', async (_collected: any) => {
         if (stop) return;
-        embeds[index].setColor('RED');
+        embeds[index].setColor('#ff0000');
         buttonsRow.components[0].setDisabled(true);
         buttonsRow.components[1].setDisabled(true);
         buttonsRow.components[2].setDisabled(true);

@@ -4,18 +4,19 @@ import {
     SlashCommandUserOption 
 } from "@discordjs/builders";
 import { 
-    MessageActionRow, 
-    Modal, 
-    ModalActionRowComponent, 
-    TextInputComponent, 
+    ActionRowBuilder, 
+    ModalBuilder, 
     ModalSubmitInteraction, 
     CacheType, 
-    MessageEmbed, 
+    EmbedBuilder, 
     User, 
-    MessageButton,
     Message,
     MessageComponentInteraction,
-    MessageActionRowComponent
+    ComponentType,
+    TextInputBuilder,
+    TextInputStyle,
+    ButtonBuilder,
+    ButtonStyle
 } from "discord.js";
 import { 
     Command, 
@@ -31,7 +32,7 @@ import {
 
 const Profile = profiledb.models['anifarm'];
 
-async function badgeCorousel(interaction: CustomCommandInteraction, badges: Array<MessageEmbed>) {
+async function badgeCorousel(interaction: CustomCommandInteraction, badges: Array<EmbedBuilder>, messageComponents: ActionRowBuilder<ButtonBuilder>) {
     const message: Message<boolean> = await interaction.fetchReply() as Message<boolean>;
 
     const collector = message.createMessageComponentCollector({ filter: (inter: any) => {
@@ -42,7 +43,7 @@ async function badgeCorousel(interaction: CustomCommandInteraction, badges: Arra
             });
         },
         time: 60000, 
-        componentType: 'BUTTON' 
+        componentType: ComponentType.Button 
     });
 
     let index = 0;
@@ -52,37 +53,37 @@ async function badgeCorousel(interaction: CustomCommandInteraction, badges: Arra
         await inter.deferUpdate();
         switch(id) {
             case 'left':
-                if (message.components[0].components[2].disabled) message.components[0].components[2].disabled = false;
+                if (messageComponents.components[2].data.disabled) messageComponents.components[2].data.disabled = false;
                 index--;
-                if (index==0) message.components[0].components[0].disabled = true;
+                if (index==0) messageComponents.components[0].data.disabled = true;
                 await message.edit({
                     embeds: [badges[index]],
-                    components: [message.components[0]],
+                    components: [messageComponents],
                 })
                 .catch((err: Error) => {
                     console.error(err.message);
                 });
                 break;
             case 'right':
-                if (message.components[0].components[0].disabled) message.components[0].components[0].disabled = false;
+                if (messageComponents.components[0].data.disabled) messageComponents.components[0].data.disabled = false;
                 index++;
-                if (index==badges.length-1) message.components[0].components[2].disabled = true;
+                if (index==badges.length-1) messageComponents.components[2].data.disabled = true;
                 await message.edit({
                     embeds: [badges[index]],
-                    components: [message.components[0]],
+                    components: [messageComponents],
                 })
                 .catch((err: Error) => {
                     console.error(err.message);
                 });
                 break;
             case 'love': 
-                message.components[0].components.forEach((comp: MessageActionRowComponent) => {
-                    comp.disabled = true;
+            messageComponents.components.forEach((comp: ButtonBuilder) => {
+                    comp.data.disabled = true;
                 });
-                badges[index].description = "You have loved this badge and I have set it to your profile";
+                badges[index].data.description = "You have loved this badge and I have set it to your profile";
                 await message.edit({
                     embeds: [badges[index]],
-                    components: [message.components[0]],
+                    components: [messageComponents],
                 });
                 await Profile.updateOne(
                     {
@@ -90,7 +91,7 @@ async function badgeCorousel(interaction: CustomCommandInteraction, badges: Arra
                     },
                     {
                         $set: {
-                            setBadges: badges[index].image?.url
+                            setBadges: badges[index].data.image?.url
                         }
                     }).catch((err: Error) => {
                     console.error(err.message);
@@ -136,18 +137,16 @@ const profile: Command = {
         if (subcommand !== 'register' && userProfile===null) {
             interaction.reply({
                 embeds: [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setTitle('⛔️ Error')
                         .setDescription('You are not registered for a profile. Please use `profile register` to register.')
                         .setColor('#ff0000')
                         .setThumbnail(interaction.client.user?.displayAvatarURL({
-                            dynamic: true,
                             size: 1024
                         }) || '')
                         .setAuthor({
                             name: interaction.user.username,
                             iconURL: interaction.user.displayAvatarURL({
-                                dynamic: true,
                                 size: 1024
                             })
                         })
@@ -161,18 +160,16 @@ const profile: Command = {
                 if (userProfile !== null) {
                     interaction.reply({
                         embeds: [
-                            new MessageEmbed()
+                            new EmbedBuilder()
                                 .setTitle('⛔️ Error')
                                 .setDescription('You are already registered for a profile.')
                                 .setColor('#ff0000')
                                 .setThumbnail(interaction.client.user?.displayAvatarURL({
-                                    dynamic: true,
                                     size: 1024
                                 }) || '')
                                 .setAuthor({
                                     name: interaction.user.username,
                                     iconURL: interaction.user.displayAvatarURL({
-                                        dynamic: true,
                                         size: 1024
                                     })
                                 })
@@ -189,18 +186,16 @@ const profile: Command = {
 
                 interaction.reply({
                     embeds: [
-                        new MessageEmbed()
+                        new EmbedBuilder()
                             .setTitle('✅ Success')
                             .setDescription('You have successfully registered for a profile.')
                             .setColor('#00ff00')
                             .setThumbnail(interaction.client.user?.displayAvatarURL({
-                                dynamic: true,
                                 size: 1024
                             }) || '')
                             .setAuthor({
                                 name: interaction.user.username,
                                 iconURL: interaction.user.displayAvatarURL({
-                                    dynamic: true,
                                     size: 1024
                                 })
                             })
@@ -221,18 +216,16 @@ const profile: Command = {
                 if (profileToView === null) {
                     await interaction.editReply({
                         embeds: [
-                            new MessageEmbed()
+                            new EmbedBuilder()
                                 .setTitle('⛔️ Error')
                                 .setDescription('User does not have a profile.')
                                 .setColor('#ff0000')
                                 .setThumbnail(interaction.client.user?.displayAvatarURL({
-                                    dynamic: true,
                                     size: 1024
                                 }) || '')
                                 .setAuthor({
                                     name: interaction.user.username,
                                     iconURL: interaction.user.displayAvatarURL({
-                                        dynamic: true,
                                         size: 1024
                                     })
                                 })
@@ -244,11 +237,11 @@ const profile: Command = {
 
                 await interaction.editReply({
                     embeds: [
-                        new MessageEmbed()
+                        new EmbedBuilder()
                             .setColor('#00FFFF')
                             .setAuthor({
                                 name: interaction.user.username, 
-                                iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                                iconURL: interaction.user.displayAvatarURL({ size: 1024})
                             })
                             .setTitle(`🌾 ${user?.username || interaction.user.username} 👨‍🌾`)
                             .addFields(
@@ -259,32 +252,32 @@ const profile: Command = {
                             )
                             .setImage(profileToView.pimage)
                             .setDescription(profileToView.pstatus)
-                            .setThumbnail(profileToView.setBadges===""?interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '':profileToView.setBadges)
+                            .setThumbnail(profileToView.setBadges===""?interaction.client.user?.displayAvatarURL({ size: 1024}) || '':profileToView.setBadges)
                             .setTimestamp()
 
                     ]
                 });
                 break;
             case 'edit':
-                const modal = new Modal()
+                const modal = new ModalBuilder()
                         .setCustomId('edit-profile')
                         .setTitle('Edit Profile')
                         .setComponents(
-                            new MessageActionRow<ModalActionRowComponent>()
+                            new ActionRowBuilder<TextInputBuilder>()
                                 .addComponents(
-                                    new TextInputComponent()
+                                    new TextInputBuilder()
                                         .setCustomId('edit-image')
                                         .setLabel('Image')
                                         .setPlaceholder('Image URL')
-                                        .setStyle('SHORT')
+                                        .setStyle(TextInputStyle.Short)
                                 ),
-                            new MessageActionRow<ModalActionRowComponent>()
+                            new ActionRowBuilder<TextInputBuilder>()
                                 .addComponents(
-                                    new TextInputComponent()
+                                    new TextInputBuilder()
                                         .setCustomId('edit-description')
                                         .setLabel('Description')
                                         .setPlaceholder('Enter your new status description.')
-                                        .setStyle('PARAGRAPH')
+                                        .setStyle(TextInputStyle.Paragraph)
                                 )
                         )
                 await interaction.showModal(modal);
@@ -312,18 +305,16 @@ const profile: Command = {
 
                 await modalInteraction.editReply({
                     embeds: [
-                        new MessageEmbed()
+                        new EmbedBuilder()
                             .setTitle('✅ Profile Updated')
                             .setDescription('Your profile has been updated.')
                             .setColor('#00ff00')
                             .setThumbnail(interaction.client.user?.displayAvatarURL({
-                                dynamic: true,
                                 size: 1024
                             }) || '')
                             .setAuthor({
                                 name: interaction.user.username,
                                 iconURL: interaction.user.displayAvatarURL({
-                                    dynamic: true,
                                     size: 1024
                                 })
                             })
@@ -334,54 +325,53 @@ const profile: Command = {
                 break;
             case 'badges':
                 await interaction.deferReply();
-                const embeds: Array<MessageEmbed> = [];
+                const embeds: Array<EmbedBuilder> = [];
                 for(let i=0; i<(userProfile as AnifarmType).badges.length; i++) {
                     embeds.push(
-                        new MessageEmbed()
+                        new EmbedBuilder()
                             .setTitle('🏅 Badge')
                             .setColor('#00ff00')
                             .setAuthor({
                                 name: interaction.user.username,
                                 iconURL: interaction.user.displayAvatarURL({
-                                    dynamic: true,
                                     size: 1024
                                 })
                             })
                             .setThumbnail(interaction.client.user?.displayAvatarURL({
-                                dynamic: true,
                                 size: 1024
                             }) || '')
                             .setImage((userProfile as AnifarmType).badges[i])
                             .setTimestamp()
                     )
                 }
+                const messageComponents = new ActionRowBuilder<ButtonBuilder>()
+                            .addComponents(
+                                new ButtonBuilder()
+                                    .setCustomId('left')
+                                    .setLabel('<')
+                                    .setStyle(ButtonStyle.Primary)
+                                    .setDisabled(true),
+                                new ButtonBuilder()
+                                    .setCustomId('love')
+                                    .setLabel('❤')
+                                    .setStyle(ButtonStyle.Danger),
+                                new ButtonBuilder()
+                                    .setCustomId('right')
+                                    .setLabel('>')
+                                    .setStyle(ButtonStyle.Primary),
+                                new ButtonBuilder()
+                                    .setCustomId('close')
+                                    .setLabel('Close')
+                                    .setStyle(ButtonStyle.Secondary)
+                            );
                 await interaction.editReply({
                     embeds: [embeds[0]],
                     components: [
-                        new MessageActionRow()
-                        .addComponents(
-                            new MessageButton()
-                                .setCustomId('left')
-                                .setLabel('<')
-                                .setStyle('PRIMARY')
-                                .setDisabled(true),
-                            new MessageButton()
-                                .setCustomId('love')
-                                .setLabel('❤')
-                                .setStyle('DANGER'),
-                            new MessageButton()
-                                .setCustomId('right')
-                                .setLabel('>')
-                                .setStyle('PRIMARY'),
-                            new MessageButton()
-                                .setCustomId('close')
-                                .setLabel('Close')
-                                .setStyle('SECONDARY')
-                        )
+                        messageComponents
                     ]
                 });
 
-                await badgeCorousel(interaction, embeds);
+                await badgeCorousel(interaction, embeds, messageComponents);
                 break;
             default:
                 await interaction.reply('Unknown subcommand.');

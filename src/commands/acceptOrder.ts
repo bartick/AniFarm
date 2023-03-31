@@ -2,7 +2,7 @@ import {
     SlashCommandBuilder, 
     SlashCommandIntegerOption 
 } from "@discordjs/builders";
-import { MessageEmbed } from "discord.js";
+import { EmbedBuilder } from "discord.js";
 import { 
     Command, 
     CustomCommandInteraction 
@@ -33,7 +33,7 @@ const accorder: Command = {
         if (rateLimit.indexOf(orderId.toString())>=0) {
             interaction.editReply({
                 embeds: [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setColor('#ff0000')
                         .setTitle('⛔️ Rate Limited')
                         .setDescription('Somone already trying to accept this order. Please wait for them to finish.')
@@ -41,7 +41,6 @@ const accorder: Command = {
                         .setAuthor({
                             name: interaction.user.username,
                             iconURL: interaction.user.displayAvatarURL({
-                                dynamic: true,
                                 size: 1024,
                             })
                         })

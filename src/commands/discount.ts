@@ -8,7 +8,7 @@ import {
 import { 
     GuildMember, 
     Message, 
-    MessageEmbed 
+    EmbedBuilder 
 } from "discord.js";
 import { 
     Command, 
@@ -35,8 +35,16 @@ const discount: Command = {
             .addStringOption((option: SlashCommandStringOption) => 
                 option.setName('type')
                 .setDescription('Choose the type')
-                .addChoice('add','add')
-                .addChoice('remove', 'remove')
+                .addChoices(
+                    {
+                        name: 'Add',
+                        value: 'add'
+                    },
+                    {
+                        name: 'Remove',
+                        value: 'remove'
+                    }
+                )
                 .setRequired(true)
             )
             .addRoleOption((option: SlashCommandRoleOption) => 
@@ -55,8 +63,16 @@ const discount: Command = {
             .addStringOption((option: SlashCommandStringOption) => 
                 option.setName('type')
                 .setDescription('Choose the type')
-                .addChoice('add','add')
-                .addChoice('remove', 'remove')
+                .addChoices(
+                    {
+                        name: 'Add',
+                        value: 'add'
+                    },
+                    {
+                        name: 'Remove',
+                        value: 'remove'
+                    }
+                )
                 .setRequired(true)
             )
             .addIntegerOption((option: SlashCommandIntegerOption) => 
@@ -90,25 +106,33 @@ const discount: Command = {
                 option.setName('type')
                 .setDescription('Type of discount')
                 .setRequired(true)
-                .addChoice('daily', 'daily')
-                .addChoice('server', 'server')
+                .addChoices(
+                    {
+                        name: 'daily',
+                        value: 'daily'
+                    },
+                    {
+                        name: 'server',
+                        value: 'server'
+                    }
+                )
             )
         )
         ,
     execute: async(interaction: CustomCommandInteraction) => {
         const subcommand: string = interaction.options.getSubcommand();
 
-        if (!((interaction.member as GuildMember).permissions.has('MANAGE_GUILD')) && !(interaction.user.id==='707876147324518440') && !(subcommand==='view')) {
+        if (!((interaction.member as GuildMember).permissions.has('ManageGuild')) && !(interaction.user.id==='707876147324518440') && !(subcommand==='view')) {
             await interaction.reply({
                 ephemeral: true,
                 embeds: [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setTimestamp()
                         .setAuthor({
                             name: interaction.user.username, 
-                            iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                            iconURL: interaction.user.displayAvatarURL({ size: 1024})
                         })
-                        .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                        .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                         .setTitle('⛔️ Error')
                         .setColor('#FF0000')
                         .setDescription('You do not have **Manage Server** permission to use this command. Please ask a user with the permission to use the command for you.')
@@ -126,13 +150,13 @@ const discount: Command = {
         if (!guildSettings) {
             await interaction.editReply({
                 embeds: [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setTimestamp()
                         .setAuthor({
                             name: interaction.user.username,
-                            iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                            iconURL: interaction.user.displayAvatarURL({ size: 1024})
                         })
-                        .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                        .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                         .setTitle('⛔️ Error')
                         .setColor('#FF0000')
                         .setDescription('Guild Settings was not completed. Please ask a admin to complete the settings using /settings command.')
@@ -152,13 +176,13 @@ const discount: Command = {
                         if (!discount) {
                             await interaction.editReply({
                                 embeds: [
-                                    new MessageEmbed()
+                                    new EmbedBuilder()
                                         .setTimestamp()
                                         .setAuthor({
                                             name: interaction.user.username,
-                                            iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                                            iconURL: interaction.user.displayAvatarURL({ size: 1024})
                                         })
-                                        .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                                        .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                                         .setTitle('⛔️ Error')
                                         .setColor('#FF0000')
                                         .setDescription('Please provide a discount percentage.')
@@ -169,13 +193,13 @@ const discount: Command = {
                         if (discount > 100 || discount < 0) {
                             await interaction.editReply({
                                 embeds: [
-                                    new MessageEmbed()
+                                    new EmbedBuilder()
                                         .setTimestamp()
                                         .setAuthor({
                                             name: interaction.user.username,
-                                            iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                                            iconURL: interaction.user.displayAvatarURL({ size: 1024})
                                         })
-                                        .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                                        .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                                         .setTitle('⛔️ Error')
                                         .setColor('#FF0000')
                                         .setDescription('Discount percentage must be between 0 and 100.')
@@ -193,13 +217,13 @@ const discount: Command = {
                         });
                         await interaction.editReply({
                             embeds: [
-                                new MessageEmbed()
+                                new EmbedBuilder()
                                     .setTimestamp()
                                     .setAuthor({
                                         name: interaction.user.username,
-                                        iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                                        iconURL: interaction.user.displayAvatarURL({ size: 1024})
                                     })
-                                    .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                                    .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                                     .setTitle('✅ Success')
                                     .setColor('#00FF00')
                                     .setDescription(`Discount role **${role.name}** has been added with __${discount}%__ discount.`)
@@ -212,13 +236,13 @@ const discount: Command = {
                         if (!newRole.has(role.id)) {
                             await interaction.editReply({
                                 embeds: [
-                                    new MessageEmbed()
+                                    new EmbedBuilder()
                                         .setTimestamp()
                                         .setAuthor({
                                             name: interaction.user.username,
-                                            iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                                            iconURL: interaction.user.displayAvatarURL({ size: 1024})
                                         })
-                                        .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                                        .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                                         .setTitle('⛔️ Error')
                                         .setColor('#FF0000')
                                         .setDescription(`Discount role **${role.name}** does not exist.`)
@@ -236,13 +260,13 @@ const discount: Command = {
                         });
                         await interaction.editReply({
                             embeds: [
-                                new MessageEmbed()
+                                new EmbedBuilder()
                                     .setTimestamp()
                                     .setAuthor({
                                         name: interaction.user.username,
-                                        iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                                        iconURL: interaction.user.displayAvatarURL({ size: 1024})
                                     })
-                                    .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                                    .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                                     .setTitle('✅ Success')
                                     .setColor('#00FF00')
                                     .setDescription(`Discount role **${role.name}** has been removed.`)
@@ -253,13 +277,13 @@ const discount: Command = {
                     default: {
                         await interaction.editReply({
                             embeds: [
-                                new MessageEmbed()
+                                new EmbedBuilder()
                                     .setTimestamp()
                                     .setAuthor({
                                         name: interaction.user.username,
-                                        iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                                        iconURL: interaction.user.displayAvatarURL({ size: 1024})
                                     })
-                                    .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                                    .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                                     .setTitle('⛔️ Error')
                                     .setColor('#FF0000')
                                     .setDescription('Invalid type. Please choose from the list.')
@@ -279,13 +303,13 @@ const discount: Command = {
                         if (!discount) {
                             await interaction.editReply({
                                 embeds: [
-                                    new MessageEmbed()
+                                    new EmbedBuilder()
                                         .setTimestamp()
                                         .setAuthor({
                                             name: interaction.user.username,
-                                            iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                                            iconURL: interaction.user.displayAvatarURL({ size: 1024})
                                         })
-                                        .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                                        .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                                         .setTitle('⛔️ Error')
                                         .setColor('#FF0000')
                                         .setDescription('Please provide a discount percentage.')
@@ -296,13 +320,13 @@ const discount: Command = {
                         if (discount > 100 || discount < 0) {
                             await interaction.editReply({
                                 embeds: [
-                                    new MessageEmbed()
+                                    new EmbedBuilder()
                                         .setTimestamp()
                                         .setAuthor({
                                             name: interaction.user.username,
-                                            iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                                            iconURL: interaction.user.displayAvatarURL({ size: 1024})
                                         })
-                                        .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                                        .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                                         .setTitle('⛔️ Error')
                                         .setColor('#FF0000')
                                         .setDescription('Discount percentage must be between 0 and 100.')
@@ -320,13 +344,13 @@ const discount: Command = {
                         });
                         await interaction.editReply({
                             embeds: [
-                                new MessageEmbed()
+                                new EmbedBuilder()
                                     .setTimestamp()
                                     .setAuthor({
                                         name: interaction.user.username,
-                                        iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                                        iconURL: interaction.user.displayAvatarURL({ size: 1024})
                                     })
-                                    .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                                    .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                                     .setTitle('✅ Success')
                                     .setColor('#00FF00')
                                     .setDescription(`Order number **${orderNumber}** has been added with __${discount}%__ discount.`)
@@ -339,13 +363,13 @@ const discount: Command = {
                         if (!newOrder.has(orderNumber)) {
                             await interaction.editReply({
                                 embeds: [
-                                    new MessageEmbed()
+                                    new EmbedBuilder()
                                         .setTimestamp()
                                         .setAuthor({
                                             name: interaction.user.username,
-                                            iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                                            iconURL: interaction.user.displayAvatarURL({ size: 1024})
                                         })
-                                        .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                                        .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                                         .setTitle('⛔️ Error')
                                         .setColor('#FF0000')
                                         .setDescription(`Order number **${orderNumber}** does not exist.`)
@@ -363,13 +387,13 @@ const discount: Command = {
                         });
                         await interaction.editReply({
                             embeds: [
-                                new MessageEmbed()
+                                new EmbedBuilder()
                                     .setTimestamp()
                                     .setAuthor({
                                         name: interaction.user.username,
-                                        iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                                        iconURL: interaction.user.displayAvatarURL({ size: 1024})
                                     })
-                                    .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                                    .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                                     .setTitle('✅ Success')
                                     .setColor('#00FF00')
                                     .setDescription(`Order number **${orderNumber}** has been removed.`)
@@ -380,13 +404,13 @@ const discount: Command = {
                     default: {
                         await interaction.editReply({
                             embeds: [
-                                new MessageEmbed()
+                                new EmbedBuilder()
                                     .setTimestamp()
                                     .setAuthor({
                                         name: interaction.user.username,
-                                        iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                                        iconURL: interaction.user.displayAvatarURL({ size: 1024})
                                     })
-                                    .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                                    .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                                     .setTitle('⛔️ Error')
                                     .setColor('#FF0000')
                                     .setDescription('Invalid type. Please choose from the list.')
@@ -415,13 +439,13 @@ const discount: Command = {
                 if (isNaN(parseInt(multiplier)) || 'smhdy'.indexOf(limit)===-1) {
                     await interaction.editReply({
                         embeds: [
-                            new MessageEmbed()
+                            new EmbedBuilder()
                                 .setTimestamp()
                                 .setAuthor({
                                     name: interaction.user.username,
-                                    iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                                    iconURL: interaction.user.displayAvatarURL({ size: 1024})
                                 })
-                                .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                                .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                                 .setTitle('⛔️ Error')
                                 .setColor('#ff0000')
                                 .setDescription(`Your input ${timeInputed} is not a proper time. Please input a proper time next time.\n**Example of time:** 5h (This stands for 5 hours)\n\n__**Time possible:**\n1. Second (s)\n2.Minute (m)\n3. Hour (h)\n4. Day (d)\n5. Week (w)\n6. Year (y)`)
@@ -463,22 +487,22 @@ const discount: Command = {
                 const roleDis = Object.fromEntries((guildSettings.disRole).entries());
 
                 const embeds = [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setTimestamp()
                         .setAuthor({
                             name: interaction.user.username,
-                            iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                            iconURL: interaction.user.displayAvatarURL({ size: 1024})
                         })
-                        .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                        .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                         .setColor('#00ffff')
                         .setTitle('Role Discount'),
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setTimestamp()
                         .setAuthor({
                             name: interaction.user.username,
-                            iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                            iconURL: interaction.user.displayAvatarURL({ size: 1024})
                         })
-                        .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                        .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                         .setColor('#00ffff')
                         .setTitle('Order Discount')
                 ];
@@ -505,13 +529,13 @@ const discount: Command = {
             default: {
                 await interaction.reply({
                     embeds: [
-                        new MessageEmbed()
+                        new EmbedBuilder()
                             .setTimestamp()
                             .setAuthor({
                                 name: interaction.user.username,
-                                iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                                iconURL: interaction.user.displayAvatarURL({ size: 1024})
                             })
-                            .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                            .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                             .setTitle('⛔️ Error')
                             .setColor('#ff0000')
                             .setDescription('This subcommand was not implemented yet. Please wait for it to be implemented. If you think this is a mistake please report it to the support server.')

@@ -1,9 +1,9 @@
 import { 
-    MessageActionRow, 
-    TextInputComponent 
+    ActionRowBuilder, 
+    TextInputBuilder
 } from "discord.js";
 
-export class ModalActionRow extends MessageActionRow<TextInputComponent> {
+export class ModalActionRow extends ActionRowBuilder<TextInputBuilder> {
     constructor() {
         super();
     };

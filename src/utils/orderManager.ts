@@ -2,12 +2,14 @@ import {
     ButtonInteraction, 
     GuildMemberRoleManager, 
     Message, 
-    MessageActionRow, 
-    MessageButton, 
-    MessageEmbed, 
+    ActionRowBuilder, 
+    ButtonBuilder, 
+    EmbedBuilder, 
     NewsChannel, 
     TextChannel, 
-    User 
+    User,
+    ButtonStyle,
+    ComponentType,
 } from 'discord.js';
 import { 
     CustomCommandInteraction 
@@ -39,17 +41,25 @@ class OrderManager {
         this.farmer = null;
     }
 
-    public errorEmbed(message: string): MessageEmbed {
-        const embed = new MessageEmbed()
+    setCustomer(user: User) {
+        this.customer = user;
+    }
+
+    setFarmer(user: User) {
+        this.farmer = user;
+    }
+
+    public errorEmbed(message: string): EmbedBuilder {
+        const embed = new EmbedBuilder()
             .setColor('#ff0000')
             .setTitle('⛔️ Error')
             .setAuthor({
                 name: this.interaction.user.username,
-                iconURL: this.interaction.user.displayAvatarURL({ dynamic: true, size: 1024 })
+                iconURL: this.interaction.user.displayAvatarURL({ size: 1024 })
             })
             .setDescription(message)
             .setTimestamp()
-            .setThumbnail(this.interaction.client.user?.displayAvatarURL({ dynamic: true, size: 1024 }) || '')
+            .setThumbnail(this.interaction.client.user?.displayAvatarURL({ size: 1024 }) || '')
 
         return embed;
     }
@@ -76,9 +86,9 @@ class OrderManager {
         });
     }
 
-    public async checkOrderPlacedEmbeds(): Promise<MessageEmbed[]> {
+    public async checkOrderPlacedEmbeds(): Promise<EmbedBuilder[]> {
         const orders = await this.getOrderByCustomer();
-        const embeds: MessageEmbed[] = [];
+        const embeds: EmbedBuilder[] = [];
         for (const order of orders) {
             this.order = order;
             const embed = await this.completedOrderEmbed();
@@ -100,7 +110,7 @@ class OrderManager {
             }
         }
 
-        if (Date.now() <= (settings.disServer.get('next') as Number)) discount += (settings.disServer.get('discount') as number);
+        if (Date.now() <= (settings.disServer.get('next') as number)) discount += (settings.disServer.get('discount') as number);
 
         return discount;
     }
@@ -118,7 +128,7 @@ class OrderManager {
 
     private async getCustomer(): Promise<void>{
         if (!this.order) return;
-        this.customer = await this.interaction.client.users.fetch(this.order.customerid).then((value: User) => value).catch(() => null);
+        this.customer = this.interaction.client.users.cache.get(this.order.customerid) || await this.interaction.client.users.fetch(this.order.customerid).then((value: User) => value).catch(() => null);
     }
 
     private async getFarmer(): Promise<void> {
@@ -128,7 +138,7 @@ class OrderManager {
         } catch (_) {}
     }
 
-    public async completedOrderEmbed(): Promise<MessageEmbed> {
+    public async completedOrderEmbed(): Promise<EmbedBuilder> {
         if (!this.order) return this.errorEmbed('Order was not created properly. Please create a new order')
 
         await this.getFarmer();
@@ -160,8 +170,8 @@ class OrderManager {
             }
         )
         embed.setFooter({
-            text: this.farmer?.username || '',
-            iconURL: this.farmer?.displayAvatarURL() || ''
+            text: this.farmer?.tag || 'No Farmer',
+            iconURL: this.farmer?.displayAvatarURL({ size: 1024 }) || undefined
         })
 
         return embed;
@@ -175,11 +185,11 @@ class OrderManager {
         amount: number,
         discount: number
         soulEmoji: string
-    }): Promise<MessageEmbed> {
+    }): Promise<EmbedBuilder> {
 
-        if (!this.customer) await this.getCustomer();
+        if (this.customer==null) await this.getCustomer();
         
-        const embed = new MessageEmbed()
+        const embed = new EmbedBuilder()
                     .addFields(
                         {
                             name: 'Order Summery: ' + orderChecker.soulEmoji,
@@ -234,17 +244,17 @@ class OrderManager {
         await this.interaction.editReply({
             embeds: [embed],
             components: [
-                new MessageActionRow()
+                new ActionRowBuilder<ButtonBuilder>()
                     .addComponents(
-                        new MessageButton()
+                        new ButtonBuilder()
                             .setLabel("Confirm")
                             .setEmoji('✅')
-                            .setStyle('SUCCESS')
+                            .setStyle(ButtonStyle.Success)
                             .setCustomId('confirm'),
-                        new MessageButton()
+                        new ButtonBuilder()
                             .setLabel("Cancel")
                             .setEmoji('❌')
-                            .setStyle('DANGER')
+                            .setStyle(ButtonStyle.Danger)
                             .setCustomId('cancel')
                     )
             ]
@@ -256,7 +266,7 @@ class OrderManager {
             return (interaction.customId === 'confirm' || interaction.customId === 'cancel') && interaction.user.id === this.interaction.user.id;
         }
 
-        const collector = message.createMessageComponentCollector({ filter, time: 30000, componentType: 'BUTTON', max: 1 });
+        const collector = message.createMessageComponentCollector({ filter, time: 30000, componentType: ComponentType.Button, max: 1 });
 
         collector.on('collect', async (confirmInteraction: ButtonInteraction) => {
             switch (confirmInteraction.customId) {
@@ -291,7 +301,7 @@ class OrderManager {
                         })
                         return;
                     }
-                    await this.sendMessages(pending, settings.vacant==='0'?null:`<@&${settings.vacant}> a new order has arrived.`, 'pendingid');
+                    await this.sendMessages(pending, settings.vacant==='0'?undefined:`<@&${settings.vacant}> a new order has arrived.`, 'pendingid');
 
                     break;
                 }
@@ -331,7 +341,7 @@ class OrderManager {
         });
     }
 
-    public async sendMessages(channel: TextChannel | NewsChannel, content: string | null = null, orderUpdater: keyof OrdersType | null = null): Promise<void> {
+    public async sendMessages(channel: TextChannel | NewsChannel, content: string | undefined = undefined, orderUpdater: keyof OrdersType | null = null): Promise<void> {
         if (!this.order) {
             this.interaction.followUp({
                 embeds: [
@@ -341,7 +351,7 @@ class OrderManager {
             })
             return;
         };
-        if (channel.permissionsFor(this.interaction.client.user!)?.has('SEND_MESSAGES') === false) {
+        if (channel.permissionsFor(this.interaction.client.user!)?.has('SendMessages') === false) {
             this.interaction.followUp({
                 embeds: [
                     this.errorEmbed('I do not have permission to send messages in this channel.')
@@ -369,7 +379,7 @@ class OrderManager {
 
     }
 
-    private async sendDMMessage(content: string | null = null , embed: MessageEmbed, user: User): Promise<void> {
+    private async sendDMMessage(content: string | undefined = undefined , embed: EmbedBuilder, user: User): Promise<void> {
         if (!user) return;
 
         await user.send({
@@ -378,7 +388,7 @@ class OrderManager {
         }).catch(() => null);
     }
 
-    private async notifyCustomer(content: string | null = null, embed: MessageEmbed): Promise<User | null> {
+    private async notifyCustomer(content: string | undefined = undefined, embed: EmbedBuilder): Promise<User | null> {
         if (!this.order) return null;
 
         const customer = await this.interaction.client.users.fetch(this.order.customerid);
@@ -456,7 +466,7 @@ class OrderManager {
 
         const statusChannel = await this.interaction.client.channels.fetch(this.order.status) as TextChannel | NewsChannel;
 
-        if (statusChannel.permissionsFor(this.interaction.client.user!)?.has('SEND_MESSAGES') === false && statusChannel!==null) {
+        if (statusChannel.permissionsFor(this.interaction.client.user!)?.has('SendMessages') === false && statusChannel!==null) {
             this.interaction.followUp({
                 embeds: [
                     this.errorEmbed('I do not have permission to send messages in this channel.')
@@ -491,7 +501,7 @@ class OrderManager {
 
         embed.setTitle('✅ Order Accepted!!!');
 
-        await this.notifyCustomer(null, embed);
+        await this.notifyCustomer(undefined, embed);
 
         return accepted;
     }

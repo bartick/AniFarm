@@ -1,4 +1,4 @@
-import { GuildMember, GuildMemberRoleManager, Message, MessageEmbed, NewsChannel, TextChannel } from "discord.js";
+import { GuildMember, GuildMemberRoleManager, Message, EmbedBuilder, NewsChannel, TextChannel } from "discord.js";
 import { ButtonCommand, CustomButtonInteraction } from "../interfaces";
 import { mongodb, noOrderForFarmer } from "../utils";
 import { OrdersType } from "../schema";
@@ -12,19 +12,17 @@ const acceptOrder: ButtonCommand = {
         if(await noOrderForFarmer(interaction.user.id)) {
             await interaction.followUp({
                 embeds: [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setColor('#ff0000')
                         .setTitle('⛔️ Error')
                         .setDescription('You are already farming. Please use this command if you are not farming and want to accpet a new order.')
                         .setTimestamp()
                         .setThumbnail(interaction.client.user?.displayAvatarURL({
-                            dynamic: true,
                             size: 1024,
                         }) || '')
                         .setAuthor({
                             name: interaction.user.username,
                             iconURL: interaction.user.displayAvatarURL({
-                                dynamic: true,
                                 size: 1024,
                             }),
                         }),
@@ -43,7 +41,7 @@ const acceptOrder: ButtonCommand = {
         if (!order) {
             await interaction.followUp({
                 embeds: [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setColor('#ff0000')
                         .setTitle('⛔️ Error')
                         .setDescription('This order is no longer available.')
@@ -51,11 +49,10 @@ const acceptOrder: ButtonCommand = {
                         .setAuthor({
                             name: interaction.user.username,
                             iconURL: interaction.user.displayAvatarURL({
-                                dynamic: true,
                                 size: 1024,
                             })
                         })
-                        .setThumbnail(interaction.client.user?.displayAvatarURL({ dynamic: true, size: 1024 }) || '')
+                        .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024 }) || '')
                 ],
                 ephemeral: true
             });
@@ -65,7 +62,7 @@ const acceptOrder: ButtonCommand = {
         if (!(interaction.member?.roles as GuildMemberRoleManager).cache.has(order.farmer)) {
             interaction.followUp({
                 embeds: [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setColor('#ff0000')
                         .setTitle('⛔️ Error')
                         .setDescription('You are not a farmer in this server. Thus you do not qualify to accept this order.')
@@ -73,11 +70,10 @@ const acceptOrder: ButtonCommand = {
                         .setAuthor({
                             name: interaction.user.username,
                             iconURL: interaction.user.displayAvatarURL({
-                                dynamic: true,
                                 size: 1024,
                             })
                         })
-                        .setThumbnail(interaction.client.user?.displayAvatarURL({ dynamic: true, size: 1024 }) || '')
+                        .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024 }) || '')
                 ]
             });
             return;
@@ -86,7 +82,7 @@ const acceptOrder: ButtonCommand = {
         if (order.farmerid!=="0") {
             interaction.followUp({
                 embeds: [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setColor('#ff0000')
                         .setTitle('⛔️ Error')
                         .setDescription('This order is already claimed by someone else.')
@@ -94,11 +90,10 @@ const acceptOrder: ButtonCommand = {
                         .setAuthor({
                             name: interaction.user.username,
                             iconURL: interaction.user.displayAvatarURL({
-                                dynamic: true,
                                 size: 1024,
                             })
                         })
-                        .setThumbnail(interaction.client.user?.displayAvatarURL({ dynamic: true, size: 1024 }) || '')
+                        .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024 }) || '')
                 ]
             });
             return;
@@ -108,7 +103,7 @@ const acceptOrder: ButtonCommand = {
         if (rateLimit.indexOf(`${order.orderid}`)>=0) {
             await interaction.followUp({
                 embeds: [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setColor('#ff0000')
                         .setTitle('⛔️ Rate Limited')
                         .setDescription('Someone already trying to accept this order. Please wait for them to finish.')
@@ -116,11 +111,10 @@ const acceptOrder: ButtonCommand = {
                         .setAuthor({
                             name: interaction.user.username,
                             iconURL: interaction.user.displayAvatarURL({
-                                dynamic: true,
                                 size: 1024,
                             })
                         })
-                        .setThumbnail(interaction.client.user?.displayAvatarURL({ dynamic: true, size: 1024 }) || '')
+                        .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024 }) || '')
 
                 ],
                 ephemeral: true
@@ -131,7 +125,7 @@ const acceptOrder: ButtonCommand = {
         if (!statusChannel) {
             await interaction.followUp({
                 embeds: [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setColor('#ff0000')
                         .setTitle('⛔️ Error')
                         .setDescription('The status channel for this order is no longer available. Please contact the server owner to fix it.')
@@ -139,11 +133,10 @@ const acceptOrder: ButtonCommand = {
                         .setAuthor({
                             name: interaction.user.username,
                             iconURL: interaction.user.displayAvatarURL({
-                                dynamic: true,
                                 size: 1024,
                             })
                         })
-                        .setThumbnail(interaction.client.user?.displayAvatarURL({ dynamic: true, size: 1024 }) || '')
+                        .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024 }) || '')
                 ],
                 ephemeral: true
             });
@@ -153,7 +146,7 @@ const acceptOrder: ButtonCommand = {
         if (!customer) {
             await interaction.followUp({
                 embeds: [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setColor('#ff0000')
                         .setTitle('⛔️ Error')
                         .setDescription('The customer for this order is no longer available. Please contact the server owner to fix it. If you think this is a mistake please contact the developer.')
@@ -161,22 +154,20 @@ const acceptOrder: ButtonCommand = {
                         .setAuthor({
                             name: interaction.user.username,
                             iconURL: interaction.user.displayAvatarURL({
-                                dynamic: true,
                                 size: 1024,
                             })
                         })
-                        .setThumbnail(interaction.client.user?.displayAvatarURL({ dynamic: true, size: 1024 }) || '')
+                        .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024 }) || '')
                 ],
                 ephemeral: true
             });
             return;
         }
-        const acceptedOrder: MessageEmbed = new MessageEmbed()
+        const acceptedOrder: EmbedBuilder = new EmbedBuilder()
             .setColor('#00FFFF')
             .setAuthor({
                 name: customer.user.username,
                 iconURL: customer.user.displayAvatarURL({
-                    dynamic: true,
                     size: 1024,
                 })
             })
@@ -202,7 +193,6 @@ const acceptOrder: ButtonCommand = {
             .setFooter({
                 text: `${interaction.user.username} • Order Id ${order.orderid}`,
                 iconURL: interaction.user.displayAvatarURL({
-                    dynamic: true,
                     size: 1024,
                 })
             })
@@ -216,7 +206,7 @@ const acceptOrder: ButtonCommand = {
         } catch(_: any) {
             await interaction.followUp({
                 embeds: [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setColor('#ff0000')
                         .setTitle('⛔️ Error')
                         .setDescription('The status channel for this order is no longer available. Please contact the server owner to fix it.')
@@ -224,11 +214,10 @@ const acceptOrder: ButtonCommand = {
                         .setAuthor({
                             name: interaction.user.username,
                             iconURL: interaction.user.displayAvatarURL({
-                                dynamic: true,
                                 size: 1024,
                             })
                         })
-                        .setThumbnail(interaction.client.user?.displayAvatarURL({ dynamic: true, size: 1024 }) || '')
+                        .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024 }) || '')
                 ],
                 ephemeral: true
             });

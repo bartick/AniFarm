@@ -1,12 +1,11 @@
 import { SlashCommandBuilder } from '@discordjs/builders';
-import { CommandInteraction } from 'discord.js';
-import { Command } from './../interfaces';
+import { Command, CustomCommandInteraction } from './../interfaces';
 
 const ping: Command = {
     data: new SlashCommandBuilder()
         .setName('ping')
         .setDescription('Shows Bot Latency 🏓'),
-    async execute(interaction: CommandInteraction) {
+    async execute(interaction: CustomCommandInteraction) {
         await interaction.reply(`🏓 WS: ${"`"}${interaction.client.ws.ping}${"`"} ms`);
     },
 };

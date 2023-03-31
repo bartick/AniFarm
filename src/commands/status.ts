@@ -3,7 +3,7 @@ import {
 } from '@discordjs/builders';
 import {
     GuildMember,
-    MessageEmbed,
+    EmbedBuilder,
 } from 'discord.js';
 import {
     Command,
@@ -22,21 +22,28 @@ const status: Command = {
         .addStringOption( option => 
             option.setName('name')
             .setDescription('Name of the role')
-            .addChoice('vacant', 'vacant')
-            .addChoice('occupied', 'occupied')
-            .addChoice('unavailable', 'unavailable')
+            .addChoices({
+                name: 'vacant',
+                value: 'vacant'
+            }, {
+                name: 'occupied',
+                value: 'occupied'
+            }, {
+                name: 'unavailable',
+                value: 'unavailable'
+            })
             .setRequired(true)
         ),
     execute: async (interaction: CustomCommandInteraction) => {
-        if(!interaction.guild?.me?.permissions.has('MANAGE_ROLES') && !!interaction.guild?.me?.permissions.has('ADMINISTRATOR')) {
+        if(!interaction.guild?.members.me?.permissions.has('ManageRoles') && !!interaction.guild?.members.me?.permissions.has('Administrator')) {
             await interaction.editReply({
                 embeds: [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setColor('#ff0000')
-                        .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                        .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                         .setAuthor({
                             name: interaction.user.username,
-                            iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})  
+                            iconURL: interaction.user.displayAvatarURL({ size: 1024})  
                         })
                         .setTimestamp()
                         .setTitle('⛔️ Error')
@@ -54,12 +61,12 @@ const status: Command = {
         if (guildSettings===null || guildSettings.farmer==='0') {
             await interaction.editReply({
                 embeds: [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setColor('#ff0000')
-                        .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                        .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                         .setAuthor({
                             name: interaction.user.username, 
-                            iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                            iconURL: interaction.user.displayAvatarURL({ size: 1024})
                         })
                         .setTimestamp()
                         .setTitle('⛔️ Error')
@@ -74,12 +81,12 @@ const status: Command = {
         if (!(author.roles.cache.has(guildSettings.farmer))) {
             await interaction.editReply({
                 embeds: [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setColor('#ff0000')
-                        .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                        .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                         .setAuthor({
                             name: interaction.user.username, 
-                            iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                            iconURL: interaction.user.displayAvatarURL({ size: 1024})
                         })
                         .setTimestamp()
                         .setTitle('⛔️ Error')
@@ -92,12 +99,12 @@ const status: Command = {
         if (guildSettings[name]==='0') {
             await interaction.editReply({
                 embeds: [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setColor('#ff0000')
-                        .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                        .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                         .setAuthor({
                             name: interaction.user.username, 
-                            iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                            iconURL: interaction.user.displayAvatarURL({ size: 1024})
                         })
                         .setTimestamp()
                         .setTitle('⛔️ Error')
@@ -111,12 +118,12 @@ const status: Command = {
         if(!role) {
             await interaction.editReply({
                 embeds: [
-                    new MessageEmbed()
+                    new EmbedBuilder()
                         .setColor('#ff0000')
-                        .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                        .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                         .setAuthor({
                             name: interaction.user.username, 
-                            iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                            iconURL: interaction.user.displayAvatarURL({ size: 1024})
                         })
                         .setTimestamp()
                         .setTitle('⛔️ Error')
@@ -161,12 +168,12 @@ const status: Command = {
         
         await interaction.editReply({
             embeds: [
-                new MessageEmbed()
+                new EmbedBuilder()
                 .setColor('#00ff00')
-                .setThumbnail(interaction.client.user?.displayAvatarURL({dynamic: true, size: 1024}) || '')
+                .setThumbnail(interaction.client.user?.displayAvatarURL({ size: 1024}) || '')
                 .setAuthor({
                     name: interaction.user.username, 
-                    iconURL: interaction.user.displayAvatarURL({dynamic: true, size: 1024})
+                    iconURL: interaction.user.displayAvatarURL({ size: 1024})
                 })
                 .setTimestamp()
                 .setTitle('Role Effected')
