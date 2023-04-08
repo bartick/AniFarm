@@ -9,7 +9,8 @@ import {
     EmbedBuilder,
     ModalBuilder,
     TextInputBuilder,
-    TextInputStyle
+    TextInputStyle,
+    ChannelType
 } from 'discord.js';
 import {
     Command, 
@@ -223,7 +224,7 @@ const soulSettings: Command = {
                 };
 
                 for (const key in temp) {
-                    if(temp[key]?.type==='GUILD_TEXT' || temp[key]?.type==='GUILD_NEWS') {
+                    if(temp[key]?.type===ChannelType.GuildText || temp[key]?.type===ChannelType.GuildAnnouncement) {
                         subSettings[key] = temp[key].id as string;
                         embed.addFields(
                             {
