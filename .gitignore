@@ -1,6 +1,5 @@
 /node_modules/
 /prod/
 .env
-*-lock.json
 .vscode
 .DS_Store
