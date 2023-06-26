@@ -12,6 +12,7 @@ import {
     ComponentType,
 } from 'discord.js';
 import { 
+    CustomButtonInteraction,
     CustomCommandInteraction 
 } from '../interfaces';
 import { 
@@ -30,11 +31,11 @@ const Profile = profiledb.model('anifarm');
 class OrderManager {
 
     private order: OrdersType | null;
-    private interaction: CustomCommandInteraction;
+    private interaction: CustomCommandInteraction | CustomButtonInteraction;
     private customer: User | null;
     private farmer: User | null;
 
-    constructor(interaction: CustomCommandInteraction) {
+    constructor(interaction: CustomCommandInteraction | CustomButtonInteraction) {
         this.interaction = interaction;
         this.order = null;
         this.customer = null;
@@ -64,10 +65,33 @@ class OrderManager {
         return embed;
     }
 
+    private orderAcceptButton(): ActionRowBuilder<ButtonBuilder> {
+        const button: ActionRowBuilder<ButtonBuilder> = 
+                        new ActionRowBuilder<ButtonBuilder>()
+                            .addComponents(
+                                new ButtonBuilder()
+                                    .setCustomId('ORDER_PICKUP')
+                                    .setDisabled(false)
+                                    .setEmoji('✅')
+                                    .setLabel('Accept this order')
+                                    .setStyle(ButtonStyle.Success)
+                            )
+        
+        return button;
+    }
+
     public async getOrder(orderId: number): Promise<boolean> {
         if (this.order) return true;
         this.order = await Orders.findOne({
             orderid: orderId
+        });
+        return this.order ? true : false;
+    }
+
+    public async getOrderByPeningId(pendingId: string): Promise<boolean> {
+        if (this.order) return true;
+        this.order = await Orders.findOne({
+            pendingid: pendingId
         });
         return this.order ? true : false;
     }
@@ -148,12 +172,12 @@ class OrderManager {
         embed.setFields(
             {
                 name: 'Farmer:',
-                value: this.farmer?.tag || 'No Farmer',
+                value: this.farmer?.username || 'No Farmer',
                 inline: true
             },
             {
                 name: 'Customer:',
-                value: this.customer?.tag || 'Error',
+                value: this.customer?.username || 'Error',
                 inline: true
             },
             {
@@ -170,7 +194,7 @@ class OrderManager {
             }
         )
         embed.setFooter({
-            text: this.farmer?.tag || 'No Farmer',
+            text: this.farmer?.username || 'No Farmer',
             iconURL: this.farmer?.displayAvatarURL({ size: 1024 }) || undefined
         })
 
@@ -361,10 +385,17 @@ class OrderManager {
         };
 
         const embed = await this.completedOrderEmbed();
+        const components: ActionRowBuilder<ButtonBuilder>[] = [];
+        if (orderUpdater==="pendingid") {
+            components.push(
+                this.orderAcceptButton()
+            )
+        }
 
         const message = await channel.send({
             content: content,
-            embeds: [embed]
+            embeds: [embed],
+            components: components
         }).then(msg => msg);
 
         if(orderUpdater) {
@@ -524,10 +555,10 @@ class OrderManager {
             await statusMessage.delete();
         } catch(_) {}
 
-        const customer = await this.notifyCustomer(`Please collect your order from ${this.interaction.user.tag}(**ID:** ${this.interaction.user.id})`, embed);
+        const customer = await this.notifyCustomer(`Please collect your order from ${this.interaction.user.username}(**ID:** ${this.interaction.user.id})`, embed);
 
         if(customer) {
-            await this.sendDMMessage(`You have completed your order. Trade with ${customer.tag}(**ID:** ${customer.id})`, embed, this.interaction.user);
+            await this.sendDMMessage(`You have completed your order. Trade with ${customer.username}(**ID:** ${customer.id})`, embed, this.interaction.user);
         }
 
         await this.interaction.editReply({
